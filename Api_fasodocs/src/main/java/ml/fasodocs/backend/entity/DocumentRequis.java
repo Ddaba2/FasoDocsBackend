@@ -20,6 +20,9 @@ public class DocumentRequis {
     private Long id;
 
     @Column(nullable = false, length = 200)
+    private String nom;
+
+    @Column(nullable = false, length = 500)
     private String description;
 
     @Column(name = "est_obligatoire")

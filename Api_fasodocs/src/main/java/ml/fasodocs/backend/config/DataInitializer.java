@@ -242,6 +242,8 @@ public class DataInitializer implements CommandLineRunner {
         categorie.setTitre(titre);
         categorie.setDescription(description);
         categorie.setIconeUrl(icone);
+        // Définir le nom de catégorie basé sur le titre
+        categorie.setNomCategorie(CategorieEnum.AUTRES_DOMAINES); // Valeur par défaut
         return categorieRepository.save(categorie);
     }
     

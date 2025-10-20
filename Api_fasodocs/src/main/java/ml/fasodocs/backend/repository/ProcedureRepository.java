@@ -38,10 +38,10 @@ public interface ProcedureRepository extends JpaRepository<Procedure, Long> {
     List<Procedure> findAllAvecDocuments();
 
     /**
-     * Recherche toutes les procédures avec leurs lieux de traitement
+     * Recherche toutes les procédures avec leurs centres de traitement
      */
-    @Query("SELECT DISTINCT p FROM Procedure p LEFT JOIN FETCH p.lieux")
-    List<Procedure> findAllAvecLieux();
+    @Query("SELECT DISTINCT p FROM Procedure p LEFT JOIN FETCH p.centre")
+    List<Procedure> findAllAvecCentres();
 
     /**
      * Recherche des procédures récemment modifiées
