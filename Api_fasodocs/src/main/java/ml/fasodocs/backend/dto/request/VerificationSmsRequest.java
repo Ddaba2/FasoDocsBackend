@@ -15,6 +15,5 @@ public class VerificationSmsRequest {
     @NotBlank(message = "Le code est obligatoire")
     private String code;
 
-    private String tokenFcm; // Token pour les notifications push
 }
 

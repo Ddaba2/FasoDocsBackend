@@ -58,8 +58,6 @@ public class Citoyen {
     @Column(name = "telephone_verifie")
     private Boolean telephoneVerifie = false;
 
-    @Column(name = "token_fcm")
-    private String tokenFcm; // Token Firebase Cloud Messaging pour les notifications push
 
     @Column(name = "langue_preferee", length = 2)
     private String languePreferee = "fr"; // fr ou bm (bambara)

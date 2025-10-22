@@ -22,7 +22,7 @@ public class DocumentRequis {
     @Column(nullable = false, length = 200)
     private String nom;
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "est_obligatoire")

@@ -24,7 +24,7 @@ public class Etape {
     @Column(nullable = false, length = 200)
     private String nom;
 
-    @Column(nullable = false, length = 200)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @Column(nullable = false)

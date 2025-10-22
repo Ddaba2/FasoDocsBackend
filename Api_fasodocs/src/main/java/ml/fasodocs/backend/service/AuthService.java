@@ -1,6 +1,7 @@
 package ml.fasodocs.backend.service;
 
 import ml.fasodocs.backend.dto.request.ConnexionRequest;
+import ml.fasodocs.backend.dto.request.ConnexionTelephoneRequest;
 import ml.fasodocs.backend.dto.request.InscriptionRequest;
 import ml.fasodocs.backend.dto.request.MiseAJourProfilRequest;
 import ml.fasodocs.backend.dto.request.VerificationSmsRequest;
@@ -50,7 +51,7 @@ public class AuthService {
     private JwtUtils jwtUtils;
     
     @Autowired
-    private SmsService smsService;
+    private TwilioSmsService twilioSmsService;
 
     /**
      * Inscription d'un nouveau citoyen
@@ -97,7 +98,40 @@ public class AuthService {
     }
 
     /**
-     * Connexion d'un citoyen - Envoie un code SMS
+     * Connexion par téléphone uniquement - Envoie un code SMS
+     * SÉCURITÉ : Vérifie d'abord que le numéro existe en base de données
+     */
+    public MessageResponse connecterParTelephone(ConnexionTelephoneRequest request) {
+        // 1. Vérifier si le téléphone existe dans la base de données
+        Citoyen citoyen = citoyenRepository.findByTelephone(request.getTelephone())
+                .orElseThrow(() -> new RuntimeException("Numéro de téléphone non enregistré. Veuillez vous inscrire d'abord."));
+
+        // 2. Vérifier si le compte est actif
+        if (!citoyen.getEstActif()) {
+            throw new RuntimeException("Votre compte a été désactivé. Veuillez contacter le support.");
+        }
+
+        // 3. Générer un code SMS à 6 chiffres
+        String codeSms = twilioSmsService.genererCodeVerification();
+        citoyen.setCodeSms(codeSms);
+        citoyen.setCodeSmsExpiration(java.time.LocalDateTime.now().plusMinutes(5));
+        citoyenRepository.save(citoyen);
+
+        // 4. Envoyer le SMS UNIQUEMENT si toutes les vérifications sont OK
+        try {
+            twilioSmsService.envoyerSmsConnexion(citoyen.getTelephone(), codeSms);
+            logger.info("Code SMS envoyé avec succès pour: {}", citoyen.getTelephone());
+        } catch (Exception e) {
+            logger.error("Erreur lors de l'envoi du SMS à {}: {}", citoyen.getTelephone(), e.getMessage());
+            throw new RuntimeException("Erreur lors de l'envoi du SMS. Veuillez réessayer.");
+        }
+
+        return MessageResponse.success("Un code de vérification a été envoyé au " + 
+                                      request.getTelephone().substring(0, 7) + "***");
+    }
+
+    /**
+     * Connexion d'un citoyen - Envoie un code SMS (ancienne méthode)
      */
     public MessageResponse connecterCitoyen(ConnexionRequest request) {
         // Authentifier l'utilisateur
@@ -110,13 +144,13 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("Citoyen non trouvé"));
 
         // Générer un code SMS
-        String codeSms = smsService.genererCodeVerification();
+        String codeSms = twilioSmsService.genererCodeVerification();
         citoyen.setCodeSms(codeSms);
         citoyen.setCodeSmsExpiration(java.time.LocalDateTime.now().plusMinutes(5));
         citoyenRepository.save(citoyen);
 
         // Envoyer le SMS
-        smsService.envoyerSmsConnexion(citoyen.getTelephone(), codeSms);
+        twilioSmsService.envoyerSmsConnexion(citoyen.getTelephone(), codeSms);
 
         logger.info("Code SMS envoyé pour la connexion: {}", citoyen.getTelephone());
 
@@ -127,17 +161,37 @@ public class AuthService {
      * Vérification du code SMS et connexion
      */
     public JwtResponse verifierCodeSms(VerificationSmsRequest request) {
+        logger.info("Tentative de vérification SMS pour: {}", request.getTelephone());
+        
         Citoyen citoyen = citoyenRepository.findByTelephone(request.getTelephone())
-                .orElseThrow(() -> new RuntimeException("Téléphone non trouvé"));
+                .orElseThrow(() -> {
+                    logger.error("Numéro de téléphone non trouvé: {}", request.getTelephone());
+                    return new RuntimeException("Numéro de téléphone non trouvé");
+                });
 
+        logger.debug("Code en BDD: {}, Code reçu: {}", citoyen.getCodeSms(), request.getCode());
+        
         // Vérifier le code SMS
-        if (citoyen.getCodeSms() == null || !citoyen.getCodeSms().equals(request.getCode())) {
-            throw new RuntimeException("Code SMS invalide");
+        if (citoyen.getCodeSms() == null) {
+            logger.error("Aucun code SMS en base pour: {}", request.getTelephone());
+            throw new RuntimeException("Aucun code SMS n'a été généré. Veuillez d'abord demander un code.");
+        }
+        
+        if (!citoyen.getCodeSms().equals(request.getCode())) {
+            logger.error("Code SMS invalide. Attendu: {}, Reçu: {}", citoyen.getCodeSms(), request.getCode());
+            throw new RuntimeException("Code SMS invalide. Vérifiez le code reçu.");
         }
 
         // Vérifier l'expiration du code
+        if (citoyen.getCodeSmsExpiration() == null) {
+            logger.error("Pas de date d'expiration pour le code SMS");
+            throw new RuntimeException("Erreur interne: code SMS sans expiration");
+        }
+        
         if (citoyen.getCodeSmsExpiration().isBefore(java.time.LocalDateTime.now())) {
-            throw new RuntimeException("Code SMS expiré");
+            logger.error("Code SMS expiré. Expiration: {}, Maintenant: {}", 
+                        citoyen.getCodeSmsExpiration(), java.time.LocalDateTime.now());
+            throw new RuntimeException("Code SMS expiré. Veuillez demander un nouveau code.");
         }
 
         // Marquer le téléphone comme vérifié
@@ -145,18 +199,15 @@ public class AuthService {
         citoyen.setCodeSms(null);
         citoyen.setCodeSmsExpiration(null);
 
-        // Mettre à jour le token FCM si fourni
-        if (request.getTokenFcm() != null) {
-            citoyen.setTokenFcm(request.getTokenFcm());
-        }
-
+        // Code SMS vérifié avec succès
         citoyenRepository.save(citoyen);
 
-        // Générer le JWT
+        // Générer le JWT avec UserDetailsImpl
+        UserDetailsImpl userDetails = UserDetailsImpl.build(citoyen);
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-                citoyen.getEmail() != null ? citoyen.getEmail() : citoyen.getTelephone(),
+                userDetails,
                 null,
-                new ArrayList<>()
+                userDetails.getAuthorities()
         );
         String jwt = jwtUtils.generateJwtToken(authentication);
 
@@ -225,12 +276,10 @@ public class AuthService {
     }
 
     /**
-     * Déconnexion (supprimer le token FCM)
+     * Déconnexion
      */
     public MessageResponse deconnecter() {
         Citoyen citoyen = getProfilCitoyenConnecte();
-        citoyen.setTokenFcm(null);
-        citoyenRepository.save(citoyen);
 
         logger.info("Citoyen déconnecté: {} {}", citoyen.getNom(), citoyen.getPrenom());
 

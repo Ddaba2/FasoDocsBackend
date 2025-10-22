@@ -19,7 +19,7 @@ import java.util.List;
  */
 @Tag(name = "Procédures", description = "API pour la gestion des procédures administratives")
 @RestController
-@RequestMapping("/api/procedures")
+@RequestMapping("/procedures")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class ProcedureController {
 

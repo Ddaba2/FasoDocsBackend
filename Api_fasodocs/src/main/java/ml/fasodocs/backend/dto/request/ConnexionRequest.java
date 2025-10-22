@@ -15,5 +15,4 @@ public class ConnexionRequest {
     @NotBlank(message = "Le mot de passe est obligatoire")
     private String motDePasse;
 
-    private String tokenFcm; // Token pour les notifications push
 }

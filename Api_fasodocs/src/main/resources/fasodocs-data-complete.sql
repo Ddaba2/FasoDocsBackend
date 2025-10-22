@@ -1087,7 +1087,7 @@ INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) V
 ('Attestation d''imposition ou de non imposition', 'Attestation d''imposition ou de non imposition', true, 
  (SELECT id FROM procedures WHERE nom = 'Nationalité malienne par naturalisation' LIMIT 1)),
 
-('Acte de mariage et certificat de nationalité du conjoint', 'Le cas échéant, l''acte de mariage et le certificat de nationalité du conjoint', 
+('Acte de mariage et certificat de nationalité du conjoint', 'Le cas échéant, l''acte de mariage et le certificat de nationalité du conjoint', false,
  (SELECT id FROM procedures WHERE nom = 'Nationalité malienne par naturalisation' LIMIT 1));
 
 -- ============================================
@@ -1187,7 +1187,7 @@ INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) V
 ('Référence du bordereau d''envoi de la Douane', 'Référence du bordereau d''envoi de la Douane', true, 
  (SELECT id FROM procedures WHERE nom = 'Carte grise (obtention)' LIMIT 1)),
 
-('Procuration s''il y a un mandataire', 'Une procuration s''il y a un mandataire', 
+('Procuration s''il y a un mandataire', 'Une procuration s''il y a un mandataire', false,
  (SELECT id FROM procedures WHERE nom = 'Carte grise (obtention)' LIMIT 1));
 
 -- ============================================
@@ -1318,7 +1318,7 @@ INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) V
 ('La copie du certificat de visite technique en cours de validité', 'La copie du certificat de visite technique en cours de validité', true, 
  (SELECT id FROM procedures WHERE nom = 'Carte grise (mutation)' LIMIT 1)),
 
-('La déclaration de mise en circulation', 'La déclaration de mise en circulation', 
+('La déclaration de mise en circulation', 'La déclaration de mise en circulation', false,
  (SELECT id FROM procedures WHERE nom = 'Carte grise (mutation)' LIMIT 1));
 
 -- ============================================
@@ -1413,7 +1413,7 @@ INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) V
 ('La déclaration de mise en circulation', 'La déclaration de mise en circulation, établie par la DRTTF ou sa subdivision', true, 
  (SELECT id FROM procedures WHERE nom = 'Carte grise (renouvellement)' LIMIT 1)),
 
-('Le certificat de visite technique en cours de validité', 'Le certificat de visite technique en cours de validité', 
+('Le certificat de visite technique en cours de validité', 'Le certificat de visite technique en cours de validité', false,
  (SELECT id FROM procedures WHERE nom = 'Carte grise (renouvellement)' LIMIT 1));
 
 -- ============================================
@@ -1497,7 +1497,7 @@ INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) V
 ('Le procès verbal de constatation', 'Le procès verbal de constatation', true, 
  (SELECT id FROM procedures WHERE nom = 'Visite technique' LIMIT 1)),
 
-('L''autorisation de circuler', 'L''autorisation de circuler généralement valable pour 24 heures', 
+('L''autorisation de circuler', 'L''autorisation de circuler généralement valable pour 24 heures', false,
  (SELECT id FROM procedures WHERE nom = 'Visite technique' LIMIT 1));
 
 -- ============================================
@@ -1683,7 +1683,7 @@ INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) V
 ('La visite technique en cours de validité', 'La visite technique en cours de validité', true, 
  (SELECT id FROM procedures WHERE nom = 'Changement de couleur de plaque' LIMIT 1)),
 
-('La déclaration de mise en circulation', 'La déclaration de mise en circulation délivrée par la DRTTF ou la subdivision', 
+('La déclaration de mise en circulation', 'La déclaration de mise en circulation délivrée par la DRTTF ou la subdivision', false,
  (SELECT id FROM procedures WHERE nom = 'Changement de couleur de plaque' LIMIT 1));
 
 -- ============================================
@@ -1716,7 +1716,7 @@ WHERE nom = 'Changement de couleur de plaque';
 INSERT INTO procedures (nom, titre, delai, description, categorie_id, sous_categorie_id, date_creation) VALUES
 ('Libération conditionnelle', 'Demander une libération conditionnelle', 'En fonction de la durée des travaux de la commission pénitentiaire', 
  'La libération conditionnelle est une suspension de l''exécution d''une peine privative de liberté accompagnée d''une mesure d''aide et de contrôle, l''octroi ou le maintien de laquelle est subordonné à l''observation de certaines conditions. La matière est régie par le Code de procédure pénale. Conditions de fond : Tout condamné peut être admis au bénéfice de la libération conditionnelle, si les conditions suivantes sont remplies : avoir été condamné à titre définitif à une ou plusieurs peines privatives de liberté, avoir donné des preuves suffisantes de bonne conduite, donner des gages sérieux de réadaptation sociale. Conditions de forme : La libération conditionnelle est réservée aux condamnés ayant accompli trois mois de leur peine, si cette peine est inférieure à 6 mois et la moitié de cette peine en cas contraire. Pour les condamnés en état de récidive, le temps d''épreuve est porté à 6 mois si la peine est inférieure à 3 mois et aux deux tiers de la peine dans le cas contraire. Pour les condamnés aux travaux forcés à perpétuité le temps d''épreuve est de 15 années. En matière de drogue, la liberté conditionnelle ne peut être accordée à aucun condamné avant l''exécution des 4/5ème des quantum de la peine prononcée.',
- (SELECT id FROM categories WHERE titre = 'Documents justice' LIMIT 1),
+ (SELECT id FROM categories WHERE titre = 'Justice' LIMIT 1),
  (SELECT id FROM sous_categories WHERE titre = 'Libération conditionnelle' LIMIT 1),
  NOW());
 
@@ -1764,7 +1764,7 @@ INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) V
 ('Extrait du registre d''écrou', 'Un extrait du registre d''écrou de l''établissement dont relève le détenu.', true, 
  (SELECT id FROM procedures WHERE nom = 'Libération conditionnelle' LIMIT 1)),
 
-('Avis du chef de circonscription', 'Un avis du chef de la circonscription où le détenu entend fixer sa résidence.', 
+('Avis du chef de circonscription', 'Un avis du chef de la circonscription où le détenu entend fixer sa résidence.', false,
  (SELECT id FROM procedures WHERE nom = 'Libération conditionnelle' LIMIT 1));
 
 -- ============================================
@@ -1788,7 +1788,7 @@ WHERE nom = 'Libération conditionnelle';
 INSERT INTO procedures (nom, titre, delai, description, categorie_id, sous_categorie_id, date_creation) VALUES
 ('Déclaration de perte', 'Déclarer la perte de documents', 'Immédiat', 
  'Toute personne ayant perdu ses papiers est admis à en faire la déclarations immédiatement afin d''éviter la fraude et/ou l''usage de ceux-ci par un tiers. Comment est faite la déclaration ? Par déclaration écrite ou verbale. Qui reçoit la déclaration ? L''autorité compétente notamment le préfet, le commissariat de police, la gendarmerie à la section Voie publique ou le chef de poste de garde le jour de la déclaration dans le registre de la main courante. NB : La déclaration de certains documents tels que le titre foncier ne débouche pas sur la livraison à l''usager d''un certificat de perte.',
- (SELECT id FROM categories WHERE titre = 'Documents justice' LIMIT 1),
+ (SELECT id FROM categories WHERE titre = 'Justice' LIMIT 1),
  (SELECT id FROM sous_categories WHERE titre = 'Déclaration de perte' LIMIT 1),
  NOW());
 
@@ -1870,7 +1870,7 @@ WHERE nom = 'Déclaration de perte';
 INSERT INTO procedures (nom, titre, delai, description, categorie_id, sous_categorie_id, date_creation) VALUES
 ('Demande de libération provisoire', 'Demander une mise en liberté provisoire', '8 jours après la demande adressée au juge', 
  'La mise en liberté provisoire peut être demandée en tout état de cause par tout individu de nationalité malienne ou étrangère lorsqu''il se trouve être prévenu, inculpé ou accusé. La liberté provisoire peut être ordonnée soit par le juge d''instruction, soit sur réquisition du ministère public, soit d''office. A la condition que l''inculpé prenne l''engagement de se représenter à tous les actes de la procédure aussitôt qu''il lui sera demandé et de tenir le magistrat instructeur informé de tous ses déplacements. L''inculpé ou son avocat peuvent demander la liberté provisoire à toute période de la procédure. Toutefois, lorsque la mise en liberté n''est pas de droit, elle peut être subordonnée à l''obligation de payer un cautionnement ou de constituer des sûretés. Ceux-ci garantissent la représentation de l''inculpé, l''exécution du jugement, les frais avancés par la partie civile, les frais avancés par la partie publique et les amendes notamment.',
- (SELECT id FROM categories WHERE titre = 'Documents justice' LIMIT 1),
+ (SELECT id FROM categories WHERE titre = 'Justice' LIMIT 1),
  (SELECT id FROM sous_categories WHERE titre = 'Demande de libération provisoire' LIMIT 1),
  NOW());
 
@@ -1946,7 +1946,7 @@ INSERT INTO lois_articles (description, consulter_article, procedure_id) VALUES
 INSERT INTO procedures (nom, titre, delai, description, categorie_id, sous_categorie_id, date_creation) VALUES
 ('Autorisation d''achat d''armes et munitions', 'Obtenir une autorisation d''achat d''armes et munitions', 'Plusieurs semaines', 
  'L''autorisation d''achat d''armes et de munitions permet à son détenteur d''acheter ou d''importer une arme ou des munitions pour la chasse ou pour sa propre sécurité. Le port de chaque arme nécessite une autorisation distincte. Toute personne intéressée âgée de 21 ans au moins peut demander l''autorisation. En cas de perte ou de vol, il faut formuler une nouvelle demande ou demander un duplicata en fournissant les mêmes documents que pour la demande initiale.',
- (SELECT id FROM categories WHERE titre = 'Documents justice' LIMIT 1),
+ (SELECT id FROM categories WHERE titre = 'Justice' LIMIT 1),
  (SELECT id FROM sous_categories WHERE titre = 'Autorisation d''achat d''armes et munitions' LIMIT 1),
  NOW());
 
@@ -1996,7 +1996,7 @@ INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) V
 ('Quatre photos d''identité', 'Quatre photos d''identité', true, 
  (SELECT id FROM procedures WHERE nom = 'Autorisation d''achat d''armes et munitions' LIMIT 1)),
 
-('Timbre fiscal de 750 FCFA', 'Un timbre fiscal de 750 FCFA', 
+('Timbre fiscal de 750 FCFA', 'Un timbre fiscal de 750 FCFA', false,
  (SELECT id FROM procedures WHERE nom = 'Autorisation d''achat d''armes et munitions' LIMIT 1));
 
 -- ============================================
@@ -2042,7 +2042,7 @@ WHERE nom = 'Autorisation d''achat d''armes et munitions';
 INSERT INTO procedures (nom, titre, delai, description, categorie_id, sous_categorie_id, date_creation) VALUES
 ('Demande de visite d''un prisonnier', 'Obtenir un permis de communiquer pour visiter un prisonnier', 'Variable selon l''entretien avec le juge', 
  'Le permis de communiquer est un acte par lequel le procureur ou le Juge d''Instruction autorise un citoyen à rendre visite à un prévenu ou à un inculpé à la Maison d''Arrêt. Dans la pratique, c''est aussi une technique utilisée pour observer ceux qui lui rendent visite. En principe, l''usager adresse une demande verbale au Juge (par son secrétaire) qui peut demander un entretien plus approfondi au terme duquel il délivre ou non le permis. Le permis de communiquer est gratuit et est valable pour une seule visite. Toutefois, il peut être valable pour une période, pour les parents proches du prévenu.',
- (SELECT id FROM categories WHERE titre = 'Documents justice' LIMIT 1),
+ (SELECT id FROM categories WHERE titre = 'Justice' LIMIT 1),
  (SELECT id FROM sous_categories WHERE titre = 'Demande de visite d''un prisonnier' LIMIT 1),
  NOW());
 
@@ -2118,7 +2118,7 @@ WHERE nom = 'Demande de visite d''un prisonnier';
 INSERT INTO procedures (nom, titre, delai, description, categorie_id, sous_categorie_id, date_creation) VALUES
 ('Création d''entreprise individuelle', 'Créer une entreprise individuelle au Mali', '72 heures ouvrables', 
  'Pour créer une entreprise individuelle au Mali, il faut se rendre au Guichet unique de l''Agence de Promotion des Investissements (API Mali) avec un dossier comprenant une copie de la pièce d''identité, l''extrait de l''acte de naissance, l''extrait du casier judiciaire, le certificat de nationalité et le certificat de résidence, le cas échéant. Le processus peut être finalisé en environ 72 heures. Les frais de création varient selon le type d''activité (par exemple, FCFA 8000 pour un commerce général ou FCFA 12000 pour un commerce import-export ou nécessitant un agrément). Après le traitement du dossier, vous pourrez retirer vos documents administratifs au guichet unique, notamment le Registre du Commerce et du Crédit Mobilier (RCCM) et la carte d''identification fiscale (NIF).',
- (SELECT id FROM categories WHERE titre = 'Documents commerce' LIMIT 1),
+ (SELECT id FROM categories WHERE titre = 'Création d''entreprise' LIMIT 1),
  (SELECT id FROM sous_categories WHERE titre = 'Création d''entreprise individuelle' LIMIT 1),
  NOW());
 
@@ -2167,7 +2167,7 @@ INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) V
 ('Certificat de résidence', 'Certificat de résidence (délivré par le commissariat de police)', true, 
  (SELECT id FROM procedures WHERE nom = 'Création d''entreprise individuelle' LIMIT 1)),
 
-('Copie de l''acte de mariage', 'Copie de l''acte de mariage (si applicable)', 
+('Copie de l''acte de mariage', 'Copie de l''acte de mariage (si applicable)', false,
  (SELECT id FROM procedures WHERE nom = 'Création d''entreprise individuelle' LIMIT 1));
 
 -- ============================================
@@ -2205,7 +2205,7 @@ WHERE nom = 'Création d''entreprise individuelle';
 INSERT INTO procedures (nom, titre, delai, description, categorie_id, sous_categorie_id, date_creation) VALUES
 ('Création de SARL', 'Créer une Société à Responsabilité Limitée (SARL) au Mali', '72 heures après dépôt du dossier complet', 
  'Pour créer une SARL au Mali, vous devez rédiger les statuts, déposer le capital social, constituer un dossier d''immatriculation au Guichet Unique de l''API Mali, faire la publication dans un journal d''annonces légales, puis obtenir les certificats et les immatriculations auprès de l''API. Le processus comprend la rédaction des statuts, la désignation des gérants, le dépôt du capital social minimum, la constitution du dossier d''immatriculation, la publication d''un avis de création dans un journal d''annonces légales, le dépôt du dossier complet et l''enregistrement fiscal. Les frais s''élèvent à 6,000 FCFA pour les SARL.',
- (SELECT id FROM categories WHERE titre = 'Documents commerce' LIMIT 1),
+ (SELECT id FROM categories WHERE titre = 'Création d''entreprise' LIMIT 1),
  (SELECT id FROM sous_categories WHERE titre = 'Création de SARL' LIMIT 1),
  NOW());
 
@@ -2258,7 +2258,7 @@ INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) V
 ('Déclaration de non-condamnation des gérants', 'Une déclaration de non-condamnation des gérants', true, 
  (SELECT id FROM procedures WHERE nom = 'Création de SARL' LIMIT 1)),
 
-('Copie de la pièce d''identité des gérants', 'Une copie de la pièce d''identité du ou des gérants', 
+('Copie de la pièce d''identité des gérants', 'Une copie de la pièce d''identité du ou des gérants', false,
  (SELECT id FROM procedures WHERE nom = 'Création de SARL' LIMIT 1));
 
 -- ============================================
@@ -2291,7 +2291,7 @@ WHERE nom = 'Création de SARL';
 INSERT INTO procedures (nom, titre, delai, description, categorie_id, sous_categorie_id, date_creation) VALUES
 ('Création de Société Anonyme (SA)', 'Créer une Société Anonyme (SA) au Mali', '72 heures après dépôt du dossier complet', 
  'Pour créer une Société Anonyme (SA) au Mali, vous devez passer par le Guichet Unique de l''Agence pour la Promotion des Investissements (API-Mali), en déposant les statuts notariés et le dossier de constitution. Le capital social minimum requis est de 10 millions de FCFA, divisé en actions d''une valeur nominale de 10,000 FCFA minimum. Il faut libérer au moins la moitié du capital numéraire à la création. Le processus comprend la rédaction des statuts par un notaire, la définition du capital social et des apports, la désignation des dirigeants, la publication d''un avis de création dans un journal d''annonces légales, le dépôt du dossier de constitution et l''obtention des documents officiels.',
- (SELECT id FROM categories WHERE titre = 'Documents commerce' LIMIT 1),
+ (SELECT id FROM categories WHERE titre = 'Création d''entreprise' LIMIT 1),
  (SELECT id FROM sous_categories WHERE titre = 'Création de Société Anonyme (SA)' LIMIT 1),
  NOW());
 
@@ -2341,7 +2341,7 @@ INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) V
 ('Attestation de publication JAL', 'Attestation de publication de l''avis de création dans un journal d''annonces légales', true, 
  (SELECT id FROM procedures WHERE nom = 'Création de Société Anonyme (SA)' LIMIT 1)),
 
-('Déclaration des dirigeants', 'Déclaration de non-condamnation et pièces d''identité des dirigeants de la SA', 
+('Déclaration des dirigeants', 'Déclaration de non-condamnation et pièces d''identité des dirigeants de la SA', false,
  (SELECT id FROM procedures WHERE nom = 'Création de Société Anonyme (SA)' LIMIT 1));
 
 -- ============================================
@@ -2377,7 +2377,7 @@ WHERE nom = 'Création de Société Anonyme (SA)';
 INSERT INTO procedures (nom, titre, delai, description, categorie_id, sous_categorie_id, date_creation) VALUES
 ('Création de Société par Actions Simplifiée (SAS)', 'Créer une Société par Actions Simplifiée (SAS) au Mali', '72 heures après dépôt du dossier complet', 
  'Pour créer une Société par Actions Simplifiée (SAS) au Mali, il faut suivre la procédure encadrée par l''Agence pour la Promotion des Investissements au Mali (API-Mali) via son Guichet Unique. Le Mali, en tant que membre de l''OHADA, applique l''Acte Uniforme relatif au droit des sociétés commerciales et du Groupement d''Intérêt Économique, ce qui permet la création d''une SAS ou d''une SASU (SAS à associé unique). La SAS offre une grande liberté contractuelle, notamment pour la répartition du pouvoir entre les associés. Un avantage majeur de la SAS est qu''elle ne requiert pas de capital minimum, ce qui facilite sa création. Le processus comprend la rédaction des statuts, le dépôt du capital social, l''obtention des pièces justificatives, le dépôt du dossier au Guichet Unique, l''enregistrement et immatriculation, et la publication de l''avis de constitution.',
- (SELECT id FROM categories WHERE titre = 'Documents commerce' LIMIT 1),
+ (SELECT id FROM categories WHERE titre = 'Création d''entreprise' LIMIT 1),
  (SELECT id FROM sous_categories WHERE titre = 'Création de Société par Actions Simplifiée (SAS)' LIMIT 1),
  NOW());
 
@@ -2504,27 +2504,27 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 
 INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 -- A. Statuts de la société
-('Statuts de la société', 'Statuts complets avec forme sociale (SCS), dénomination sociale (avec noms des commandités), siège social, objet social, capital social et évaluation des apports, liste des associés et répartition des parts, désignation des gérants, durée de la société, date de clôture de l''exercice', 
+('Statuts de la société', 'Statuts complets avec forme sociale (SCS), dénomination sociale (avec noms des commandités), siège social, objet social, capital social et évaluation des apports, liste des associés et répartition des parts, désignation des gérants, durée de la société, date de clôture de l''exercice', true,
  (SELECT id FROM procedures WHERE nom = 'Création de Société en Commandite Simple (SCS)' LIMIT 1)),
 
 -- B. Documents d'enregistrement
-('Statuts signés', 'Statuts signés par tous les associés', 
+('Statuts signés', 'Statuts signés par tous les associés', true,
  (SELECT id FROM procedures WHERE nom = 'Création de Société en Commandite Simple (SCS)' LIMIT 1)),
 
-('Avis de constitution publié', 'Avis de constitution publié dans le support d''annonces légales', 
+('Avis de constitution publié', 'Avis de constitution publié dans le support d''annonces légales', true,
  (SELECT id FROM procedures WHERE nom = 'Création de Société en Commandite Simple (SCS)' LIMIT 1)),
 
-('Copies des pièces d''identité des associés', 'Copies des pièces d''identité de tous les associés (commandités et commanditaires)', 
+('Copies des pièces d''identité des associés', 'Copies des pièces d''identité de tous les associés (commandités et commanditaires)', true,
  (SELECT id FROM procedures WHERE nom = 'Création de Société en Commandite Simple (SCS)' LIMIT 1)),
 
-('Justificatifs de qualité de commerçant', 'Justificatifs de qualité de commerçant pour les associés commandités', 
+('Justificatifs de qualité de commerçant', 'Justificatifs de qualité de commerçant pour les associés commandités', true,
  (SELECT id FROM procedures WHERE nom = 'Création de Société en Commandite Simple (SCS)' LIMIT 1)),
 
 -- C. Publication légale
-('Avis de constitution dans support d''annonces légales', 'Avis de constitution publié dans un support d''annonces légales du département', 
+('Avis de constitution dans support d''annonces légales', 'Avis de constitution publié dans un support d''annonces légales du département', true,
  (SELECT id FROM procedures WHERE nom = 'Création de Société en Commandite Simple (SCS)' LIMIT 1)),
 
-('Publication au Journal Officiel du Mali', 'Publication de l''annonce de constitution au Journal Officiel du Mali', 
+('Publication au Journal Officiel du Mali', 'Publication de l''annonce de constitution au Journal Officiel du Mali', true,
  (SELECT id FROM procedures WHERE nom = 'Création de Société en Commandite Simple (SCS)' LIMIT 1));
 
 -- ============================================
@@ -2588,19 +2588,19 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- ============================================
 
 INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
-('Original de la preuve de propriété', 'Le titre foncier ou l''Arrêté de Concession Définitive (ACD) de la parcelle', 
+('Original de la preuve de propriété', 'Le titre foncier ou l''Arrêté de Concession Définitive (ACD) de la parcelle', true,
  (SELECT id FROM procedures WHERE nom = 'Transfert de parcelle à usage d''habitation' LIMIT 1)),
 
-('Pièces d''identité des deux parties', 'Copies des pièces d''identité des deux parties (vendeur et acquéreur)', 
+('Pièces d''identité des deux parties', 'Copies des pièces d''identité des deux parties (vendeur et acquéreur)', true,
  (SELECT id FROM procedures WHERE nom = 'Transfert de parcelle à usage d''habitation' LIMIT 1)),
 
-('Demande écrite de transfert', 'Une demande formelle de transfert rédigée par l''acquéreur', 
+('Demande écrite de transfert', 'Une demande formelle de transfert rédigée par l''acquéreur', true,
  (SELECT id FROM procedures WHERE nom = 'Transfert de parcelle à usage d''habitation' LIMIT 1)),
 
-('Extrait du cadastre', 'Si disponible, pour identifier précisément la parcelle', 
+('Extrait du cadastre', 'Si disponible, pour identifier précisément la parcelle', false,
  (SELECT id FROM procedures WHERE nom = 'Transfert de parcelle à usage d''habitation' LIMIT 1)),
 
-('Preuve de paiement', 'Une preuve du paiement des impôts et des frais de mutation', 
+('Preuve de paiement', 'Une preuve du paiement des impôts et des frais de mutation', true,
  (SELECT id FROM procedures WHERE nom = 'Transfert de parcelle à usage d''habitation' LIMIT 1));
 
 -- ============================================
@@ -2712,50 +2712,50 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 
 INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 -- Documents communs pour tout type de permis de construire
-('Demande adressée au maire de la commune', 'Une demande adressée au maire de la commune', 
+('Demande adressée au maire de la commune', 'Une demande adressée au maire de la commune', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage industriel' LIMIT 1)),
 
-('Plan de situation du terrain', 'Le plan de situation du terrain, permettant de le localiser précisément (échelle minimale 1/2000ème)', 
+('Plan de situation du terrain', 'Le plan de situation du terrain, permettant de le localiser précisément (échelle minimale 1/2000ème)', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage industriel' LIMIT 1)),
 
-('Titre de propriété du terrain', 'Le titre de propriété du terrain (titre foncier, permis d''occuper, etc.)', 
+('Titre de propriété du terrain', 'Le titre de propriété du terrain (titre foncier, permis d''occuper, etc.)', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage industriel' LIMIT 1)),
 
-('Lévé topographique du terrain', 'Un levé topographique du terrain', 
+('Lévé topographique du terrain', 'Un levé topographique du terrain', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage industriel' LIMIT 1)),
 
-('Plans d''architecte et d''ingénieur', 'Les plans d''architecte et d''ingénieur (plans de masse, façades, coupes, etc.)', 
+('Plans d''architecte et d''ingénieur', 'Les plans d''architecte et d''ingénieur (plans de masse, façades, coupes, etc.)', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage industriel' LIMIT 1)),
 
-('Devis estimatif des travaux', 'Le devis estimatif des travaux', 
+('Devis estimatif des travaux', 'Le devis estimatif des travaux', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage industriel' LIMIT 1)),
 
-('Étude de l''impact environnemental et social', 'Une étude de l''impact environnemental et social (obligatoire pour les projets industriels)', 
+('Étude de l''impact environnemental et social', 'Une étude de l''impact environnemental et social (obligatoire pour les projets industriels)', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage industriel' LIMIT 1)),
 
-('Copies des pièces d''identité du demandeur', 'Les copies des pièces d''identité du demandeur', 
+('Copies des pièces d''identité du demandeur', 'Les copies des pièces d''identité du demandeur', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage industriel' LIMIT 1)),
 
-('Pièces justificatives du paiement des droits et taxes', 'Les pièces justificatives du paiement des droits et taxes associés', 
+('Pièces justificatives du paiement des droits et taxes', 'Les pièces justificatives du paiement des droits et taxes associés', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage industriel' LIMIT 1)),
 
-('Quitus fiscal en cours de validité', 'Le quitus fiscal en cours de validité', 
+('Quitus fiscal en cours de validité', 'Le quitus fiscal en cours de validité', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage industriel' LIMIT 1)),
 
 -- Documents spécifiques à usage industriel
-('Plan de masse industriel', 'Le plan de masse, indiquant la disposition des bâtiments industriels, des accès et des aires de stationnement (échelle 1/500ème au moins)', 
+('Plan de masse industriel', 'Le plan de masse, indiquant la disposition des bâtiments industriels, des accès et des aires de stationnement (échelle 1/500ème au moins)', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage industriel' LIMIT 1)),
 
-('Plans détaillés des installations techniques', 'Les plans détaillés des installations techniques, comme les systèmes de ventilation, de plomberie et d''électricité', 
+('Plans détaillés des installations techniques', 'Les plans détaillés des installations techniques, comme les systèmes de ventilation, de plomberie et d''électricité', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage industriel' LIMIT 1)),
 
-('Plan des façades et des toitures industriels', 'Le plan des façades et des toitures, qui doivent respecter les normes de sécurité et de protection de l''environnement', 
+('Plan des façades et des toitures industriels', 'Le plan des façades et des toitures, qui doivent respecter les normes de sécurité et de protection de l''environnement', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage industriel' LIMIT 1)),
 
-('Description détaillée du terrain et de l''activité', 'Une description détaillée du terrain et de la nature de l''activité, incluant les risques potentiels (pollution, bruits, etc.)', 
+('Description détaillée du terrain et de l''activité', 'Une description détaillée du terrain et de la nature de l''activité, incluant les risques potentiels (pollution, bruits, etc.)', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage industriel' LIMIT 1)),
 
-('Autorisation d''exploitation', 'L''autorisation d''exploitation, délivrée par les autorités compétentes', 
+('Autorisation d''exploitation', 'L''autorisation d''exploitation, délivrée par les autorités compétentes', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage industriel' LIMIT 1));
 
 -- ============================================
@@ -2864,44 +2864,44 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 
 INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 -- Documents communs pour tout type de permis de construire
-('Demande adressée au maire de la commune', 'Une demande adressée au maire de la commune', 
+('Demande adressée au maire de la commune', 'Une demande adressée au maire de la commune', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage personnel' LIMIT 1)),
 
-('Plan de situation du terrain', 'Le plan de situation du terrain, permettant de le localiser précisément', 
+('Plan de situation du terrain', 'Le plan de situation du terrain, permettant de le localiser précisément', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage personnel' LIMIT 1)),
 
-('Titre de propriété du terrain', 'Le titre de propriété du terrain (titre foncier, permis d''occuper, etc.)', 
+('Titre de propriété du terrain', 'Le titre de propriété du terrain (titre foncier, permis d''occuper, etc.)', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage personnel' LIMIT 1)),
 
-('Lévé topographique du terrain', 'Un levé topographique du terrain', 
+('Lévé topographique du terrain', 'Un levé topographique du terrain', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage personnel' LIMIT 1)),
 
-('Plans d''architecte et d''ingénieur', 'Les plans d''architecte et d''ingénieur (plans de masse, façades, coupes, etc.)', 
+('Plans d''architecte et d''ingénieur', 'Les plans d''architecte et d''ingénieur (plans de masse, façades, coupes, etc.)', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage personnel' LIMIT 1)),
 
-('Devis estimatif des travaux', 'Le devis estimatif des travaux', 
+('Devis estimatif des travaux', 'Le devis estimatif des travaux', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage personnel' LIMIT 1)),
 
-('Étude de l''impact environnemental et social', 'Une étude de l''impact environnemental et social (selon la nature et l''ampleur du projet)', 
+('Étude de l''impact environnemental et social', 'Une étude de l''impact environnemental et social (selon la nature et l''ampleur du projet)', false,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage personnel' LIMIT 1)),
 
-('Copies des pièces d''identité du demandeur', 'Les copies des pièces d''identité du demandeur', 
+('Copies des pièces d''identité du demandeur', 'Les copies des pièces d''identité du demandeur', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage personnel' LIMIT 1)),
 
-('Pièces justificatives du paiement des droits et taxes', 'Les pièces justificatives du paiement des droits et taxes associés', 
+('Pièces justificatives du paiement des droits et taxes', 'Les pièces justificatives du paiement des droits et taxes associés', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage personnel' LIMIT 1)),
 
-('Quitus fiscal en cours de validité', 'Le quitus fiscal en cours de validité', 
+('Quitus fiscal en cours de validité', 'Le quitus fiscal en cours de validité', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage personnel' LIMIT 1)),
 
 -- Documents spécifiques à usage personnel
-('Plan de masse personnel', 'Le plan de masse, montrant la disposition des bâtiments sur le terrain', 
+('Plan de masse personnel', 'Le plan de masse, montrant la disposition des bâtiments sur le terrain', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage personnel' LIMIT 1)),
 
-('Plans des façades et des toitures', 'Les plans des façades et des toitures', 
+('Plans des façades et des toitures', 'Les plans des façades et des toitures', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage personnel' LIMIT 1)),
 
-('Plans en coupe', 'Les plans en coupe, qui donnent une vue en coupe de la construction', 
+('Plans en coupe', 'Les plans en coupe, qui donnent une vue en coupe de la construction', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de construire à usage personnel' LIMIT 1));
 
 -- ============================================
@@ -3007,37 +3007,37 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- ============================================
 
 INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
-('Titre provisoire', 'Votre titre provisoire (permis d''occuper, CUH, CRH, etc.)', 
+('Titre provisoire', 'Votre titre provisoire (permis d''occuper, CUH, CRH, etc.)', true,
  (SELECT id FROM procedures WHERE nom = 'Titre foncier' LIMIT 1)),
 
-('Copie de la pièce d''identité', 'Une copie de votre pièce d''identité en cours de validité', 
+('Copie de la pièce d''identité', 'Une copie de votre pièce d''identité en cours de validité', true,
  (SELECT id FROM procedures WHERE nom = 'Titre foncier' LIMIT 1)),
 
-('Photos d''identité', 'Des photos d''identité récentes', 
+('Photos d''identité', 'Des photos d''identité récentes', true,
  (SELECT id FROM procedures WHERE nom = 'Titre foncier' LIMIT 1)),
 
-('Document de terrain enregistré en mairie', 'Un document de votre terrain enregistré en mairie', 
+('Document de terrain enregistré en mairie', 'Un document de votre terrain enregistré en mairie', true,
  (SELECT id FROM procedures WHERE nom = 'Titre foncier' LIMIT 1)),
 
-('Procès-verbal d''attribution et délibération du conseil communal', 'Le procès-verbal d''attribution et la délibération du conseil communal, qui attestent de la cession du terrain par l''État', 
+('Procès-verbal d''attribution et délibération du conseil communal', 'Le procès-verbal d''attribution et la délibération du conseil communal, qui attestent de la cession du terrain par l''État', true,
  (SELECT id FROM procedures WHERE nom = 'Titre foncier' LIMIT 1)),
 
-('Lévé topographique ou plan de situation', 'Un levé topographique ou un plan de situation, réalisé par un géomètre assermenté', 
+('Lévé topographique ou plan de situation', 'Un levé topographique ou un plan de situation, réalisé par un géomètre assermenté', true,
  (SELECT id FROM procedures WHERE nom = 'Titre foncier' LIMIT 1)),
 
-('Numéro d''identification cadastrale (NINACAD)', 'Un numéro d''identification cadastrale (NINACAD), qui est désormais un prérequis pour chaque parcelle', 
+('Numéro d''identification cadastrale (NINACAD)', 'Un numéro d''identification cadastrale (NINACAD), qui est désormais un prérequis pour chaque parcelle', true,
  (SELECT id FROM procedures WHERE nom = 'Titre foncier' LIMIT 1)),
 
-('Demande d''immatriculation', 'Une demande d''immatriculation adressée aux services compétents', 
+('Demande d''immatriculation', 'Une demande d''immatriculation adressée aux services compétents', true,
  (SELECT id FROM procedures WHERE nom = 'Titre foncier' LIMIT 1)),
 
-('Dossier administratif complet', 'Le dossier administratif complet comprenant les copies des pièces d''identité du demandeur', 
+('Dossier administratif complet', 'Le dossier administratif complet comprenant les copies des pièces d''identité du demandeur', true,
  (SELECT id FROM procedures WHERE nom = 'Titre foncier' LIMIT 1)),
 
-('Pièces justifiant le paiement des droits et taxes', 'Les pièces justifiant le paiement des droits et taxes associés (enregistrement, mutation, timbres)', 
+('Pièces justifiant le paiement des droits et taxes', 'Les pièces justifiant le paiement des droits et taxes associés (enregistrement, mutation, timbres)', true,
  (SELECT id FROM procedures WHERE nom = 'Titre foncier' LIMIT 1)),
 
-('Quitus fiscal en cours de validité', 'Le quitus fiscal en cours de validité', 
+('Quitus fiscal en cours de validité', 'Le quitus fiscal en cours de validité', true,
  (SELECT id FROM procedures WHERE nom = 'Titre foncier' LIMIT 1));
 
 -- ============================================
@@ -3148,34 +3148,34 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- ============================================
 
 INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
-('Réquisition de parcelle', 'Une réquisition de parcelle, qui comprend les informations suivantes sur le bien à vérifier', 
+('Réquisition de parcelle', 'Une réquisition de parcelle, qui comprend les informations suivantes sur le bien à vérifier', true,
  (SELECT id FROM procedures WHERE nom = 'Vérification des titres de propriétés' LIMIT 1)),
 
-('Nom et prénom du propriétaire', 'Nom et prénom du propriétaire', 
+('Nom et prénom du propriétaire', 'Nom et prénom du propriétaire', true,
  (SELECT id FROM procedures WHERE nom = 'Vérification des titres de propriétés' LIMIT 1)),
 
-('Adresse du propriétaire', 'Adresse du propriétaire', 
+('Adresse du propriétaire', 'Adresse du propriétaire', true,
  (SELECT id FROM procedures WHERE nom = 'Vérification des titres de propriétés' LIMIT 1)),
 
-('Numéro de la parcelle', 'Numéro de la parcelle', 
+('Numéro de la parcelle', 'Numéro de la parcelle', true,
  (SELECT id FROM procedures WHERE nom = 'Vérification des titres de propriétés' LIMIT 1)),
 
-('Numéro du titre foncier', 'Numéro du titre foncier, le cas échéant', 
+('Numéro du titre foncier', 'Numéro du titre foncier, le cas échéant', false,
  (SELECT id FROM procedures WHERE nom = 'Vérification des titres de propriétés' LIMIT 1)),
 
-('Numéro d''enregistrement aux folios', 'Numéro d''enregistrement aux folios du service des domaines et du cadastre', 
+('Numéro d''enregistrement aux folios', 'Numéro d''enregistrement aux folios du service des domaines et du cadastre', true,
  (SELECT id FROM procedures WHERE nom = 'Vérification des titres de propriétés' LIMIT 1)),
 
-('Superficie de la parcelle', 'Superficie de la parcelle', 
+('Superficie de la parcelle', 'Superficie de la parcelle', true,
  (SELECT id FROM procedures WHERE nom = 'Vérification des titres de propriétés' LIMIT 1)),
 
-('Lieu de situation de la parcelle', 'Lieu de situation de la parcelle', 
+('Lieu de situation de la parcelle', 'Lieu de situation de la parcelle', true,
  (SELECT id FROM procedures WHERE nom = 'Vérification des titres de propriétés' LIMIT 1)),
 
-('Copie du titre foncier', 'Une copie du titre foncier fournie par le propriétaire', 
+('Copie du titre foncier', 'Une copie du titre foncier fournie par le propriétaire', true,
  (SELECT id FROM procedures WHERE nom = 'Vérification des titres de propriétés' LIMIT 1)),
 
-('Documents d''identification de la parcelle', 'Les documents d''identification de la parcelle', 
+('Documents d''identification de la parcelle', 'Les documents d''identification de la parcelle', true,
  (SELECT id FROM procedures WHERE nom = 'Vérification des titres de propriétés' LIMIT 1));
 
 -- ============================================
@@ -3277,25 +3277,25 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- ============================================
 
 INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
-('Compromis de vente', 'Le compromis de vente signé entre l''acheteur et le vendeur', 
+('Compromis de vente', 'Le compromis de vente signé entre l''acheteur et le vendeur', true,
  (SELECT id FROM procedures WHERE nom = 'Transaction immobilière complète' LIMIT 1)),
 
-('Titre de propriété du vendeur', 'Le titre de propriété du vendeur (titre foncier, permis d''occuper, etc.)', 
+('Titre de propriété du vendeur', 'Le titre de propriété du vendeur (titre foncier, permis d''occuper, etc.)', true,
  (SELECT id FROM procedures WHERE nom = 'Transaction immobilière complète' LIMIT 1)),
 
-('Pièces d''identité des parties', 'Les pièces d''identité de l''acheteur et du vendeur', 
+('Pièces d''identité des parties', 'Les pièces d''identité de l''acheteur et du vendeur', true,
  (SELECT id FROM procedures WHERE nom = 'Transaction immobilière complète' LIMIT 1)),
 
-('Justificatifs de revenus (si crédit)', 'Les justificatifs de revenus de l''acheteur si un crédit est nécessaire', 
+('Justificatifs de revenus (si crédit)', 'Les justificatifs de revenus de l''acheteur si un crédit est nécessaire', false,
  (SELECT id FROM procedures WHERE nom = 'Transaction immobilière complète' LIMIT 1)),
 
-('Attestation de non préemption', 'L''attestation de non préemption des collectivités locales (si applicable)', 
+('Attestation de non préemption', 'L''attestation de non préemption des collectivités locales (si applicable)', false,
  (SELECT id FROM procedures WHERE nom = 'Transaction immobilière complète' LIMIT 1)),
 
-('Acte de vente notarié', 'L''acte de vente notarié préparé par le notaire', 
+('Acte de vente notarié', 'L''acte de vente notarié préparé par le notaire', true,
  (SELECT id FROM procedures WHERE nom = 'Transaction immobilière complète' LIMIT 1)),
 
-('Quitus fiscal', 'Le quitus fiscal en cours de validité', 
+('Quitus fiscal', 'Le quitus fiscal en cours de validité', true,
  (SELECT id FROM procedures WHERE nom = 'Transaction immobilière complète' LIMIT 1));
 
 -- ============================================
@@ -3395,34 +3395,34 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- ============================================
 
 INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
-('Demande manuscrite timbrée', 'Une demande manuscrite timbrée adressée à l''autorité compétente (Préfet ou Gouverneur selon la superficie)', 
+('Demande manuscrite timbrée', 'Une demande manuscrite timbrée adressée à l''autorité compétente (Préfet ou Gouverneur selon la superficie)', true,
  (SELECT id FROM procedures WHERE nom = 'Lettre d''attribution du titre provisoire de concession rurale' LIMIT 1)),
 
-('Pièces d''état civil du demandeur', 'Des pièces d''état civil du demandeur (extrait d''acte de naissance, carte d''identité ou passeport)', 
+('Pièces d''état civil du demandeur', 'Des pièces d''état civil du demandeur (extrait d''acte de naissance, carte d''identité ou passeport)', true,
  (SELECT id FROM procedures WHERE nom = 'Lettre d''attribution du titre provisoire de concession rurale' LIMIT 1)),
 
-('Quitus fiscal', 'Un quitus fiscal prouvant que le demandeur est à jour de ses obligations fiscales', 
+('Quitus fiscal', 'Un quitus fiscal prouvant que le demandeur est à jour de ses obligations fiscales', true,
  (SELECT id FROM procedures WHERE nom = 'Lettre d''attribution du titre provisoire de concession rurale' LIMIT 1)),
 
-('Fiche d''identification', 'Une fiche d''identification fournie par l''administration, dûment remplie', 
+('Fiche d''identification', 'Une fiche d''identification fournie par l''administration, dûment remplie', true,
  (SELECT id FROM procedures WHERE nom = 'Lettre d''attribution du titre provisoire de concession rurale' LIMIT 1)),
 
-('Plan de situation et plan de bornage', 'Un plan de situation et un plan de bornage du terrain, établis par un géomètre agréé', 
+('Plan de situation et plan de bornage', 'Un plan de situation et un plan de bornage du terrain, établis par un géomètre agréé', true,
  (SELECT id FROM procedures WHERE nom = 'Lettre d''attribution du titre provisoire de concession rurale' LIMIT 1)),
 
-('Procès-verbal de constat du terrain', 'Un procès-verbal de constat du terrain, dressé par le service des Domaines et du Cadastre', 
+('Procès-verbal de constat du terrain', 'Un procès-verbal de constat du terrain, dressé par le service des Domaines et du Cadastre', true,
  (SELECT id FROM procedures WHERE nom = 'Lettre d''attribution du titre provisoire de concession rurale' LIMIT 1)),
 
-('Procès-verbal d''enquête de commodo et incommodo', 'Un procès-verbal d''enquête de commodo et incommodo attestant que l''attribution ne porte pas préjudice aux droits des tiers', 
+('Procès-verbal d''enquête de commodo et incommodo', 'Un procès-verbal d''enquête de commodo et incommodo attestant que l''attribution ne porte pas préjudice aux droits des tiers', true,
  (SELECT id FROM procedures WHERE nom = 'Lettre d''attribution du titre provisoire de concession rurale' LIMIT 1)),
 
-('Copie de l''acte de naissance', 'Une copie de l''acte de naissance pour les nationaux', 
+('Copie de l''acte de naissance', 'Une copie de l''acte de naissance pour les nationaux', true,
  (SELECT id FROM procedures WHERE nom = 'Lettre d''attribution du titre provisoire de concession rurale' LIMIT 1)),
 
-('Autorisation spéciale pour étrangers', 'Une autorisation spéciale pour les ressortissants étrangers', 
+('Autorisation spéciale pour étrangers', 'Une autorisation spéciale pour les ressortissants étrangers', false,
  (SELECT id FROM procedures WHERE nom = 'Lettre d''attribution du titre provisoire de concession rurale' LIMIT 1)),
 
-('Engagement de mise en valeur', 'Un engagement du demandeur à mettre en valeur le terrain et à respecter les clauses du cahier des charges', 
+('Engagement de mise en valeur', 'Un engagement du demandeur à mettre en valeur le terrain et à respecter les clauses du cahier des charges', true,
  (SELECT id FROM procedures WHERE nom = 'Lettre d''attribution du titre provisoire de concession rurale' LIMIT 1));
 
 -- ============================================
@@ -3541,31 +3541,31 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- ============================================
 
 INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
-('Demande de concession écrite et timbrée', 'Une demande de concession écrite et timbrée, adressée au ministre des Domaines', 
+('Demande de concession écrite et timbrée', 'Une demande de concession écrite et timbrée, adressée au ministre des Domaines', true,
  (SELECT id FROM procedures WHERE nom = 'Concession urbaine à usage d''habitation (CUH)' LIMIT 1)),
 
-('Copie certifiée de la carte d''identité ou du passeport', 'Une copie certifiée de la carte d''identité ou du passeport du demandeur', 
+('Copie certifiée de la carte d''identité ou du passeport', 'Une copie certifiée de la carte d''identité ou du passeport du demandeur', true,
  (SELECT id FROM procedures WHERE nom = 'Concession urbaine à usage d''habitation (CUH)' LIMIT 1)),
 
-('Extrait d''acte de naissance ou jugement supplétif', 'Un extrait d''acte de naissance ou jugement supplétif', 
+('Extrait d''acte de naissance ou jugement supplétif', 'Un extrait d''acte de naissance ou jugement supplétif', true,
  (SELECT id FROM procedures WHERE nom = 'Concession urbaine à usage d''habitation (CUH)' LIMIT 1)),
 
-('Certificat de résidence', 'Un certificat de résidence', 
+('Certificat de résidence', 'Un certificat de résidence', true,
  (SELECT id FROM procedures WHERE nom = 'Concession urbaine à usage d''habitation (CUH)' LIMIT 1)),
 
-('Plan de situation du terrain', 'Un plan de situation du terrain', 
+('Plan de situation du terrain', 'Un plan de situation du terrain', true,
  (SELECT id FROM procedures WHERE nom = 'Concession urbaine à usage d''habitation (CUH)' LIMIT 1)),
 
-('Dossier d''enquête dûment rempli', 'Un dossier d''enquête dûment rempli par les services compétents', 
+('Dossier d''enquête dûment rempli', 'Un dossier d''enquête dûment rempli par les services compétents', true,
  (SELECT id FROM procedures WHERE nom = 'Concession urbaine à usage d''habitation (CUH)' LIMIT 1)),
 
-('Dossier technique avec plans de construction', 'Un dossier technique comprenant les plans de construction visés par le service de l''urbanisme', 
+('Dossier technique avec plans de construction', 'Un dossier technique comprenant les plans de construction visés par le service de l''urbanisme', true,
  (SELECT id FROM procedures WHERE nom = 'Concession urbaine à usage d''habitation (CUH)' LIMIT 1)),
 
-('Procès-verbal de bornage et d''évaluation', 'Le procès-verbal de bornage et d''évaluation du terrain', 
+('Procès-verbal de bornage et d''évaluation', 'Le procès-verbal de bornage et d''évaluation du terrain', true,
  (SELECT id FROM procedures WHERE nom = 'Concession urbaine à usage d''habitation (CUH)' LIMIT 1)),
 
-('Arrêté de concession provisoire', 'L''arrêté de concession provisoire délivré par le ministre des Domaines', 
+('Arrêté de concession provisoire', 'L''arrêté de concession provisoire délivré par le ministre des Domaines', true,
  (SELECT id FROM procedures WHERE nom = 'Concession urbaine à usage d''habitation (CUH)' LIMIT 1));
 
 -- ============================================
@@ -3654,22 +3654,22 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- ============================================
 
 INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
-('Demande de transformation', 'Une demande écrite adressée aux autorités compétentes (DNDC/DRDC)', 
+('Demande de transformation', 'Une demande écrite adressée aux autorités compétentes (DNDC/DRDC)', true,
  (SELECT id FROM procedures WHERE nom = 'Titre provisoire en titre foncier (CUH, CRH et contrat de bail avec promesse de vente)' LIMIT 1)),
 
-('Titre provisoire original et copie certifiée', 'L''original et une copie certifiée conforme du CUH, du CRH ou du contrat de bail avec promesse de vente', 
+('Titre provisoire original et copie certifiée', 'L''original et une copie certifiée conforme du CUH, du CRH ou du contrat de bail avec promesse de vente', true,
  (SELECT id FROM procedures WHERE nom = 'Titre provisoire en titre foncier (CUH, CRH et contrat de bail avec promesse de vente)' LIMIT 1)),
 
-('Certificat de validation', 'Une réquisition de renseignement validée', 
+('Certificat de validation', 'Une réquisition de renseignement validée', true,
  (SELECT id FROM procedures WHERE nom = 'Titre provisoire en titre foncier (CUH, CRH et contrat de bail avec promesse de vente)' LIMIT 1)),
 
-('Attestation de mise en valeur', 'Un document attestant que la parcelle a été mise en valeur conformément aux règles d''urbanisme', 
+('Attestation de mise en valeur', 'Un document attestant que la parcelle a été mise en valeur conformément aux règles d''urbanisme', true,
  (SELECT id FROM procedures WHERE nom = 'Titre provisoire en titre foncier (CUH, CRH et contrat de bail avec promesse de vente)' LIMIT 1)),
 
-('Pièces d''identité', 'Copie légalisée de la carte d''identité ou du passeport du demandeur', 
+('Pièces d''identité', 'Copie légalisée de la carte d''identité ou du passeport du demandeur', true,
  (SELECT id FROM procedures WHERE nom = 'Titre provisoire en titre foncier (CUH, CRH et contrat de bail avec promesse de vente)' LIMIT 1)),
 
-('Plans cadastraux', 'Plans de délimitation de la parcelle, disponibles auprès des services du Cadastre', 
+('Plans cadastraux', 'Plans de délimitation de la parcelle, disponibles auprès des services du Cadastre', true,
  (SELECT id FROM procedures WHERE nom = 'Titre provisoire en titre foncier (CUH, CRH et contrat de bail avec promesse de vente)' LIMIT 1));
 
 -- ============================================
@@ -3770,22 +3770,22 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- ============================================
 
 INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
-('Copie du jugement', 'Une copie scellée et signifiée de la décision de première instance dont vous faites appel', 
+('Copie du jugement', 'Une copie scellée et signifiée de la décision de première instance dont vous faites appel', true,
  (SELECT id FROM procedures WHERE nom = 'Appel d''une décision de justice' LIMIT 1)),
 
-('Déclaration d''appel', 'L''acte de déclaration d''appel déposé au greffe, rédigé avec l''aide d''un avocat ou du greffier', 
+('Déclaration d''appel', 'L''acte de déclaration d''appel déposé au greffe, rédigé avec l''aide d''un avocat ou du greffier', true,
  (SELECT id FROM procedures WHERE nom = 'Appel d''une décision de justice' LIMIT 1)),
 
-('Conclusions écrites', 'Les conclusions écrites exposant vos arguments juridiques et vos motifs d''appel', 
+('Conclusions écrites', 'Les conclusions écrites exposant vos arguments juridiques et vos motifs d''appel', true,
  (SELECT id FROM procedures WHERE nom = 'Appel d''une décision de justice' LIMIT 1)),
 
-('Pièces justificatives', 'Toutes les pièces et preuves pertinentes à l''affaire', 
+('Pièces justificatives', 'Toutes les pièces et preuves pertinentes à l''affaire', true,
  (SELECT id FROM procedures WHERE nom = 'Appel d''une décision de justice' LIMIT 1)),
 
-('Mandat d''avocat', 'Un mandat si vous êtes représenté par un avocat', 
+('Mandat d''avocat', 'Un mandat si vous êtes représenté par un avocat', false,
  (SELECT id FROM procedures WHERE nom = 'Appel d''une décision de justice' LIMIT 1)),
 
-('Preuve de paiement des frais', 'Preuve du paiement des frais de justice exigés pour le traitement de l''appel', 
+('Preuve de paiement des frais', 'Preuve du paiement des frais de justice exigés pour le traitement de l''appel', true,
  (SELECT id FROM procedures WHERE nom = 'Appel d''une décision de justice' LIMIT 1));
 
 -- ============================================
@@ -3881,25 +3881,25 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- ============================================
 
 INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
-('Procès-verbal du Conseil de Famille', 'Le procès-verbal du Conseil de Famille, signé par les membres présents, qui constitue la pièce maîtresse du dossier', 
+('Procès-verbal du Conseil de Famille', 'Le procès-verbal du Conseil de Famille, signé par les membres présents, qui constitue la pièce maîtresse du dossier', true,
  (SELECT id FROM procedures WHERE nom = 'Autorisation de vente des biens d''un mineur' LIMIT 1)),
 
-('Pièces d''identité du représentant légal', 'Une copie des pièces d''identité du représentant légal et des membres du Conseil de Famille', 
+('Pièces d''identité du représentant légal', 'Une copie des pièces d''identité du représentant légal et des membres du Conseil de Famille', true,
  (SELECT id FROM procedures WHERE nom = 'Autorisation de vente des biens d''un mineur' LIMIT 1)),
 
-('Acte de naissance du mineur', 'L''acte de naissance du mineur', 
+('Acte de naissance du mineur', 'L''acte de naissance du mineur', true,
  (SELECT id FROM procedures WHERE nom = 'Autorisation de vente des biens d''un mineur' LIMIT 1)),
 
-('Documents de propriété du bien', 'Les documents attestant la propriété du bien (par exemple, le titre foncier)', 
+('Documents de propriété du bien', 'Les documents attestant la propriété du bien (par exemple, le titre foncier)', true,
  (SELECT id FROM procedures WHERE nom = 'Autorisation de vente des biens d''un mineur' LIMIT 1)),
 
-('Estimation de la valeur du bien', 'Une estimation de la valeur du bien, si possible', 
+('Estimation de la valeur du bien', 'Une estimation de la valeur du bien, si possible', false,
  (SELECT id FROM procedures WHERE nom = 'Autorisation de vente des biens d''un mineur' LIMIT 1)),
 
-('Plan de réemploi des fonds', 'Un plan de réemploi des fonds, expliquant comment l''argent sera investi au profit du mineur', 
+('Plan de réemploi des fonds', 'Un plan de réemploi des fonds, expliquant comment l''argent sera investi au profit du mineur', true,
  (SELECT id FROM procedures WHERE nom = 'Autorisation de vente des biens d''un mineur' LIMIT 1)),
 
-('Requête motivée au juge', 'Une requête motivée adressée au juge des tutelles expliquant pourquoi la vente est dans l''intérêt de l''enfant', 
+('Requête motivée au juge', 'Une requête motivée adressée au juge des tutelles expliquant pourquoi la vente est dans l''intérêt de l''enfant', true,
  (SELECT id FROM procedures WHERE nom = 'Autorisation de vente des biens d''un mineur' LIMIT 1));
 
 -- ============================================
@@ -3991,19 +3991,19 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- ============================================
 
 INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
-('Demande manuscrite', 'Une demande manuscrite rédigée par le propriétaire de l''habitation ou du terrain, adressée au Directeur de l''agence concernée', 
+('Demande manuscrite', 'Une demande manuscrite rédigée par le propriétaire de l''habitation ou du terrain, adressée au Directeur de l''agence concernée', true,
  (SELECT id FROM procedures WHERE nom = 'Raccordement et installation d''un compteur d''eau' LIMIT 1)),
 
-('Copie légalisée de la pièce d''identité', 'Une copie légalisée de la pièce d''identité du demandeur (carte d''identité, passeport ou permis de conduire)', 
+('Copie légalisée de la pièce d''identité', 'Une copie légalisée de la pièce d''identité du demandeur (carte d''identité, passeport ou permis de conduire)', true,
  (SELECT id FROM procedures WHERE nom = 'Raccordement et installation d''un compteur d''eau' LIMIT 1)),
 
-('Attestation de propriété', 'Une attestation de propriété du domaine à alimenter, document prouvant que vous êtes bien le propriétaire du lieu à alimenter', 
+('Attestation de propriété', 'Une attestation de propriété du domaine à alimenter, document prouvant que vous êtes bien le propriétaire du lieu à alimenter', true,
  (SELECT id FROM procedures WHERE nom = 'Raccordement et installation d''un compteur d''eau' LIMIT 1)),
 
-('Autorisation du propriétaire', 'Si vous êtes locataire, une autorisation signée et légalisée du propriétaire est nécessaire', 
+('Autorisation du propriétaire', 'Si vous êtes locataire, une autorisation signée et légalisée du propriétaire est nécessaire', false,
  (SELECT id FROM procedures WHERE nom = 'Raccordement et installation d''un compteur d''eau' LIMIT 1)),
 
-('Plan de situation et cadastral', 'Des documents techniques indiquant l''emplacement de la parcelle, le cas échéant, les références cadastrales de la parcelle', 
+('Plan de situation et cadastral', 'Des documents techniques indiquant l''emplacement de la parcelle, le cas échéant, les références cadastrales de la parcelle', false,
  (SELECT id FROM procedures WHERE nom = 'Raccordement et installation d''un compteur d''eau' LIMIT 1));
 
 -- ============================================
@@ -4105,22 +4105,22 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- ============================================
 
 INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
-('Pièce d''identité en cours de validité', 'Une pièce d''identité en cours de validité : carte d''identité, passeport ou carte de séjour', 
+('Pièce d''identité en cours de validité', 'Une pièce d''identité en cours de validité : carte d''identité, passeport ou carte de séjour', true,
  (SELECT id FROM procedures WHERE nom = 'Demande d''un compteur d''électricité' LIMIT 1)),
 
-('Justificatif de domicile - Propriétaire', 'Pour les propriétaires : un titre de propriété comme l''attestation de détention de parcelle ou un permis d''occuper', 
+('Justificatif de domicile - Propriétaire', 'Pour les propriétaires : un titre de propriété comme l''attestation de détention de parcelle ou un permis d''occuper', true,
  (SELECT id FROM procedures WHERE nom = 'Demande d''un compteur d''électricité' LIMIT 1)),
 
-('Justificatif de domicile - Locataire', 'Pour les locataires : un contrat de location dûment signé par le propriétaire et le locataire', 
+('Justificatif de domicile - Locataire', 'Pour les locataires : un contrat de location dûment signé par le propriétaire et le locataire', true,
  (SELECT id FROM procedures WHERE nom = 'Demande d''un compteur d''électricité' LIMIT 1)),
 
-('Fiche de demande d''abonnement', 'Une fiche de demande d''abonnement disponible sur le site d''EDM-SA', 
+('Fiche de demande d''abonnement', 'Une fiche de demande d''abonnement disponible sur le site d''EDM-SA', true,
  (SELECT id FROM procedures WHERE nom = 'Demande d''un compteur d''électricité' LIMIT 1)),
 
-('Plan de situation du logement', 'Un plan de situation du logement pour faciliter le repérage de l''adresse par les techniciens d''EDM-SA', 
+('Plan de situation du logement', 'Un plan de situation du logement pour faciliter le repérage de l''adresse par les techniciens d''EDM-SA', true,
  (SELECT id FROM procedures WHERE nom = 'Demande d''un compteur d''électricité' LIMIT 1)),
 
-('Permis de construire', 'Un permis de construire (dans certains cas)', 
+('Permis de construire', 'Un permis de construire (dans certains cas)', false,
  (SELECT id FROM procedures WHERE nom = 'Demande d''un compteur d''électricité' LIMIT 1));
 
 -- ============================================
@@ -4214,22 +4214,22 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- ============================================
 
 INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
-('Pièce d''identité valide', 'Pièce d''identité valide (carte d''identité nationale, passeport, etc.)', 
+('Pièce d''identité valide', 'Pièce d''identité valide (carte d''identité nationale, passeport, etc.)', true,
  (SELECT id FROM procedures WHERE nom = 'Demande de transférer d''un compteur d''électricité' LIMIT 1)),
 
-('Preuve de la nouvelle occupation du logement', 'Preuve de la nouvelle occupation du logement (contrat de location, titre de propriété)', 
+('Preuve de la nouvelle occupation du logement', 'Preuve de la nouvelle occupation du logement (contrat de location, titre de propriété)', true,
  (SELECT id FROM procedures WHERE nom = 'Demande de transférer d''un compteur d''électricité' LIMIT 1)),
 
-('Formulaire de demande de changement d''abonné', 'Formulaire de demande de changement d''abonné fourni par l''agence EDM-SA', 
+('Formulaire de demande de changement d''abonné', 'Formulaire de demande de changement d''abonné fourni par l''agence EDM-SA', true,
  (SELECT id FROM procedures WHERE nom = 'Demande de transférer d''un compteur d''électricité' LIMIT 1)),
 
-('Relevé du compteur et numéro de l''ancien abonné', 'Relevé du compteur et le numéro de l''ancien abonné pour la clôture du compte', 
+('Relevé du compteur et numéro de l''ancien abonné', 'Relevé du compteur et le numéro de l''ancien abonné pour la clôture du compte', true,
  (SELECT id FROM procedures WHERE nom = 'Demande de transférer d''un compteur d''électricité' LIMIT 1)),
 
-('Demande de résiliation', 'Demande de résiliation pour l''abonné sortant', 
+('Demande de résiliation', 'Demande de résiliation pour l''abonné sortant', true,
  (SELECT id FROM procedures WHERE nom = 'Demande de transférer d''un compteur d''électricité' LIMIT 1)),
 
-('Fiche de demande d''abonnement', 'Fiche de demande d''abonnement en précisant que vous souhaitez reprendre un compteur ISAGO existant', 
+('Fiche de demande d''abonnement', 'Fiche de demande d''abonnement en précisant que vous souhaitez reprendre un compteur ISAGO existant', true,
  (SELECT id FROM procedures WHERE nom = 'Demande de transférer d''un compteur d''électricité' LIMIT 1));
 
 -- ============================================
@@ -4328,25 +4328,25 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- ============================================
 
 INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
-('Numéro de contrat et de compteur', 'Le numéro de contrat et de compteur de l''ancien abonnement', 
+('Numéro de contrat et de compteur', 'Le numéro de contrat et de compteur de l''ancien abonnement', true,
  (SELECT id FROM procedures WHERE nom = 'Demande de transférer d''un compteur d''eau' LIMIT 1)),
 
-('Relevé de l''index du compteur', 'Le relevé de l''index du compteur au moment du départ (pour résiliation) et au moment de l''emménagement (pour nouvel abonnement)', 
+('Relevé de l''index du compteur', 'Le relevé de l''index du compteur au moment du départ (pour résiliation) et au moment de l''emménagement (pour nouvel abonnement)', true,
  (SELECT id FROM procedures WHERE nom = 'Demande de transférer d''un compteur d''eau' LIMIT 1)),
 
-('Pièce d''identité du titulaire', 'Une pièce d''identité du titulaire du contrat (pour résiliation) et une copie légalisée de la pièce d''identité en cours de validité (pour nouvel abonnement)', 
+('Pièce d''identité du titulaire', 'Une pièce d''identité du titulaire du contrat (pour résiliation) et une copie légalisée de la pièce d''identité en cours de validité (pour nouvel abonnement)', true,
  (SELECT id FROM procedures WHERE nom = 'Demande de transférer d''un compteur d''eau' LIMIT 1)),
 
-('Attestation de propriété', 'Une attestation de propriété du domaine à desservir. Si vous êtes locataire, il faut fournir une autorisation légalisée du propriétaire', 
+('Attestation de propriété', 'Une attestation de propriété du domaine à desservir. Si vous êtes locataire, il faut fournir une autorisation légalisée du propriétaire', true,
  (SELECT id FROM procedures WHERE nom = 'Demande de transférer d''un compteur d''eau' LIMIT 1)),
 
-('Plan de situation', 'Un plan de situation pour localiser l''adresse', 
+('Plan de situation', 'Un plan de situation pour localiser l''adresse', false,
  (SELECT id FROM procedures WHERE nom = 'Demande de transférer d''un compteur d''eau' LIMIT 1)),
 
-('Demande de résiliation', 'Demande de résiliation du contrat pour l''ancien occupant', 
+('Demande de résiliation', 'Demande de résiliation du contrat pour l''ancien occupant', true,
  (SELECT id FROM procedures WHERE nom = 'Demande de transférer d''un compteur d''eau' LIMIT 1)),
 
-('Dossier d''abonnement', 'Dossier d''abonnement complet pour le nouvel occupant', 
+('Dossier d''abonnement', 'Dossier d''abonnement complet pour le nouvel occupant', true,
  (SELECT id FROM procedures WHERE nom = 'Demande de transférer d''un compteur d''eau' LIMIT 1));
 
 -- ============================================
@@ -4461,7 +4461,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.215. DOCUMENTS REQUIS POUR CRÉATION DE SOCIÉTÉ PAR ACTIONS SIMPLIFIÉE UNIPERSONNELLE (SASU)
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Statuts signés', 'Statuts de la société signés par l''associé unique, incluant la dénomination sociale, l''objet, le siège, le capital social et les modalités de fonctionnement.', true,
  (SELECT id FROM procedures WHERE nom = 'Création de Société par Actions Simplifiée Unipersonnelle (SASU)' LIMIT 1)),
 
@@ -4597,7 +4597,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.221. DOCUMENTS REQUIS POUR CRÉATION DE SOCIÉTÉ À RESPONSABILITÉ LIMITÉE UNIPERSONNELLE (SARL U)
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Projet de statuts', 'L''acte constitutif de la société, signé par l''associé unique, incluant la dénomination sociale, l''objet social, le siège social, le capital social et les modalités de fonctionnement.', true,
  (SELECT id FROM procedures WHERE nom = 'Création de Société à Responsabilité Limitée Unipersonnelle (SARL U)' LIMIT 1)),
 
@@ -4726,7 +4726,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.227. DOCUMENTS REQUIS POUR IMPÔT SYNTHÉTIQUE
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Formulaire de demande d''adhésion', 'Formulaire officiel de demande d''adhésion au régime de l''impôt synthétique, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Impôt synthétique' LIMIT 1)),
 
@@ -4848,7 +4848,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.233. DOCUMENTS REQUIS POUR I.T.S
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Bulletins de salaire', 'Bulletins de salaire de tous les employés pour le mois concerné avec détail des rémunérations brutes et nettes.', true,
  (SELECT id FROM procedures WHERE nom = 'Impôt sur les traitements et salaires (I.T.S)' LIMIT 1)),
 
@@ -4959,7 +4959,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.239. DOCUMENTS REQUIS POUR TVA
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration de TVA', 'Formulaire de déclaration mensuelle de la Taxe sur la Valeur Ajoutée, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Déclaration de TVA (Taxe sur la Valeur Ajoutée)' LIMIT 1)),
 
@@ -5073,7 +5073,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.245. DOCUMENTS REQUIS POUR IBIC/IS
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration IBIC/IS', 'Formulaire de déclaration annuelle de l''impôt sur les bénéfices industriels et commerciaux, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Impôt sur les bénéfices industriels et commerciaux (IBIC/IS)' LIMIT 1)),
 
@@ -5183,7 +5183,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.251. DOCUMENTS REQUIS POUR CFE
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration CFE', 'Formulaire de déclaration mensuelle de la Contribution Forfaitaire à la charge des Employeurs, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Contribution forfaitaire à la charge des employeurs (CFE)' LIMIT 1)),
 
@@ -5286,7 +5286,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.257. DOCUMENTS REQUIS POUR CGS
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration CGS', 'Formulaire de déclaration mensuelle de la Contribution Générale de Solidarité, disponible auprès des services fiscaux selon l''article 7 de la Loi 2018-010.', true,
  (SELECT id FROM procedures WHERE nom = 'Contribution Générale de solidarité (CGS)' LIMIT 1)),
 
@@ -5391,7 +5391,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.263. DOCUMENTS REQUIS POUR TSLT
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration TSLT', 'Formulaire de déclaration de la Taxe de Solidarité et de Lutte contre le Tabagisme, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Taxe de Solidarité et de Lutte contre le Tabagisme (TSLT)' LIMIT 1)),
 
@@ -5497,7 +5497,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.269. DOCUMENTS REQUIS POUR PATENTE
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration de patente', 'Formulaire de déclaration de patente professionnelle, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Patente professionnelle et licence' LIMIT 1)),
 
@@ -5604,7 +5604,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.275. DOCUMENTS REQUIS POUR VIGNETTE
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Carte grise', 'Carte grise du véhicule (certificat d''immatriculation) en cours de validité.', true,
  (SELECT id FROM procedures WHERE nom = 'Taxe sur les véhicules automobiles (Vignettes ordinaires)' LIMIT 1)),
 
@@ -5708,7 +5708,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.281. DOCUMENTS REQUIS POUR TAXE FONCIÈRE
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Titre de propriété', 'Titre de propriété du bien immobilier (acte de vente, acte de donation, jugement, etc.).', true,
  (SELECT id FROM procedures WHERE nom = 'Taxe foncière (T.F)' LIMIT 1)),
 
@@ -5811,7 +5811,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.287. DOCUMENTS REQUIS POUR ENREGISTREMENT
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Contrat à enregistrer', 'Contrat ou acte à enregistrer, signé par toutes les parties concernées.', true,
  (SELECT id FROM procedures WHERE nom = 'Enregistrement d''un contrat' LIMIT 1)),
 
@@ -5914,7 +5914,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.293. DOCUMENTS REQUIS POUR IBA
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration IBA', 'Formulaire de déclaration annuelle de l''impôt sur les bénéfices agricoles, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Impôt sur les bénéfices agricoles (IBA)' LIMIT 1)),
 
@@ -6024,7 +6024,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.299. DOCUMENTS REQUIS POUR TTR
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration TTR', 'Formulaire de déclaration de la taxe sur les transports routiers, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Taxe sur les transports routiers (TTR)' LIMIT 1)),
 
@@ -6131,7 +6131,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.305. DOCUMENTS REQUIS POUR ISCP
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration ISCP', 'Formulaire de déclaration de l''impôt spécial sur certains produits, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Impôt spécial sur certains produits (ISCP)' LIMIT 1)),
 
@@ -6239,7 +6239,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.311. DOCUMENTS REQUIS POUR TAF
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration TAF', 'Formulaire de déclaration de la taxe sur les activités financières, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Taxe sur les activités financières (TAF)' LIMIT 1)),
 
@@ -6347,7 +6347,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.317. DOCUMENTS REQUIS POUR REVENU FONCIER
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration de revenu foncier', 'Formulaire de déclaration de revenu foncier, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Déclaration de revenu foncier' LIMIT 1)),
 
@@ -6456,7 +6456,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.323. DOCUMENTS REQUIS POUR TAXE LOGEMENT
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Avis d''imposition TL', 'Avis d''imposition de la taxe logement pour l''année concernée, délivré par les services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Taxe logement (TL)' LIMIT 1)),
 
@@ -6563,7 +6563,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.329. DOCUMENTS REQUIS POUR IRVM
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration IRVM', 'Formulaire de déclaration de l''impôt sur les revenus de valeurs mobilières, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Impôt sur les revenus de valeurs Mobilières (IRVM)' LIMIT 1)),
 
@@ -6672,7 +6672,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.335. DOCUMENTS REQUIS POUR IRF
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration IRF', 'Formulaire de déclaration de l''impôt sur les revenus fonciers, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Impôt sur les revenus fonciers (IRF)' LIMIT 1)),
 
@@ -6781,7 +6781,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.341. DOCUMENTS REQUIS POUR PATENTE SUR MARCHÉS
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration patente marchés', 'Formulaire de déclaration de patente sur marchés, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Patente sur marchés' LIMIT 1)),
 
@@ -6887,7 +6887,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.347. DOCUMENTS REQUIS POUR TAXE TOURISTIQUE
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration taxe touristique', 'Formulaire de déclaration de taxe touristique, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Taxe touristique (T.T)' LIMIT 1)),
 
@@ -6993,7 +6993,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.353. DOCUMENTS REQUIS POUR TIPP
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration TIPP', 'Formulaire de déclaration de Taxe intérieure sur les produits pétroliers, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Taxe intérieure sur les produits pétroliers (TIPP)' LIMIT 1)),
 
@@ -7099,7 +7099,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.359. DOCUMENTS REQUIS POUR CSB
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration CSB', 'Formulaire de déclaration de Contribution de solidarité sur les billets d''avion, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Contribution de solidarité sur les billets d''avion (CSB)' LIMIT 1)),
 
@@ -7205,7 +7205,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.365. DOCUMENTS REQUIS POUR TARTOP
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration TARTOP', 'Formulaire de déclaration de Taxe sur l''accès au réseau des télécommunications, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Taxe sur l''accès au réseau des télécommunications (TARTOP)' LIMIT 1)),
 
@@ -7311,7 +7311,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.371. DOCUMENTS REQUIS POUR TCA
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration TCA', 'Formulaire de déclaration de Taxe sur les contrats d''assurance, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Taxe sur les contrats d''assurance (TCA)' LIMIT 1)),
 
@@ -7417,7 +7417,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.377. DOCUMENTS REQUIS POUR TAXE SUR L'OR
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration taxe or', 'Formulaire de déclaration de taxe sur les exportateurs d''or non régis par le code minier, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Taxe sur les exportateurs d''or non régis par le code minier' LIMIT 1)),
 
@@ -7523,7 +7523,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.383. DOCUMENTS REQUIS POUR PRÉLÈVEMENTS
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration prélèvements', 'Formulaire de déclaration de prélèvements, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Les prélèvements' LIMIT 1)),
 
@@ -7629,7 +7629,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.389. DOCUMENTS REQUIS POUR REDEVANCE MARCHÉS
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration redevance', 'Formulaire de déclaration de redevance et recouvrement de régulation sur les marchés publics, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Redevance et recouvrement de régulation sur les marchés publics' LIMIT 1)),
 
@@ -7735,7 +7735,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.395. DOCUMENTS REQUIS POUR TAXE ARMES
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Déclaration taxe armes', 'Formulaire de déclaration de taxe sur les armes à feu, disponible auprès des services fiscaux.', true,
  (SELECT id FROM procedures WHERE nom = 'Taxe sur les armes à feu' LIMIT 1)),
 
@@ -7841,7 +7841,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.401. DOCUMENTS REQUIS POUR PERMIS DE CONDUIRE
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Extrait d''acte de naissance', 'Copie de l''extrait d''acte de naissance du demandeur.', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de conduire (obtention)' LIMIT 1)),
 
@@ -7950,7 +7950,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.407. DOCUMENTS REQUIS POUR RENOUVELLEMENT PERMIS
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Permis de conduire périmé', 'Le permis de conduire périmé en original à renouveler.', true,
  (SELECT id FROM procedures WHERE nom = 'Permis de conduire renouvellement' LIMIT 1)),
 
@@ -8059,7 +8059,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.413. DOCUMENTS REQUIS POUR DÉCLARATION DE VOL
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Pièce d''identité', 'Votre pièce d''identité (carte d''identité, passeport, etc.) pour établir votre identité.', true,
  (SELECT id FROM procedures WHERE nom = 'Déclaration de vol' LIMIT 1)),
 
@@ -8165,7 +8165,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.419. DOCUMENTS REQUIS POUR CRÉATION SNC
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Statuts de la société', 'Un exemplaire original des statuts de la SNC signés par tous les associés avec les mentions obligatoires : objet social, siège social, dénomination sociale.', true,
  (SELECT id FROM procedures WHERE nom = 'Création d''une Société en Nom Collectif (SNC)' LIMIT 1)),
 
@@ -8280,7 +8280,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.425. DOCUMENTS REQUIS POUR LOGEMENTS SOCIAUX
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Demande timbrée', 'Demande timbrée à 500 FCFA adressée au Président de la Commission d''attribution, précisant le site et le type du logement sollicité.', true,
  (SELECT id FROM procedures WHERE nom = 'Attribution des logements sociaux' LIMIT 1)),
 
@@ -8401,7 +8401,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.431. DOCUMENTS REQUIS POUR DEMANDE DE BAIL
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Lettre de demande de bail', 'Lettre de demande de bail adressée au propriétaire ou à l''agence immobilière, précisant l''adresse du logement et les motivations du demandeur.', true,
  (SELECT id FROM procedures WHERE nom = 'Demande de bail' LIMIT 1)),
 
@@ -8516,7 +8516,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.437. DOCUMENTS REQUIS POUR CNIBS
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Numéro NINA', 'Le Numéro d''Identification Nationale (NINA) et la carte ou fiche NINA existante du demandeur.', true,
  (SELECT id FROM procedures WHERE nom = 'Carte nationale d''identité biométrique sécurisée (CNIBS)' LIMIT 1)),
 
@@ -8631,7 +8631,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.443. DOCUMENTS REQUIS POUR FDI NINA
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Acte de naissance', 'Un original de l''acte de naissance (Volet 3) ou un extrait d''acte de naissance pour l''enrôlement initial au RAVEC.', true,
  (SELECT id FROM procedures WHERE nom = 'Fiche Descriptive Individuelle (FDI) NINA' LIMIT 1)),
 
@@ -8737,7 +8737,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.449. DOCUMENTS REQUIS POUR PASSEPORT BIOMÉTRIQUE
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Reçu de paiement', 'Le reçu de paiement (Code Voucher) des frais de passeport délivré par la BMS S.A. ou le site de paiement en ligne.', true,
  (SELECT id FROM procedures WHERE nom = 'Passeport biométrique' LIMIT 1)),
 
@@ -8840,7 +8840,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.455. DOCUMENTS REQUIS POUR CERTIFICAT DE RÉSIDENCE
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Acte de naissance', 'L''acte de naissance du demandeur pour établir son identité et sa nationalité.', true,
  (SELECT id FROM procedures WHERE nom = 'Certificat de résidence' LIMIT 1)),
 
@@ -8946,7 +8946,7 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
 -- 3.461. DOCUMENTS REQUIS POUR CHANGER VOITURE EN TAXI
 -- ============================================
 
-INSERT INTO documents_requis (nom, description, obligatoire, procedure_id) VALUES
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
 ('Demande manuscrite', 'Une demande manuscrite de transformation de véhicule personnel en taxi adressée aux autorités compétentes.', true,
  (SELECT id FROM procedures WHERE nom = 'Changer sa voiture en taxi' LIMIT 1)),
 

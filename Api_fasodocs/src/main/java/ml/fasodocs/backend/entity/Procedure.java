@@ -35,7 +35,7 @@ public class Procedure {
     private String urlVersFormulaire;
 
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 500)
     private String delai;
 
     @Column(columnDefinition = "TEXT")

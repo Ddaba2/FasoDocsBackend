@@ -32,10 +32,6 @@ public class Signalement {
     @Column(nullable = false, length = 50)
     private TypeSignalement type;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
-    private StatutSignalement statut = StatutSignalement.EN_ATTENTE;
-
     @CreationTimestamp
     @Column(name = "date_creation", updatable = false)
     private LocalDateTime dateCreation;
@@ -59,20 +55,18 @@ public class Signalement {
      * Enumération des types de signalement
      */
     public enum TypeSignalement {
-        FRAUDE,
         ABSENCE_DU_SERVICE,
         NON_RESPECT_DU_DELAI,
         MAUVAISE_QUALITE_DU_SERVICE,
         AUTRE
     }
 
+
     /**
-     * Enumération des statuts de signalement
+     * Vérifie si le signalement peut encore être modifié
+     * Un signalement ne peut plus être modifié après 15 minutes
      */
-    public enum StatutSignalement {
-        EN_ATTENTE,
-        EN_COURS,
-        TRAITE,
-        REJETE
+    public boolean peutEtreModifie() {
+        return dateCreation.isAfter(LocalDateTime.now().minusMinutes(15));
     }
 }

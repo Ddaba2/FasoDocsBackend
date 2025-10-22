@@ -44,10 +44,9 @@ public class DataInitializer implements CommandLineRunner {
         initializeRoles();
         initializeAdminAccount();
         
-        // Initialiser les données du chatbot si activé
-        if (initChatbotData) {
-            initializeChatbotData();
-        }
+        // NOTE: Les données complètes (catégories, procédures, etc.) sont maintenant
+        // chargées automatiquement par DataLoader depuis fasodocs-data-complete.sql
+        // Cette initialisation manuelle n'est plus nécessaire
     }
 
     /**

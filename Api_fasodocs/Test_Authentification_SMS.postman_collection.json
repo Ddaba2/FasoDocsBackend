@@ -1,0 +1,432 @@
+{
+	"info": {
+		"_postman_id": "test-sms-auth-2025",
+		"name": "Test Authentification SMS - FasoDocs",
+		"description": "Collection pour tester le flux complet d'authentification par SMS avec Twilio",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1️⃣ Inscription",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    pm.test('✅ Inscription réussie', function () {",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    const responseJson = pm.response.json();",
+							"    pm.test('✅ Message de succès présent', function () {",
+							"        pm.expect(responseJson.success).to.be.true;",
+							"        pm.expect(responseJson.message).to.include('Inscription réussie');",
+							"    });",
+							"    ",
+							"    console.log('✅ Utilisateur inscrit avec succès');",
+							"    console.log('📱 Téléphone : +22370000001');",
+							"    console.log('📧 Email : test@fasodocs.ml');",
+							"} else {",
+							"    pm.test('⚠️ Inscription échouée (peut-être déjà inscrit)', function () {",
+							"        pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+							"    });",
+							"    console.log('⚠️ ' + pm.response.json().message);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"telephone\": \"+22370000001\",\n    \"email\": \"test@fasodocs.ml\",\n    \"motDePasse\": \"Test123!\",\n    \"confirmerMotDePasse\": \"Test123!\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/inscription",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"inscription"
+					]
+				},
+				"description": "Inscription d'un nouveau citoyen avec téléphone et email"
+			},
+			"response": []
+		},
+		{
+			"name": "2️⃣ Connexion par Téléphone (Envoie SMS)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('✅ Requête réussie', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const responseJson = pm.response.json();",
+							"",
+							"pm.test('✅ Code SMS envoyé', function () {",
+							"    pm.expect(responseJson.success).to.be.true;",
+							"    pm.expect(responseJson.message).to.include('code de vérification');",
+							"});",
+							"",
+							"console.log('');",
+							"console.log('📱 ====================================');",
+							"console.log('📱 CODE SMS ENVOYÉ !');",
+							"console.log('📱 ====================================');",
+							"console.log('');",
+							"console.log('🔍 Vérifiez :');",
+							"console.log('  1. Votre téléphone pour le SMS');",
+							"console.log('  2. OU les logs de l\\'application si SMS désactivé');",
+							"console.log('');",
+							"console.log('📝 Si SMS désactivé, cherchez dans les logs :');",
+							"console.log('   \"SMS désactivé. Code généré: XXXXXX\"');",
+							"console.log('');",
+							"console.log('⏰ Le code expire dans 5 minutes !');",
+							"console.log('');",
+							"console.log('➡️  Copiez le code et passez à l\\'étape 3');",
+							"console.log('');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"telephone\": \"+22370000001\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/connexion-telephone",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"connexion-telephone"
+					]
+				},
+				"description": "Envoie un code SMS au téléphone de l'utilisateur"
+			},
+			"response": []
+		},
+		{
+			"name": "3️⃣ Vérification Code SMS (Obtenir JWT)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('✅ Vérification réussie', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const responseJson = pm.response.json();",
+							"",
+							"pm.test('✅ Token JWT reçu', function () {",
+							"    pm.expect(responseJson.token).to.exist;",
+							"    pm.expect(responseJson.token).to.be.a('string');",
+							"    pm.expect(responseJson.token.length).to.be.above(20);",
+							"});",
+							"",
+							"pm.test('✅ Informations utilisateur présentes', function () {",
+							"    pm.expect(responseJson.id).to.exist;",
+							"    pm.expect(responseJson.telephone).to.equal('+22370000001');",
+							"    pm.expect(responseJson.email).to.equal('test@fasodocs.ml');",
+							"});",
+							"",
+							"// Sauvegarder le token pour les prochaines requêtes",
+							"pm.environment.set('jwt_token', responseJson.token);",
+							"pm.environment.set('user_id', responseJson.id);",
+							"",
+							"console.log('');",
+							"console.log('🎉 ====================================');",
+							"console.log('🎉 AUTHENTIFICATION RÉUSSIE !');",
+							"console.log('🎉 ====================================');",
+							"console.log('');",
+							"console.log('✅ Token JWT : ' + responseJson.token.substring(0, 30) + '...');",
+							"console.log('✅ User ID : ' + responseJson.id);",
+							"console.log('✅ Téléphone : ' + responseJson.telephone);",
+							"console.log('✅ Email : ' + responseJson.email);",
+							"console.log('');",
+							"console.log('📌 Le token a été sauvegardé dans l\\'environnement');",
+							"console.log('📌 Variable : jwt_token');",
+							"console.log('');",
+							"console.log('➡️  Vous pouvez maintenant tester les endpoints protégés');",
+							"console.log('');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"telephone\": \"+22370000001\",\n    \"code\": \"123456\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/verifier-sms",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"verifier-sms"
+					]
+				},
+				"description": "Vérifie le code SMS et retourne un token JWT. ⚠️ REMPLACEZ '123456' par le vrai code reçu par SMS !"
+			},
+			"response": []
+		},
+		{
+			"name": "4️⃣ Obtenir Profil (avec JWT)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('✅ Profil récupéré', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const responseJson = pm.response.json();",
+							"",
+							"pm.test('✅ Données profil présentes', function () {",
+							"    pm.expect(responseJson.id).to.exist;",
+							"    pm.expect(responseJson.telephone).to.exist;",
+							"    pm.expect(responseJson.email).to.exist;",
+							"});",
+							"",
+							"console.log('');",
+							"console.log('👤 Profil utilisateur :');",
+							"console.log('   ID : ' + responseJson.id);",
+							"console.log('   Téléphone : ' + responseJson.telephone);",
+							"console.log('   Email : ' + responseJson.email);",
+							"console.log('   Téléphone vérifié : ' + responseJson.telephoneVerifie);",
+							"console.log('');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/auth/profil",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"profil"
+					]
+				},
+				"description": "Récupère le profil de l'utilisateur connecté (nécessite un token JWT)"
+			},
+			"response": []
+		},
+		{
+			"name": "5️⃣ Obtenir Toutes les Procédures (Public)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('✅ Procédures récupérées', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const responseJson = pm.response.json();",
+							"",
+							"pm.test('✅ Liste de procédures reçue', function () {",
+							"    pm.expect(responseJson).to.be.an('array');",
+							"});",
+							"",
+							"if (responseJson.length > 0) {",
+							"    pm.environment.set('procedure_id', responseJson[0].id);",
+							"    console.log('');",
+							"    console.log('📋 Nombre de procédures : ' + responseJson.length);",
+							"    console.log('📌 Première procédure : ' + responseJson[0].titre);",
+							"    console.log('');",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/procedures",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"procedures"
+					]
+				},
+				"description": "Endpoint public - pas besoin de token JWT"
+			},
+			"response": []
+		},
+		{
+			"name": "6️⃣ Obtenir Notifications (avec JWT)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('✅ Notifications récupérées', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const responseJson = pm.response.json();",
+							"",
+							"pm.test('✅ Liste de notifications reçue', function () {",
+							"    pm.expect(responseJson).to.be.an('array');",
+							"});",
+							"",
+							"console.log('');",
+							"console.log('🔔 Nombre de notifications : ' + responseJson.length);",
+							"console.log('');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/notifications",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"notifications"
+					]
+				},
+				"description": "Endpoint protégé - nécessite un token JWT"
+			},
+			"response": []
+		},
+		{
+			"name": "❌ Test Sans Token (doit échouer)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('✅ Accès refusé sans token (attendu)', function () {",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"",
+							"console.log('');",
+							"console.log('✅ Sécurité OK : Accès refusé sans token JWT');",
+							"console.log('');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/notifications",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"notifications"
+					]
+				},
+				"description": "Test de sécurité : doit retourner 401 sans token"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
+

@@ -1,0 +1,1501 @@
+{
+	"info": {
+		"_postman_id": "fasodocs-complete-test-2025",
+		"name": "FasoDocs API - Tests Complets",
+		"description": "Collection complète pour tester toutes les fonctionnalités du backend FasoDocs - Mali",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "fasodocs-backend"
+	},
+	"item": [
+		{
+			"name": "🔐 Authentification",
+			"item": [
+				{
+					"name": "1. Inscription d'un nouveau citoyen",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test('Inscription réussie', function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"    ",
+									"    const responseJson = pm.response.json();",
+									"    pm.test('Message de succès', function () {",
+									"        pm.expect(responseJson.success).to.be.true;",
+									"    });",
+									"} else {",
+									"    pm.test('Inscription échouée', function () {",
+									"        pm.response.to.have.status(400);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"telephone\": \"+22370000001\",\n    \"email\": \"test@fasodocs.ml\",\n    \"motDePasse\": \"Test123!\",\n    \"confirmerMotDePasse\": \"Test123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/inscription",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"inscription"
+							]
+						},
+						"description": "Inscription d'un nouveau citoyen avec email et téléphone"
+					},
+					"response": []
+				},
+				{
+					"name": "2. Connexion par téléphone (envoie code SMS)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test('Connexion initiée', function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"    ",
+									"    const responseJson = pm.response.json();",
+									"    pm.test('Code SMS envoyé', function () {",
+									"        pm.expect(responseJson.success).to.be.true;",
+									"    });",
+									"} else {",
+									"    pm.test('Connexion échouée', function () {",
+									"        pm.response.to.have.status(400);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"telephone\": \"+22370000001\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/connexion-telephone",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"connexion-telephone"
+							]
+						},
+						"description": "Connexion par téléphone uniquement - envoie un code SMS de vérification"
+					},
+					"response": []
+				},
+				{
+					"name": "3. Vérification code SMS",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test('Vérification SMS réussie', function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"    ",
+									"    const responseJson = pm.response.json();",
+									"    pm.test('Token JWT reçu', function () {",
+									"        pm.expect(responseJson.accessToken).to.exist;",
+									"    });",
+									"    ",
+									"    // Sauvegarder le token pour les autres requêtes",
+									"    pm.environment.set('jwt_token', responseJson.accessToken);",
+									"    pm.environment.set('user_id', responseJson.id);",
+									"} else {",
+									"    pm.test('Vérification SMS échouée', function () {",
+									"        pm.response.to.have.status(400);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"telephone\": \"+22370000001\",\n    \"codeSms\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/verifier-sms",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"verifier-sms"
+							]
+						},
+						"description": "Vérification du code SMS et obtention du token JWT"
+					},
+					"response": []
+				},
+				{
+					"name": "4. Connexion par téléphone - Test avec numéro existant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test('Connexion par téléphone réussie', function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"    ",
+									"    const responseJson = pm.response.json();",
+									"    pm.test('Code SMS envoyé', function () {",
+									"        pm.expect(responseJson.success).to.be.true;",
+									"    });",
+									"} else {",
+									"    pm.test('Connexion par téléphone échouée', function () {",
+									"        pm.response.to.have.status(400);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"telephone\": \"+22370000001\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/connexion-telephone",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"connexion-telephone"
+							]
+						},
+						"description": "Test de connexion par téléphone avec un numéro existant"
+					},
+					"response": []
+				},
+				{
+					"name": "5. Connexion Admin (pour tests)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test('Connexion Admin réussie', function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"    ",
+									"    const responseJson = pm.response.json();",
+									"    pm.test('Token JWT Admin reçu', function () {",
+									"        pm.expect(responseJson.accessToken).to.exist;",
+									"    });",
+									"    ",
+									"    // Sauvegarder le token admin",
+									"    pm.environment.set('admin_jwt_token', responseJson.accessToken);",
+									"    pm.environment.set('admin_user_id', responseJson.id);",
+									"} else {",
+									"    pm.test('Connexion Admin échouée', function () {",
+									"        pm.response.to.have.status(400);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"identifiant\": \"admin@fasodocs.ml\",\n    \"motDePasse\": \"Admin@2025\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/connexion",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"connexion"
+							]
+						},
+						"description": "Connexion avec le compte administrateur par défaut"
+					},
+					"response": []
+				},
+				{
+					"name": "5. Obtenir profil utilisateur",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test('Profil récupéré', function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"    ",
+									"    const responseJson = pm.response.json();",
+									"    pm.test('Données utilisateur présentes', function () {",
+									"        pm.expect(responseJson.email).to.exist;",
+									"        pm.expect(responseJson.telephone).to.exist;",
+									"    });",
+									"} else {",
+									"    pm.test('Erreur récupération profil', function () {",
+									"        pm.response.to.have.status(401);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/profil",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"profil"
+							]
+						},
+						"description": "Récupération du profil de l'utilisateur connecté"
+					},
+					"response": []
+				},
+				{
+					"name": "6. Mise à jour profil",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test('Profil mis à jour', function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"    ",
+									"    const responseJson = pm.response.json();",
+									"    pm.test('Message de succès', function () {",
+									"        pm.expect(responseJson.success).to.be.true;",
+									"    });",
+									"} else {",
+									"    pm.test('Erreur mise à jour profil', function () {",
+									"        pm.response.to.have.status(400);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nom\": \"Dupont\",\n    \"prenom\": \"Jean\",\n    \"languePreferee\": \"fr\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/profil",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"profil"
+							]
+						},
+						"description": "Mise à jour du profil utilisateur"
+					},
+					"response": []
+				},
+				{
+					"name": "7. Déconnexion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test('Déconnexion réussie', function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"    ",
+									"    const responseJson = pm.response.json();",
+									"    pm.test('Message de succès', function () {",
+									"        pm.expect(responseJson.success).to.be.true;",
+									"    });",
+									"    ",
+									"    // Nettoyer les variables d'environnement",
+									"    pm.environment.unset('jwt_token');",
+									"    pm.environment.unset('user_id');",
+									"} else {",
+									"    pm.test('Erreur déconnexion', function () {",
+									"        pm.response.to.have.status(400);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/deconnexion",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"deconnexion"
+							]
+						},
+						"description": "Déconnexion de l'utilisateur"
+					},
+					"response": []
+				}
+			],
+			"description": "Tests d'authentification et de gestion du profil utilisateur"
+		},
+		{
+			"name": "📋 Procédures",
+			"item": [
+				{
+					"name": "1. Obtenir toutes les procédures",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Liste des procédures récupérée', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const responseJson = pm.response.json();",
+									"pm.test('Array de procédures', function () {",
+									"    pm.expect(responseJson).to.be.an('array');",
+									"});",
+									"",
+									"if (responseJson.length > 0) {",
+									"    pm.test('Structure de procédure valide', function () {",
+									"        const procedure = responseJson[0];",
+									"        pm.expect(procedure.id).to.exist;",
+									"        pm.expect(procedure.nom).to.exist;",
+									"        pm.expect(procedure.titre).to.exist;",
+									"    });",
+									"    ",
+									"    // Sauvegarder l'ID de la première procédure pour les tests suivants",
+									"    pm.environment.set('procedure_id', responseJson[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/procedures",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"procedures"
+							]
+						},
+						"description": "Récupération de toutes les procédures disponibles"
+					},
+					"response": []
+				},
+				{
+					"name": "2. Obtenir une procédure par ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test('Procédure récupérée', function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"    ",
+									"    const responseJson = pm.response.json();",
+									"    pm.test('Données complètes de procédure', function () {",
+									"        pm.expect(responseJson.id).to.exist;",
+									"        pm.expect(responseJson.nom).to.exist;",
+									"        pm.expect(responseJson.titre).to.exist;",
+									"        pm.expect(responseJson.delai).to.exist;",
+									"    });",
+									"    ",
+									"    // Sauvegarder l'ID de catégorie pour les tests suivants",
+									"    if (responseJson.categorie) {",
+									"        pm.environment.set('categorie_id', responseJson.categorie.id);",
+									"    }",
+									"} else {",
+									"    pm.test('Procédure non trouvée', function () {",
+									"        pm.response.to.have.status(400);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/procedures/{{procedure_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"procedures",
+								"{{procedure_id}}"
+							]
+						},
+						"description": "Récupération d'une procédure spécifique par son ID"
+					},
+					"response": []
+				},
+				{
+					"name": "3. Rechercher des procédures",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Recherche effectuée', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const responseJson = pm.response.json();",
+									"pm.test('Résultats de recherche', function () {",
+									"    pm.expect(responseJson).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Au moins un résultat trouvé', function () {",
+									"    pm.expect(responseJson.length).to.be.at.least(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/procedures/rechercher?q=naissance",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"procedures",
+								"rechercher"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "naissance"
+								}
+							]
+						},
+						"description": "Recherche de procédures par mot-clé"
+					},
+					"response": []
+				},
+				{
+					"name": "4. Obtenir procédures par catégorie",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Procédures par catégorie récupérées', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const responseJson = pm.response.json();",
+									"pm.test('Array de procédures', function () {",
+									"    pm.expect(responseJson).to.be.an('array');",
+									"});",
+									"",
+									"if (responseJson.length > 0) {",
+									"    pm.test('Toutes les procédures appartiennent à la même catégorie', function () {",
+									"        const categorieId = pm.environment.get('categorie_id');",
+									"        responseJson.forEach(procedure => {",
+									"            if (procedure.categorie) {",
+									"                pm.expect(procedure.categorie.id).to.eql(parseInt(categorieId));",
+									"            }",
+									"        });",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/procedures/categorie/{{categorie_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"procedures",
+								"categorie",
+								"{{categorie_id}}"
+							]
+						},
+						"description": "Récupération des procédures d'une catégorie spécifique"
+					},
+					"response": []
+				},
+				{
+					"name": "5. Créer une nouvelle procédure (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test('Procédure créée', function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"    ",
+									"    const responseJson = pm.response.json();",
+									"    pm.test('Nouvelle procédure avec ID', function () {",
+									"        pm.expect(responseJson.id).to.exist;",
+									"        pm.expect(responseJson.nom).to.eql('Test Procédure');",
+									"    });",
+									"    ",
+									"    // Sauvegarder l'ID de la nouvelle procédure",
+									"    pm.environment.set('new_procedure_id', responseJson.id);",
+									"} else if (pm.response.code === 403) {",
+									"    pm.test('Accès refusé - Admin requis', function () {",
+									"        pm.response.to.have.status(403);",
+									"    });",
+									"} else {",
+									"    pm.test('Erreur création procédure', function () {",
+									"        pm.response.to.have.status(400);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_jwt_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nom\": \"Test Procédure\",\n    \"titre\": \"Test de création de procédure\",\n    \"description\": \"Procédure créée pour les tests\",\n    \"delai\": \"5 jours ouvrés\",\n    \"urlVersFormulaire\": \"https://example.com/formulaire\",\n    \"categorieId\": {{categorie_id}},\n    \"etapes\": [\n        \"Étape 1: Rassembler les documents\",\n        \"Étape 2: Remplir le formulaire\",\n        \"Étape 3: Soumettre la demande\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/procedures",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"procedures"
+							]
+						},
+						"description": "Création d'une nouvelle procédure (nécessite les droits admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "6. Mettre à jour une procédure (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test('Procédure mise à jour', function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"    ",
+									"    const responseJson = pm.response.json();",
+									"    pm.test('Titre modifié', function () {",
+									"        pm.expect(responseJson.titre).to.eql('Test Procédure Modifiée');",
+									"    });",
+									"} else if (pm.response.code === 403) {",
+									"    pm.test('Accès refusé - Admin requis', function () {",
+									"        pm.response.to.have.status(403);",
+									"    });",
+									"} else {",
+									"    pm.test('Erreur mise à jour procédure', function () {",
+									"        pm.response.to.have.status(400);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_jwt_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nom\": \"Test Procédure\",\n    \"titre\": \"Test Procédure Modifiée\",\n    \"description\": \"Procédure modifiée pour les tests\",\n    \"delai\": \"7 jours ouvrés\",\n    \"urlVersFormulaire\": \"https://example.com/formulaire-updated\",\n    \"categorieId\": {{categorie_id}},\n    \"etapes\": [\n        \"Étape 1: Rassembler les documents\",\n        \"Étape 2: Remplir le formulaire\",\n        \"Étape 3: Soumettre la demande\",\n        \"Étape 4: Suivi de la demande\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/procedures/{{new_procedure_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"procedures",
+								"{{new_procedure_id}}"
+							]
+						},
+						"description": "Mise à jour d'une procédure existante (nécessite les droits admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "7. Supprimer une procédure (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test('Procédure supprimée', function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"    ",
+									"    const responseJson = pm.response.json();",
+									"    pm.test('Message de succès', function () {",
+									"        pm.expect(responseJson.success).to.be.true;",
+									"    });",
+									"    ",
+									"    // Nettoyer la variable d'environnement",
+									"    pm.environment.unset('new_procedure_id');",
+									"} else if (pm.response.code === 403) {",
+									"    pm.test('Accès refusé - Admin requis', function () {",
+									"        pm.response.to.have.status(403);",
+									"    });",
+									"} else {",
+									"    pm.test('Erreur suppression procédure', function () {",
+									"        pm.response.to.have.status(400);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/procedures/{{new_procedure_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"procedures",
+								"{{new_procedure_id}}"
+							]
+						},
+						"description": "Suppression d'une procédure (nécessite les droits admin)"
+					},
+					"response": []
+				}
+			],
+			"description": "Tests de gestion des procédures administratives"
+		},
+		{
+			"name": "🔔 Notifications",
+			"item": [
+				{
+					"name": "1. Obtenir toutes les notifications",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Notifications récupérées', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const responseJson = pm.response.json();",
+									"pm.test('Array de notifications', function () {",
+									"    pm.expect(responseJson).to.be.an('array');",
+									"});",
+									"",
+									"if (responseJson.length > 0) {",
+									"    pm.test('Structure de notification valide', function () {",
+									"        const notification = responseJson[0];",
+									"        pm.expect(notification.id).to.exist;",
+									"        pm.expect(notification.titre).to.exist;",
+									"        pm.expect(notification.contenu).to.exist;",
+									"    });",
+									"    ",
+									"    // Sauvegarder l'ID de la première notification",
+									"    pm.environment.set('notification_id', responseJson[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/notifications",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"notifications"
+							]
+						},
+						"description": "Récupération de toutes les notifications de l'utilisateur connecté"
+					},
+					"response": []
+				},
+				{
+					"name": "2. Obtenir notifications non lues",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Notifications non lues récupérées', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const responseJson = pm.response.json();",
+									"pm.test('Array de notifications non lues', function () {",
+									"    pm.expect(responseJson).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Toutes les notifications sont non lues', function () {",
+									"    responseJson.forEach(notification => {",
+									"        pm.expect(notification.estLue).to.be.false;",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/notifications/non-lues",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"notifications",
+								"non-lues"
+							]
+						},
+						"description": "Récupération des notifications non lues"
+					},
+					"response": []
+				},
+				{
+					"name": "3. Compter notifications non lues",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Compteur récupéré', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const responseJson = pm.response.json();",
+									"pm.test('Nombre entier retourné', function () {",
+									"    pm.expect(responseJson).to.be.a('number');",
+									"    pm.expect(responseJson).to.be.at.least(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/notifications/count-non-lues",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"notifications",
+								"count-non-lues"
+							]
+						},
+						"description": "Comptage des notifications non lues"
+					},
+					"response": []
+				},
+				{
+					"name": "4. Marquer notification comme lue",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test('Notification marquée comme lue', function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"    ",
+									"    const responseJson = pm.response.json();",
+									"    pm.test('Notification marquée comme lue', function () {",
+									"        pm.expect(responseJson.estLue).to.be.true;",
+									"    });",
+									"} else {",
+									"    pm.test('Erreur marquage notification', function () {",
+									"        pm.response.to.have.status(400);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/notifications/{{notification_id}}/lire",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"notifications",
+								"{{notification_id}}",
+								"lire"
+							]
+						},
+						"description": "Marquage d'une notification spécifique comme lue"
+					},
+					"response": []
+				},
+				{
+					"name": "5. Marquer toutes les notifications comme lues",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Toutes les notifications marquées comme lues', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/notifications/lire-tout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"notifications",
+								"lire-tout"
+							]
+						},
+						"description": "Marquage de toutes les notifications comme lues"
+					},
+					"response": []
+				}
+			],
+			"description": "Tests de gestion des notifications"
+		},
+		{
+			"name": "🔍 Tests de Sécurité",
+			"item": [
+				{
+					"name": "1. Accès sans token JWT",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Accès refusé sans token', function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/auth/profil",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"profil"
+							]
+						},
+						"description": "Test d'accès à une route protégée sans token JWT"
+					},
+					"response": []
+				},
+				{
+					"name": "2. Accès avec token invalide",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Accès refusé avec token invalide', function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer token-invalide-123"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/profil",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"profil"
+							]
+						},
+						"description": "Test d'accès avec un token JWT invalide"
+					},
+					"response": []
+				},
+				{
+					"name": "3. Accès admin avec token utilisateur",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Accès refusé - Admin requis', function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nom\": \"Test\",\n    \"titre\": \"Test\",\n    \"delai\": \"1 jour\",\n    \"categorieId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/procedures",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"procedures"
+							]
+						},
+						"description": "Test d'accès à une route admin avec un token utilisateur normal"
+					},
+					"response": []
+				}
+			],
+			"description": "Tests de sécurité et d'autorisation"
+		},
+		{
+			"name": "📊 Tests de Performance",
+			"item": [
+				{
+					"name": "1. Test de charge - Liste des procédures",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Temps de réponse acceptable', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"pm.test('Status code 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const responseJson = pm.response.json();",
+									"pm.test('Données retournées', function () {",
+									"    pm.expect(responseJson).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/procedures",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"procedures"
+							]
+						},
+						"description": "Test de performance pour la récupération de toutes les procédures"
+					},
+					"response": []
+				},
+				{
+					"name": "2. Test de charge - Recherche",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Temps de réponse acceptable', function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1500);",
+									"});",
+									"",
+									"pm.test('Status code 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/procedures/rechercher?q=test",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"procedures",
+								"rechercher"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "test"
+								}
+							]
+						},
+						"description": "Test de performance pour la recherche de procédures"
+					},
+					"response": []
+				}
+			],
+			"description": "Tests de performance et de charge"
+		},
+		{
+			"name": "🌐 Tests d'Intégration",
+			"item": [
+				{
+					"name": "1. Flux complet d'inscription et connexion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test du flux complet d'inscription",
+									"if (pm.response.code === 200) {",
+									"    pm.test('Inscription réussie', function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"    ",
+									"    const responseJson = pm.response.json();",
+									"    pm.test('Message de succès', function () {",
+									"        pm.expect(responseJson.success).to.be.true;",
+									"    });",
+									"    ",
+									"    // Programmer la connexion après l'inscription",
+									"    setTimeout(() => {",
+									"        pm.sendRequest({",
+									"            url: pm.environment.get('base_url') + '/api/auth/connexion',",
+									"            method: 'POST',",
+									"            header: {",
+									"                'Content-Type': 'application/json'",
+									"            },",
+									"            body: {",
+									"                mode: 'raw',",
+									"                raw: JSON.stringify({",
+									"                    identifiant: 'integration@fasodocs.ml',",
+									"                    motDePasse: 'Integration123!'",
+									"                })",
+									"            }",
+									"        }, function (err, response) {",
+									"            if (response.code === 200) {",
+									"                console.log('Connexion après inscription réussie');",
+									"            }",
+									"        });",
+									"    }, 1000);",
+									"} else {",
+									"    pm.test('Inscription échouée', function () {",
+									"        pm.response.to.have.status(400);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"telephone\": \"+22370000099\",\n    \"email\": \"integration@fasodocs.ml\",\n    \"motDePasse\": \"Integration123!\",\n    \"confirmerMotDePasse\": \"Integration123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/inscription",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"inscription"
+							]
+						},
+						"description": "Test d'intégration du flux complet d'inscription et connexion"
+					},
+					"response": []
+				},
+				{
+					"name": "2. Flux complet de gestion de procédure",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test du flux complet de gestion de procédure",
+									"if (pm.response.code === 200) {",
+									"    pm.test('Procédure créée', function () {",
+									"        pm.response.to.have.status(200);",
+									"    });",
+									"    ",
+									"    const responseJson = pm.response.json();",
+									"    const procedureId = responseJson.id;",
+									"    ",
+									"    // Tester la récupération de la procédure créée",
+									"    setTimeout(() => {",
+									"        pm.sendRequest({",
+									"            url: pm.environment.get('base_url') + '/api/procedures/' + procedureId,",
+									"            method: 'GET',",
+									"            header: {",
+									"                'Authorization': 'Bearer ' + pm.environment.get('admin_jwt_token')",
+									"            }",
+									"        }, function (err, response) {",
+									"            if (response.code === 200) {",
+									"                console.log('Récupération de la procédure créée réussie');",
+									"                ",
+									"                // Tester la suppression",
+									"                setTimeout(() => {",
+									"                    pm.sendRequest({",
+									"                        url: pm.environment.get('base_url') + '/api/procedures/' + procedureId,",
+									"                        method: 'DELETE',",
+									"                        header: {",
+									"                            'Authorization': 'Bearer ' + pm.environment.get('admin_jwt_token')",
+									"                        }",
+									"                    }, function (err, response) {",
+									"                        if (response.code === 200) {",
+									"                            console.log('Suppression de la procédure réussie');",
+									"                        }",
+									"                    });",
+									"                }, 1000);",
+									"            }",
+									"        });",
+									"    }, 1000);",
+									"} else {",
+									"    pm.test('Erreur création procédure', function () {",
+									"        pm.response.to.have.status(400);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_jwt_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nom\": \"Procédure Test Intégration\",\n    \"titre\": \"Test d'intégration complet\",\n    \"description\": \"Procédure créée pour tester le flux complet\",\n    \"delai\": \"3 jours ouvrés\",\n    \"categorieId\": {{categorie_id}},\n    \"etapes\": [\n        \"Étape 1: Test\",\n        \"Étape 2: Validation\",\n        \"Étape 3: Finalisation\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/procedures",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"procedures"
+							]
+						},
+						"description": "Test d'intégration du flux complet de gestion de procédure (création, récupération, suppression)"
+					},
+					"response": []
+				}
+			],
+			"description": "Tests d'intégration et de flux complets"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Script global de pré-requête",
+					"console.log('Exécution de la requête:', pm.info.requestName);",
+					"",
+					"// Vérifier que l'URL de base est définie",
+					"if (!pm.environment.get('base_url')) {",
+					"    console.warn('Variable base_url non définie. Utilisation de localhost:8080');",
+					"    pm.environment.set('base_url', 'http://localhost:8080');",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Script global de test",
+					"console.log('Test de la réponse pour:', pm.info.requestName);",
+					"",
+					"// Test général de la structure de la réponse",
+					"pm.test('Response time is less than 5000ms', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+					"});",
+					"",
+					"// Test de la présence d'en-têtes CORS",
+					"pm.test('CORS headers present', function () {",
+					"    pm.expect(pm.response.headers.get('Access-Control-Allow-Origin')).to.exist;",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}

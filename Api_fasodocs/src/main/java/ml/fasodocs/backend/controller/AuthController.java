@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import ml.fasodocs.backend.dto.request.ConnexionRequest;
+import ml.fasodocs.backend.dto.request.ConnexionTelephoneRequest;
 import ml.fasodocs.backend.dto.request.InscriptionRequest;
 import ml.fasodocs.backend.dto.request.MiseAJourProfilRequest;
 import ml.fasodocs.backend.dto.request.VerificationSmsRequest;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @Tag(name = "Authentification", description = "API pour l'inscription, la connexion et la gestion du profil")
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class AuthController {
 
@@ -47,7 +48,22 @@ public class AuthController {
     }
 
     /**
-     * Connexion d'un citoyen - Envoie un code SMS
+     * Connexion par téléphone uniquement - Envoie un code SMS
+     */
+    @Operation(summary = "Connexion par téléphone - Envoie un code SMS")
+    @PostMapping("/connexion-telephone")
+    public ResponseEntity<?> connecterParTelephone(@Valid @RequestBody ConnexionTelephoneRequest request) {
+        try {
+            MessageResponse response = authService.connecterParTelephone(request);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(MessageResponse.error("Erreur de connexion: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Connexion d'un citoyen - Envoie un code SMS (ancienne méthode)
      */
     @Operation(summary = "Connexion d'un citoyen - Envoie un code SMS")
     @PostMapping("/connexion")

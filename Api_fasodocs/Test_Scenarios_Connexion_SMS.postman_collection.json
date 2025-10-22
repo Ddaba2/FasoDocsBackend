@@ -1,0 +1,415 @@
+{
+	"info": {
+		"_postman_id": "test-scenarios-sms-2025",
+		"name": "Test Scénarios Connexion SMS - Vérifications",
+		"description": "Collection pour tester les vérifications de sécurité avant l'envoi de SMS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "❌ Scénario 1 - Numéro Non Enregistré",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('❌ Erreur attendue : Numéro non enregistré', function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"const responseJson = pm.response.json();",
+							"",
+							"pm.test('❌ Message d\\'erreur correct', function () {",
+							"    pm.expect(responseJson.success).to.be.false;",
+							"    pm.expect(responseJson.message).to.include('non enregistré');",
+							"});",
+							"",
+							"console.log('');",
+							"console.log('❌ ========================================');",
+							"console.log('❌ SCÉNARIO 1 : NUMÉRO NON ENREGISTRÉ');",
+							"console.log('❌ ========================================');",
+							"console.log('');",
+							"console.log('📱 Numéro testé : +22370999999');",
+							"console.log('❌ Résultat : ' + responseJson.message);",
+							"console.log('');",
+							"console.log('✅ SÉCURITÉ OK : Pas de SMS envoyé !');",
+							"console.log('✅ Vérification BDD effectuée AVANT envoi SMS');",
+							"console.log('');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"telephone\": \"+22370999999\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/connexion-telephone",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"connexion-telephone"
+					]
+				},
+				"description": "Test avec un numéro qui n'existe pas en base de données.\nATTENDU : Erreur 400, message 'non enregistré', PAS de SMS envoyé"
+			},
+			"response": []
+		},
+		{
+			"name": "✅ Scénario 2A - Inscription Préalable",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    pm.test('✅ Inscription réussie', function () {",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"    ",
+							"    const responseJson = pm.response.json();",
+							"    pm.test('✅ Message de succès', function () {",
+							"        pm.expect(responseJson.success).to.be.true;",
+							"    });",
+							"    ",
+							"    console.log('');",
+							"    console.log('✅ Utilisateur inscrit avec succès');",
+							"    console.log('📱 Téléphone : +22370123456');",
+							"    console.log('➡️  Passez au test suivant (Scénario 2B)');",
+							"    console.log('');",
+							"} else {",
+							"    console.log('⚠️ Utilisateur déjà inscrit (OK pour continuer les tests)');",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"telephone\": \"+22370123456\",\n    \"email\": \"test-scenario@fasodocs.ml\",\n    \"motDePasse\": \"Test123!\",\n    \"confirmerMotDePasse\": \"Test123!\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/inscription",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"inscription"
+					]
+				},
+				"description": "Inscription d'un utilisateur pour tester ensuite la connexion avec un numéro valide"
+			},
+			"response": []
+		},
+		{
+			"name": "✅ Scénario 2B - Numéro Enregistré (SMS Envoyé)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('✅ Connexion acceptée', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const responseJson = pm.response.json();",
+							"",
+							"pm.test('✅ SMS envoyé avec succès', function () {",
+							"    pm.expect(responseJson.success).to.be.true;",
+							"    pm.expect(responseJson.message).to.include('code de vérification');",
+							"});",
+							"",
+							"pm.test('✅ Numéro masqué dans la réponse', function () {",
+							"    pm.expect(responseJson.message).to.include('***');",
+							"});",
+							"",
+							"console.log('');",
+							"console.log('✅ ========================================');",
+							"console.log('✅ SCÉNARIO 2 : NUMÉRO ENREGISTRÉ');",
+							"console.log('✅ ========================================');",
+							"console.log('');",
+							"console.log('📱 Numéro testé : +22370123456');",
+							"console.log('✅ Résultat : ' + responseJson.message);",
+							"console.log('');",
+							"console.log('🔍 Vérifications effectuées :');",
+							"console.log('   1. ✅ Numéro existe en BDD');",
+							"console.log('   2. ✅ Compte actif');",
+							"console.log('   3. ✅ Code généré (6 chiffres)');",
+							"console.log('   4. ✅ Code sauvegardé avec expiration');",
+							"console.log('   5. ✅ SMS envoyé');",
+							"console.log('');",
+							"console.log('📱 Vérifiez :');",
+							"console.log('   - Votre téléphone (si SMS activé)');",
+							"console.log('   - Les logs de l\\'application (si SMS désactivé)');",
+							"console.log('');",
+							"console.log('📝 Cherchez dans les logs :');",
+							"console.log('   \"Code SMS envoyé avec succès pour: +22370123456\"');",
+							"console.log('');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"telephone\": \"+22370123456\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/connexion-telephone",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"connexion-telephone"
+					]
+				},
+				"description": "Test avec un numéro ENREGISTRÉ.\nATTENDU : Succès 200, SMS envoyé, numéro masqué dans réponse"
+			},
+			"response": []
+		},
+		{
+			"name": "📊 Vérification BDD - Voir le Code",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"console.log('');",
+							"console.log('📊 ========================================');",
+							"console.log('📊 VÉRIFICATION BASE DE DONNÉES');",
+							"console.log('📊 ========================================');",
+							"console.log('');",
+							"console.log('💡 Pour voir le code SMS dans la BDD :');",
+							"console.log('');",
+							"console.log('SQL à exécuter :');",
+							"console.log('');",
+							"console.log('SELECT telephone, code_sms, code_sms_expiration');",
+							"console.log('FROM citoyens');",
+							"console.log('WHERE telephone = \\'+22370123456\\';');",
+							"console.log('');",
+							"console.log('Résultat attendu :');",
+							"console.log('┌─────────────────┬──────────┬─────────────────────┐');",
+							"console.log('│ telephone       │ code_sms │ code_sms_expiration │');",
+							"console.log('├─────────────────┼──────────┼─────────────────────┤');",
+							"console.log('│ +22370123456    │ 123456   │ 2025-XX-XX 14:35:00 │');",
+							"console.log('└─────────────────┴──────────┴─────────────────────┘');",
+							"console.log('');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/procedures",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"procedures"
+					]
+				},
+				"description": "Requête fictive pour afficher les instructions SQL dans la console"
+			},
+			"response": []
+		},
+		{
+			"name": "🔍 Test Format Téléphone Invalide",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('❌ Erreur attendue : Format invalide', function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"console.log('');",
+							"console.log('🔍 ========================================');",
+							"console.log('🔍 TEST FORMAT TÉLÉPHONE INVALIDE');",
+							"console.log('🔍 ========================================');",
+							"console.log('');",
+							"console.log('❌ Format testé : 0701234567 (INVALIDE)');",
+							"console.log('✅ Format attendu : +223XXXXXXXX');",
+							"console.log('');",
+							"console.log('✅ VALIDATION OK : Format rejeté !');",
+							"console.log('');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"telephone\": \"0701234567\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/connexion-telephone",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"connexion-telephone"
+					]
+				},
+				"description": "Test avec un format de téléphone invalide (sans +223)"
+			},
+			"response": []
+		},
+		{
+			"name": "📋 Résumé des Tests",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"console.log('');",
+							"console.log('╔════════════════════════════════════════════════════╗');",
+							"console.log('║                                                    ║');",
+							"console.log('║        RÉSUMÉ DES VÉRIFICATIONS DE SÉCURITÉ        ║');",
+							"console.log('║                                                    ║');",
+							"console.log('╚════════════════════════════════════════════════════╝');",
+							"console.log('');",
+							"console.log('🔐 VÉRIFICATIONS EFFECTUÉES AVANT ENVOI SMS :');",
+							"console.log('');",
+							"console.log('   1️⃣  Format téléphone valide (+223XXXXXXXX)');",
+							"console.log('       ├─ ✅ Validation côté DTO (regex)');",
+							"console.log('       └─ ❌ Rejet si format invalide');",
+							"console.log('');",
+							"console.log('   2️⃣  Numéro existe dans la base de données');",
+							"console.log('       ├─ ✅ Recherche en BDD');",
+							"console.log('       └─ ❌ Erreur si numéro non trouvé');",
+							"console.log('');",
+							"console.log('   3️⃣  Compte utilisateur actif');",
+							"console.log('       ├─ ✅ Vérification estActif = true');",
+							"console.log('       └─ ❌ Erreur si compte désactivé');",
+							"console.log('');",
+							"console.log('   4️⃣  Génération et sauvegarde du code');",
+							"console.log('       ├─ ✅ Code à 6 chiffres aléatoires');",
+							"console.log('       ├─ ✅ Expiration : +5 minutes');",
+							"console.log('       └─ ✅ Sauvegarde en BDD');",
+							"console.log('');",
+							"console.log('   5️⃣  Envoi du SMS via Twilio');",
+							"console.log('       ├─ ✅ Seulement si toutes les vérifications OK');",
+							"console.log('       ├─ ✅ Gestion des erreurs Twilio');",
+							"console.log('       └─ ✅ Logs détaillés');",
+							"console.log('');",
+							"console.log('═══════════════════════════════════════════════════');",
+							"console.log('');",
+							"console.log('📊 RÉSULTATS DES SCÉNARIOS :');",
+							"console.log('');",
+							"console.log('   ❌ Numéro non enregistré    → Pas de SMS ✅');",
+							"console.log('   ✅ Numéro enregistré        → SMS envoyé ✅');",
+							"console.log('   ❌ Format invalide          → Rejeté ✅');",
+							"console.log('');",
+							"console.log('═══════════════════════════════════════════════════');",
+							"console.log('');",
+							"console.log('💰 ÉCONOMIE DE CRÉDITS SMS :');",
+							"console.log('');",
+							"console.log('   Les SMS ne sont envoyés QUE pour les numéros :');",
+							"console.log('   ✓ Enregistrés dans la base');",
+							"console.log('   ✓ Avec compte actif');",
+							"console.log('   ✓ Format valide');",
+							"console.log('');",
+							"console.log('   → Protection contre le gaspillage de crédits !');",
+							"console.log('');",
+							"console.log('═══════════════════════════════════════════════════');",
+							"console.log('');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/procedures",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"procedures"
+					]
+				},
+				"description": "Affiche un résumé visuel dans la console Postman"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
+

@@ -103,11 +103,11 @@
             <version>2.2.0</version>
         </dependency>
         
-        <!-- Firebase Cloud Messaging pour les notifications push -->
+        <!-- Twilio pour l'envoi de SMS -->
         <dependency>
-            <groupId>com.google.firebase</groupId>
-            <artifactId>firebase-admin</artifactId>
-            <version>9.2.0</version>
+            <groupId>com.twilio.sdk</groupId>
+            <artifactId>twilio</artifactId>
+            <version>9.10.0</version>
         </dependency>
         
         <!-- Tests -->

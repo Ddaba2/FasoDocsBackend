@@ -30,13 +30,13 @@ public class Centre {
     @Column(length = 500)
     private String adresse;
 
-    @Column(length = 100)
+    @Column(length = 200)
     private String horaires;
 
     @Column(name = "coordonnees_gps", length = 100)
     private String coordonneesGPS;
 
-    @Column(length = 20)
+    @Column(length = 200)
     private String telephone;
 
     @Column(length = 100)

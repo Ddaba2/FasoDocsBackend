@@ -74,13 +74,15 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/api/auth/**").permitAll()
-                                .requestMatchers("/api/public/**").permitAll()
-                                .requestMatchers("/api/procedures/**").permitAll()
-                                .requestMatchers("/api/categories/**").permitAll()
-                                .requestMatchers("/api/lieux/**").permitAll()
-                                .requestMatchers("/api/traductions/**").permitAll()
-                                .requestMatchers("/api/chatbot/**").permitAll()
+                                .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/public/**").permitAll()
+                                .requestMatchers("/procedures/**").permitAll()
+                                .requestMatchers("/categories/**").permitAll()
+                                .requestMatchers("/lieux/**").permitAll()
+                                .requestMatchers("/traductions/**").permitAll()
+                                .requestMatchers("/chatbot/**").permitAll()
+                                .requestMatchers("/signalements/**").authenticated()
+                                .requestMatchers("/error").permitAll()
                                 // Swagger/OpenAPI endpoints
                                 .requestMatchers("/swagger-ui/**").permitAll()
                                 .requestMatchers("/swagger-ui.html").permitAll()

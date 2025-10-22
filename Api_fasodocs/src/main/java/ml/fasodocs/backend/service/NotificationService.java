@@ -33,8 +33,6 @@ public class NotificationService {
     @Autowired
     private CitoyenRepository citoyenRepository;
 
-    @Autowired
-    private FirebaseService firebaseService;
 
     /**
      * Récupère toutes les notifications du citoyen connecté
@@ -112,14 +110,7 @@ public class NotificationService {
             notification.setProcedure(procedure);
             notificationRepository.save(notification);
             
-            // Envoyer la notification push
-            if (citoyen.getTokenFcm() != null) {
-                firebaseService.envoyerNotificationPush(
-                        citoyen.getTokenFcm(),
-                        "Mise à jour de procédure",
-                        contenu
-                );
-            }
+            // Notification en base de données uniquement
         }
         
         logger.info("Notifications de mise à jour envoyées pour la procédure: {}", procedure.getNom());
@@ -139,14 +130,7 @@ public class NotificationService {
         notification.setProcedure(procedure);
         notificationRepository.save(notification);
         
-        // Envoyer la notification push
-        if (citoyen.getTokenFcm() != null) {
-            firebaseService.envoyerNotificationPush(
-                    citoyen.getTokenFcm(),
-                    type,
-                    contenu
-            );
-        }
+        // Notification en base de données uniquement
         
         logger.info("Notification envoyée au citoyen: {} {}", citoyen.getNom(), citoyen.getPrenom());
     }
