@@ -51,7 +51,7 @@ public class AuthService {
     private JwtUtils jwtUtils;
     
     @Autowired
-    private TwilioSmsService twilioSmsService;
+    private OrangeSmsService orangeSmsService;
 
     /**
      * Inscription d'un nouveau citoyen
@@ -112,19 +112,14 @@ public class AuthService {
         }
 
         // 3. Générer un code SMS à 6 chiffres
-        String codeSms = twilioSmsService.genererCodeVerification();
+        String codeSms = orangeSmsService.genererCodeVerification();
         citoyen.setCodeSms(codeSms);
         citoyen.setCodeSmsExpiration(java.time.LocalDateTime.now().plusMinutes(5));
         citoyenRepository.save(citoyen);
 
         // 4. Envoyer le SMS UNIQUEMENT si toutes les vérifications sont OK
-        try {
-            twilioSmsService.envoyerSmsConnexion(citoyen.getTelephone(), codeSms);
-            logger.info("Code SMS envoyé avec succès pour: {}", citoyen.getTelephone());
-        } catch (Exception e) {
-            logger.error("Erreur lors de l'envoi du SMS à {}: {}", citoyen.getTelephone(), e.getMessage());
-            throw new RuntimeException("Erreur lors de l'envoi du SMS. Veuillez réessayer.");
-        }
+        orangeSmsService.envoyerSmsConnexion(citoyen.getTelephone(), codeSms);
+        logger.info("Code SMS envoyé avec succès pour: {}", citoyen.getTelephone());
 
         return MessageResponse.success("Un code de vérification a été envoyé au " + 
                                       request.getTelephone().substring(0, 7) + "***");
@@ -144,13 +139,13 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("Citoyen non trouvé"));
 
         // Générer un code SMS
-        String codeSms = twilioSmsService.genererCodeVerification();
+        String codeSms = orangeSmsService.genererCodeVerification();
         citoyen.setCodeSms(codeSms);
         citoyen.setCodeSmsExpiration(java.time.LocalDateTime.now().plusMinutes(5));
         citoyenRepository.save(citoyen);
 
         // Envoyer le SMS
-        twilioSmsService.envoyerSmsConnexion(citoyen.getTelephone(), codeSms);
+        orangeSmsService.envoyerSmsConnexion(citoyen.getTelephone(), codeSms);
 
         logger.info("Code SMS envoyé pour la connexion: {}", citoyen.getTelephone());
 
@@ -249,6 +244,14 @@ public class AuthService {
 
         return citoyenRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new RuntimeException("Citoyen non trouvé"));
+    }
+
+    /**
+     * Trouver un citoyen par son ID
+     */
+    public Citoyen trouverCitoyenParId(Long id) {
+        return citoyenRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Citoyen non trouvé avec l'id: " + id));
     }
 
     /**

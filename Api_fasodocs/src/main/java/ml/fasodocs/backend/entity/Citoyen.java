@@ -1,9 +1,7 @@
 package ml.fasodocs.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -16,9 +14,12 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "citoyens")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"historiques", "notifications", "signalements", "parametre"})
+@EqualsAndHashCode(exclude = {"historiques", "notifications", "signalements", "parametre", "roles"})
 public class Citoyen {
 
     @Id

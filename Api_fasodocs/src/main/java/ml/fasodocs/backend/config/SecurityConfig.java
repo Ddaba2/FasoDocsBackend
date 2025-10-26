@@ -23,30 +23,57 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
- * Configuration de la sécurité Spring Security
+ * Configuration de la sécurité Spring Security pour l'application FasoDocs
+ * 
+ * Cette classe configure :
+ * - L'authentification JWT basée sur Spring Security
+ * - Les règles d'autorisation pour les endpoints
+ * - La configuration CORS pour permettre les requêtes depuis les frontends Angular/React
+ * - Le provider d'authentification DAO avec encodage BCrypt
+ * 
+ * @author FasoDocs Team
+ * @version 1.0
  */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    /** Service pour charger les détails des utilisateurs depuis la base de données */
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
+    /** Gestionnaire des erreurs d'authentification non autorisées */
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
 
+    /** 
+     * Liste des origines autorisées pour CORS
+     * Configurée dans application.properties : app.cors.allowed-origins
+     * Par défaut : http://localhost:3000,http://localhost:4200
+     */
     @Value("${app.cors.allowed-origins}")
     private String[] allowedOrigins;
 
+    /**
+     * Configure le filtre JWT pour l'authentification
+     * Ce filtre intercepte toutes les requêtes et vérifie le token JWT
+     * 
+     * @return Le filtre JWT configuré
+     */
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter();
     }
 
+    /**
+     * Configure le provider d'authentification DAO
+     * Utilise UserDetailsService pour charger les utilisateurs et BCrypt pour encoder les mots de passe
+     * 
+     * @return Le provider d'authentification configuré
+     */
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -57,16 +84,56 @@ public class SecurityConfig {
         return authProvider;
     }
 
+    /**
+     * Configure le gestionnaire d'authentification
+     * Utilisé pour l'authentification des utilisateurs avec username/password
+     * 
+     * @param authConfig Configuration d'authentification Spring
+     * @return Le gestionnaire d'authentification
+     * @throws Exception Si la configuration échoue
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
+    /**
+     * Configure l'encodeur de mots de passe BCrypt
+     * BCrypt utilise un algorithme de hachage avec sel automatique
+     * 
+     * @return L'encodeur BCrypt
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Configure la chaîne de filtres de sécurité
+     * Définit :
+     * - Les endpoints publics (sans authentification)
+     * - Les endpoints protégés (authentification requise)
+     * - Les règles CORS
+     * - La gestion des erreurs
+     * - La stratégie de session stateless (JWT)
+     * 
+     * Endpoints publics :
+     * - /auth/** : Authentification et inscription
+     * - /public/** : Contenu public
+     * - /procedures/** : Consultation des procédures
+     * - /categories/** : Consultation des catégories
+     * - /sous-categories/** : Consultation des sous-catégories
+     * - /chatbot/** : API du chatbot
+     * - /swagger-ui/** : Documentation API
+     * 
+     * Endpoints protégés :
+     * - /signalements/** : Signalements (authentification requise)
+     * - Tout autre endpoint : Authentification requise
+     * 
+     * @param http Configuration HTTP Security
+     * @return La chaîne de filtres configurée
+     * @throws Exception Si la configuration échoue
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
@@ -78,6 +145,7 @@ public class SecurityConfig {
                                 .requestMatchers("/public/**").permitAll()
                                 .requestMatchers("/procedures/**").permitAll()
                                 .requestMatchers("/categories/**").permitAll()
+                                .requestMatchers("/sous-categories/**").permitAll()
                                 .requestMatchers("/lieux/**").permitAll()
                                 .requestMatchers("/traductions/**").permitAll()
                                 .requestMatchers("/chatbot/**").permitAll()
@@ -100,13 +168,39 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Configure la source de configuration CORS (Cross-Origin Resource Sharing)
+     * 
+     * Autorise les requêtes depuis les origines configurées dans application.properties
+     * 
+     * Configuration :
+     * - Origines autorisées : http://localhost:3000 et http://localhost:4200 (configurables)
+     * - Méthodes autorisées : GET, POST, PUT, DELETE, OPTIONS
+     * - Headers autorisés : Tous (*)
+     * - Credentials : Activés (nécessaire pour les cookies et headers d'authentification)
+     * - Max Age : 3600 secondes (1 heure) pour le cache des pré-requêtes CORS
+     * 
+     * Cette configuration est appliquée à tous les endpoints (/**)
+     * 
+     * @return La source de configuration CORS
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+        
+        // Autoriser les origines spécifiées dans application.properties
         configuration.setAllowedOrigins(Arrays.asList(allowedOrigins));
+        
+        // Autoriser les méthodes HTTP standards
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        
+        // Autoriser tous les headers (nécessaire pour JWT)
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        
+        // Autoriser l'envoi de cookies et credentials (important pour l'authentification)
         configuration.setAllowCredentials(true);
+        
+        // Durée de mise en cache des pré-requêtes CORS (en secondes)
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

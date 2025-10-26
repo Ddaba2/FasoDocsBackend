@@ -271,6 +271,12 @@ public class ProcedureService {
                 .collect(Collectors.toSet())
         );
 
+        // Références légales
+        response.setLoisArticles(
+            procedure.getLoisArticles().stream()
+                .map(this::convertirLoiArticleEnResponse)
+                .collect(Collectors.toSet())
+        );
 
         return response;
     }
@@ -303,6 +309,15 @@ public class ProcedureService {
         response.setNom(etape.getNom());
         response.setDescription(etape.getDescription());
         response.setNiveau(etape.getNiveau());
+        return response;
+    }
+
+    private LoiArticleResponse convertirLoiArticleEnResponse(LoiArticle loiArticle) {
+        LoiArticleResponse response = new LoiArticleResponse();
+        response.setId(loiArticle.getId());
+        response.setDescription(loiArticle.getDescription());
+        response.setConsulterArticle(loiArticle.getConsulterArticle());
+        response.setLienAudio(loiArticle.getLienAudio());
         return response;
     }
 }

@@ -60,6 +60,15 @@ public class ProcedureController {
     }
 
     /**
+     * Récupère les procédures par sous-catégorie
+     */
+    @Operation(summary = "Récupère les procédures d'une sous-catégorie")
+    @GetMapping("/sous-categorie/{sousCategorieId}")
+    public ResponseEntity<List<ProcedureResponse>> obtenirProceduresParSousCategorie(@PathVariable Long sousCategorieId) {
+        return ResponseEntity.ok(procedureService.obtenirProceduresParSousCategorie(sousCategorieId));
+    }
+
+    /**
      * Recherche des procédures
      */
     @Operation(summary = "Recherche des procédures par nom ou titre")

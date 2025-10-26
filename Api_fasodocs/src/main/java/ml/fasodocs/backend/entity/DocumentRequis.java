@@ -1,18 +1,19 @@
 package ml.fasodocs.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * Entité représentant un document requis pour une procédure
  */
 @Entity
 @Table(name = "documents_requis")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = {"procedure"})
+@ToString(exclude = {"procedure"})
 public class DocumentRequis {
 
     @Id

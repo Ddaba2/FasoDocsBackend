@@ -1,18 +1,19 @@
 package ml.fasodocs.backend.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * Entité représentant une loi ou un article de loi
  */
 @Entity
 @Table(name = "lois_articles")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = {"procedure"})
+@ToString(exclude = {"procedure"})
 public class LoiArticle {
 
     @Id

@@ -1,0 +1,459 @@
+﻿# FasoDocs API - Documentation ComplÃ¨te des Endpoints
+
+## Vue d'ensemble
+Cette documentation prÃ©sente tous les endpoints disponibles dans l'API FasoDocs pour la gestion des procÃ©dures administratives au Mali.
+
+**ðŸ“Š Total: 46 endpoints disponibles**
+
+**âœ¨ NouveautÃ©**: Les rÃ©ponses de procÃ©dures incluent maintenant **les rÃ©fÃ©rences lÃ©gales (238 articles de loi)** avec liens audio en bambara.
+
+---
+
+## ðŸ” AUTHENTIFICATION (`/auth`)
+
+### Inscription
+- **POST** `/auth/inscription`
+- **ID**: `POST /auth/inscription`
+- **Description**: Inscription d'un nouveau citoyen
+- **Body**: `InscriptionRequest`
+- **RÃ©ponse**: `MessageResponse`
+
+### Connexion par tÃ©lÃ©phone
+- **POST** `/auth/connexion-telephone`
+- **ID**: `POST /auth/connexion-telephone`
+- **Description**: Connexion par tÃ©lÃ©phone uniquement - Envoie un code SMS
+- **Body**: `ConnexionTelephoneRequest`
+- **RÃ©ponse**: `MessageResponse`
+
+### Connexion (ancienne mÃ©thode)
+- **POST** `/auth/connexion`
+- **ID**: `POST /auth/connexion`
+- **Description**: Connexion d'un citoyen - Envoie un code SMS
+- **Body**: `ConnexionRequest`
+- **RÃ©ponse**: `MessageResponse`
+
+### VÃ©rification SMS
+- **POST** `/auth/verifier-sms`
+- **ID**: `POST /auth/verifier-sms`
+- **Description**: VÃ©rification du code SMS et connexion
+- **Body**: `VerificationSmsRequest`
+- **RÃ©ponse**: `JwtResponse`
+
+### VÃ©rification email
+- **GET** `/auth/verify`
+- **ID**: `GET /auth/verify`
+- **Description**: VÃ©rification de l'email via code
+- **ParamÃ¨tres**: `code` (query parameter)
+- **RÃ©ponse**: `MessageResponse`
+
+### Profil utilisateur
+- **GET** `/auth/profil`
+- **ID**: `GET /auth/profil`
+- **Description**: RÃ©cupÃ©ration du profil du citoyen connectÃ©
+- **RÃ©ponse**: `Citoyen`
+
+### Mise Ã  jour profil
+- **PUT** `/auth/profil`
+- **ID**: `PUT /auth/profil`
+- **Description**: Mise Ã  jour du profil du citoyen connectÃ©
+- **Body**: `MiseAJourProfilRequest`
+- **RÃ©ponse**: `MessageResponse`
+
+### DÃ©connexion
+- **POST** `/auth/deconnexion`
+- **ID**: `POST /auth/deconnexion`
+- **Description**: DÃ©connexion du citoyen
+- **RÃ©ponse**: `MessageResponse`
+
+---
+
+## ðŸ“‚ CATÃ‰GORIES (`/categories`)
+
+### Lister toutes les catÃ©gories
+- **GET** `/categories`
+- **ID**: `GET /categories`
+- **Description**: RÃ©cupÃ¨re toutes les catÃ©gories
+- **RÃ©ponse**: `List<CategorieResponse>`
+
+### Obtenir une catÃ©gorie par ID
+- **GET** `/categories/{id}`
+- **ID**: `GET /categories/{id}`
+- **Description**: RÃ©cupÃ¨re une catÃ©gorie par son ID
+- **ParamÃ¨tres**: `id` (path parameter)
+- **RÃ©ponse**: `CategorieResponse`
+
+### CrÃ©er une catÃ©gorie (Admin)
+- **POST** `/categories`
+- **ID**: `POST /categories`
+- **Description**: CrÃ©e une nouvelle catÃ©gorie (Admin uniquement)
+- **Body**: `CategorieRequest`
+- **RÃ©ponse**: `CategorieResponse`
+- **Autorisation**: `ADMIN`
+
+### Modifier une catÃ©gorie (Admin)
+- **PUT** `/categories/{id}`
+- **ID**: `PUT /categories/{id}`
+- **Description**: Met Ã  jour une catÃ©gorie (Admin uniquement)
+- **ParamÃ¨tres**: `id` (path parameter)
+- **Body**: `CategorieRequest`
+- **RÃ©ponse**: `CategorieResponse`
+- **Autorisation**: `ADMIN`
+
+### Supprimer une catÃ©gorie (Admin)
+- **DELETE** `/categories/{id}`
+- **ID**: `DELETE /categories/{id}`
+- **Description**: Supprime une catÃ©gorie (Admin uniquement)
+- **ParamÃ¨tres**: `id` (path parameter)
+- **RÃ©ponse**: `MessageResponse`
+- **Autorisation**: `ADMIN`
+
+---
+
+## ðŸ“ SOUS-CATÃ‰GORIES (`/sous-categories`)
+
+### Lister toutes les sous-catÃ©gories
+- **GET** `/sous-categories`
+- **ID**: `GET /sous-categories`
+- **Description**: RÃ©cupÃ¨re toutes les sous-catÃ©gories
+- **RÃ©ponse**: `List<SousCategorieResponse>`
+
+### Obtenir une sous-catÃ©gorie par ID
+- **GET** `/sous-categories/{id}`
+- **ID**: `GET /sous-categories/{id}`
+- **Description**: RÃ©cupÃ¨re une sous-catÃ©gorie par son ID
+- **ParamÃ¨tres**: `id` (path parameter)
+- **RÃ©ponse**: `SousCategorieResponse`
+
+### Obtenir les sous-catÃ©gories d'une catÃ©gorie
+- **GET** `/sous-categories/categorie/{categorieId}`
+- **ID**: `GET /sous-categories/categorie/{categorieId}`
+- **Description**: RÃ©cupÃ¨re les sous-catÃ©gories d'une catÃ©gorie
+- **ParamÃ¨tres**: `categorieId` (path parameter)
+- **RÃ©ponse**: `List<SousCategorieResponse>`
+
+### CrÃ©er une sous-catÃ©gorie (Admin)
+- **POST** `/sous-categories`
+- **ID**: `POST /sous-categories`
+- **Description**: CrÃ©e une nouvelle sous-catÃ©gorie (Admin uniquement)
+- **Body**: `SousCategorieRequest`
+- **RÃ©ponse**: `SousCategorieResponse`
+- **Autorisation**: `ADMIN`
+
+### Modifier une sous-catÃ©gorie (Admin)
+- **PUT** `/sous-categories/{id}`
+- **ID**: `PUT /sous-categories/{id}`
+- **Description**: Met Ã  jour une sous-catÃ©gorie (Admin uniquement)
+- **ParamÃ¨tres**: `id` (path parameter)
+- **Body**: `SousCategorieRequest`
+- **RÃ©ponse**: `SousCategorieResponse`
+- **Autorisation**: `ADMIN`
+
+### Supprimer une sous-catÃ©gorie (Admin)
+- **DELETE** `/sous-categories/{id}`
+- **ID**: `DELETE /sous-categories/{id}`
+- **Description**: Supprime une sous-catÃ©gorie (Admin uniquement)
+- **ParamÃ¨tres**: `id` (path parameter)
+- **RÃ©ponse**: `MessageResponse`
+- **Autorisation**: `ADMIN`
+
+---
+
+## ðŸ“‹ PROCÃ‰DURES (`/procedures`)
+
+### Lister toutes les procÃ©dures
+- **GET** `/procedures`
+- **ID**: `GET /procedures`
+- **Description**: RÃ©cupÃ¨re toutes les procÃ©dures
+- **RÃ©ponse**: `List<ProcedureResponse>`
+
+### Obtenir une procÃ©dure par ID
+- **GET** `/procedures/{id}`
+- **ID**: `GET /procedures/{id}`
+- **Description**: RÃ©cupÃ¨re une procÃ©dure par son ID
+- **ParamÃ¨tres**: `id` (path parameter)
+- **RÃ©ponse**: `ProcedureResponse`
+
+### Obtenir les procÃ©dures par catÃ©gorie
+- **GET** `/procedures/categorie/{categorieId}`
+- **ID**: `GET /procedures/categorie/{categorieId}`
+- **Description**: RÃ©cupÃ¨re les procÃ©dures d'une catÃ©gorie
+- **ParamÃ¨tres**: `categorieId` (path parameter)
+- **RÃ©ponse**: `List<ProcedureResponse>`
+
+### Obtenir les procÃ©dures par sous-catÃ©gorie
+- **GET** `/procedures/sous-categorie/{sousCategorieId}`
+- **ID**: `GET /procedures/sous-categorie/{sousCategorieId}`
+- **Description**: RÃ©cupÃ¨re les procÃ©dures d'une sous-catÃ©gorie
+- **ParamÃ¨tres**: `sousCategorieId` (path parameter)
+- **RÃ©ponse**: `List<ProcedureResponse>`
+
+### Rechercher des procÃ©dures
+- **GET** `/procedures/rechercher`
+- **ID**: `GET /procedures/rechercher`
+- **Description**: Recherche des procÃ©dures par nom ou titre
+- **ParamÃ¨tres**: `q` (query parameter)
+- **RÃ©ponse**: `List<ProcedureResponse>`
+
+### CrÃ©er une procÃ©dure (Admin)
+- **POST** `/procedures`
+- **ID**: `POST /procedures`
+- **Description**: CrÃ©e une nouvelle procÃ©dure (Admin uniquement)
+- **Body**: `ProcedureRequest`
+- **RÃ©ponse**: `ProcedureResponse`
+- **Autorisation**: `ADMIN`
+
+### Modifier une procÃ©dure (Admin)
+- **PUT** `/procedures/{id}`
+- **ID**: `PUT /procedures/{id}`
+- **Description**: Met Ã  jour une procÃ©dure (Admin uniquement)
+- **ParamÃ¨tres**: `id` (path parameter)
+- **Body**: `ProcedureRequest`
+- **RÃ©ponse**: `ProcedureResponse`
+- **Autorisation**: `ADMIN`
+
+### Supprimer une procÃ©dure (Admin)
+- **DELETE** `/procedures/{id}`
+- **ID**: `DELETE /procedures/{id}`
+- **Description**: Supprime une procÃ©dure (Admin uniquement)
+- **ParamÃ¨tres**: `id` (path parameter)
+- **RÃ©ponse**: `MessageResponse`
+- **Autorisation**: `ADMIN`
+
+---
+
+## ðŸ¤– CHATBOT DJELIA (`/chatbot`)
+
+### Chat simple
+- **POST** `/chatbot/chat`
+- **ID**: `POST /chatbot/chat`
+- **Description**: Chat avec Djelia AI dans diffÃ©rentes langues
+- **Body**: `ChatRequest`
+- **RÃ©ponse**: `ChatResponse`
+
+### Chat avec synthÃ¨se vocale
+- **POST** `/chatbot/chat-audio`
+- **ID**: `POST /chatbot/chat-audio`
+- **Description**: Chat avec Djelia AI + gÃ©nÃ©ration audio en bambara
+- **Body**: `ChatRequest`
+- **RÃ©ponse**: `ChatResponse`
+
+### Traduction de texte
+- **POST** `/chatbot/translate`
+- **ID**: `POST /chatbot/translate`
+- **Description**: Traduit un texte du franÃ§ais vers le bambara ou vice versa
+- **Body**: `TranslationRequest`
+- **RÃ©ponse**: `TranslationResponse`
+
+### SynthÃ¨se vocale
+- **POST** `/chatbot/speak`
+- **ID**: `POST /chatbot/speak`
+- **Description**: GÃ©nÃ¨re un audio Ã  partir d'un texte en bambara
+- **Body**: `SpeakRequest`
+- **RÃ©ponse**: `SpeakResponse`
+
+### Traduction rapide FR â†’ BM
+- **POST** `/chatbot/translate/fr-to-bm`
+- **ID**: `POST /chatbot/translate/fr-to-bm`
+- **Description**: Traduction rapide du franÃ§ais vers le bambara
+- **Body**: `String` (texte Ã  traduire)
+- **RÃ©ponse**: `TranslationResponse`
+
+### Traduction rapide BM â†’ FR
+- **POST** `/chatbot/translate/bm-to-fr`
+- **ID**: `POST /chatbot/translate/bm-to-fr`
+- **Description**: Traduction rapide du bambara vers le franÃ§ais
+- **Body**: `String` (texte Ã  traduire)
+- **RÃ©ponse**: `TranslationResponse`
+
+### VÃ©rification connectivitÃ©
+- **GET** `/chatbot/health`
+- **ID**: `GET /chatbot/health`
+- **Description**: VÃ©rifie si le service Djelia AI est accessible
+- **RÃ©ponse**: `{"status": "OK/KO", "message": "..."}`
+
+### Lecture audio automatique
+- **POST** `/chatbot/read-audio`
+- **ID**: `POST /chatbot/read-audio`
+- **Description**: Traduit un texte franÃ§ais et le lit en bambara
+- **Body**: `String` (texte franÃ§ais Ã  lire)
+- **RÃ©ponse**: `SpeakResponse`
+
+### Lecture audio rapide
+- **POST** `/chatbot/read-quick`
+- **ID**: `POST /chatbot/read-quick`
+- **Description**: Version simplifiÃ©e pour l'icÃ´ne audio du frontend
+- **Body**: `String` (texte franÃ§ais Ã  lire)
+- **RÃ©ponse**: `{"success": boolean, "audioUrl": string, "originalText": string, "translatedText": string}`
+
+### Test traduction
+- **GET** `/chatbot/test-translate`
+- **ID**: `GET /chatbot/test-translate`
+- **Description**: Test rapide de traduction avec un texte prÃ©dÃ©fini
+- **RÃ©ponse**: `TranslationResponse`
+
+---
+
+## ðŸ”” NOTIFICATIONS (`/notifications`)
+
+### Obtenir toutes les notifications
+- **GET** `/notifications`
+- **ID**: `GET /notifications`
+- **Description**: RÃ©cupÃ¨re toutes les notifications du citoyen connectÃ©
+- **RÃ©ponse**: `List<NotificationResponse>`
+
+### Obtenir les notifications non lues
+- **GET** `/notifications/non-lues`
+- **ID**: `GET /notifications/non-lues`
+- **Description**: RÃ©cupÃ¨re les notifications non lues
+- **RÃ©ponse**: `List<NotificationResponse>`
+
+### Compter les notifications non lues
+- **GET** `/notifications/count-non-lues`
+- **ID**: `GET /notifications/count-non-lues`
+- **Description**: Compte les notifications non lues
+- **RÃ©ponse**: `Long`
+
+### Marquer une notification comme lue
+- **PUT** `/notifications/{id}/lire`
+- **ID**: `PUT /notifications/{id}/lire`
+- **Description**: Marque une notification comme lue
+- **ParamÃ¨tres**: `id` (path parameter)
+- **RÃ©ponse**: `NotificationResponse`
+
+### Marquer toutes les notifications comme lues
+- **PUT** `/notifications/lire-tout`
+- **ID**: `PUT /notifications/lire-tout`
+- **Description**: Marque toutes les notifications comme lues
+- **RÃ©ponse**: `Void`
+
+---
+
+## ðŸ“¢ SIGNALEMENTS (`/signalements`)
+
+### CrÃ©er un signalement
+- **POST** `/signalements`
+- **ID**: `POST /signalements`
+- **Description**: CrÃ©e un nouveau signalement
+- **Body**: `SignalementRequest`
+- **RÃ©ponse**: `MessageResponse`
+
+### Obtenir mes signalements
+- **GET** `/signalements`
+- **ID**: `GET /signalements`
+- **Description**: RÃ©cupÃ¨re tous les signalements du citoyen connectÃ©
+- **RÃ©ponse**: `List<SignalementSimpleResponse>`
+
+### Obtenir un signalement spÃ©cifique
+- **GET** `/signalements/{id}`
+- **ID**: `GET /signalements/{id}`
+- **Description**: RÃ©cupÃ¨re un signalement spÃ©cifique
+- **ParamÃ¨tres**: `id` (path parameter)
+- **RÃ©ponse**: `SignalementResponse`
+
+### Modifier un signalement
+- **PUT** `/signalements/{id}`
+- **ID**: `PUT /signalements/{id}`
+- **Description**: Modifie un signalement (seulement si moins de 15 minutes)
+- **ParamÃ¨tres**: `id` (path parameter)
+- **Body**: `ModifierSignalementRequest`
+- **RÃ©ponse**: `MessageResponse`
+
+### Supprimer un signalement
+- **DELETE** `/signalements/{id}`
+- **ID**: `DELETE /signalements/{id}`
+- **Description**: Supprime un signalement (seulement si moins de 15 minutes)
+- **ParamÃ¨tres**: `id` (path parameter)
+- **RÃ©ponse**: `MessageResponse`
+
+---
+
+## ðŸ“Š STRUCTURE DES DONNÃ‰ES DES PROCÃ‰DURES
+
+**MISE Ã€ JOUR IMPORTANTE** : Depuis la derniÃ¨re version, toutes les rÃ©ponses de procÃ©dures incluent maintenant **les rÃ©fÃ©rences lÃ©gales (lois et articles)**.
+
+Chaque procÃ©dure contient les informations suivantes :
+
+### Informations de base
+- **ID**: Identifiant unique
+- **Nom**: Nom de la procÃ©dure
+- **Titre**: Titre court de la procÃ©dure
+- **Description**: Description dÃ©taillÃ©e
+- **DÃ©lai**: DÃ©lai de traitement
+- **URL vers formulaire**: Lien vers le formulaire en ligne
+
+### Relations et dÃ©tails
+- **CatÃ©gorie**: CatÃ©gorie principale de la procÃ©dure
+- **Sous-catÃ©gorie**: Sous-catÃ©gorie spÃ©cifique
+- **Centre de traitement**: Centre oÃ¹ effectuer la procÃ©dure
+  - Nom du centre
+  - Adresse
+  - Horaires d'ouverture
+  - CoordonnÃ©es GPS
+  - TÃ©lÃ©phone
+  - Email
+- **CoÃ»t**: Frais associÃ©s Ã  la procÃ©dure
+  - Nom du coÃ»t
+  - Prix en FCFA
+  - Description
+- **Documents requis**: Liste des documents nÃ©cessaires
+  - Nom du document
+  - Description
+  - Obligatoire ou non
+  - URL vers modÃ¨le si disponible
+- **Ã‰tapes**: Ã‰tapes Ã  suivre pour la procÃ©dure
+  - Nom de l'Ã©tape
+  - Description
+  - Niveau d'ordre
+- **RÃ©fÃ©rences lÃ©gales**: Articles de loi associÃ©s
+  - Description de la loi
+  - Article consultable
+  - Lien audio en bambara
+
+### MÃ©tadonnÃ©es
+- **Date de crÃ©ation**: Date de crÃ©ation de la procÃ©dure
+- **Date de modification**: DerniÃ¨re modification
+
+---
+
+## ðŸ”’ SÃ‰CURITÃ‰ ET AUTORISATIONS
+
+### Endpoints publics
+- Tous les endpoints d'authentification
+- Consultation des catÃ©gories, sous-catÃ©gories et procÃ©dures
+- Endpoints du chatbot Djelia
+- CrÃ©ation et consultation des signalements
+
+### Endpoints protÃ©gÃ©s (authentification requise)
+- Gestion du profil utilisateur
+- Notifications
+- Signalements personnels
+
+### Endpoints administrateur (`ADMIN` uniquement)
+- CrÃ©ation, modification et suppression des catÃ©gories
+- CrÃ©ation, modification et suppression des sous-catÃ©gories
+- CrÃ©ation, modification et suppression des procÃ©dures
+
+---
+
+## ðŸ“ CODES DE RÃ‰PONSE
+
+- **200 OK**: SuccÃ¨s
+- **201 Created**: Ressource crÃ©Ã©e avec succÃ¨s
+- **400 Bad Request**: Erreur dans la requÃªte
+- **401 Unauthorized**: Non authentifiÃ©
+- **403 Forbidden**: AccÃ¨s refusÃ© (pas les droits)
+- **404 Not Found**: Ressource non trouvÃ©e
+- **500 Internal Server Error**: Erreur serveur
+- **503 Service Unavailable**: Service temporairement indisponible
+
+---
+
+## ðŸŒ CORS ET CONFIGURATION
+
+- **Origins autorisÃ©es**: `*` (toutes)
+- **Max Age**: 3600 secondes
+- **Headers autorisÃ©s**: Tous les headers standards
+
+---
+
+*Cette documentation est gÃ©nÃ©rÃ©e automatiquement et reflÃ¨te l'Ã©tat actuel de l'API FasoDocs.*

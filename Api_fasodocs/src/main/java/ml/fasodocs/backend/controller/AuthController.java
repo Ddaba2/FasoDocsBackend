@@ -11,9 +11,12 @@ import ml.fasodocs.backend.dto.request.VerificationSmsRequest;
 import ml.fasodocs.backend.dto.response.JwtResponse;
 import ml.fasodocs.backend.dto.response.MessageResponse;
 import ml.fasodocs.backend.entity.Citoyen;
+import ml.fasodocs.backend.security.UserDetailsImpl;
 import ml.fasodocs.backend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -108,17 +111,33 @@ public class AuthController {
     }
 
     /**
-     * Récupération du profil du citoyen connecté
+     * Récupération du profil du citoyen connecté (VERSION CORRIGÉE)
      */
     @Operation(summary = "Récupération du profil du citoyen connecté")
     @GetMapping("/profil")
-    public ResponseEntity<?> obtenirProfil() {
+    public ResponseEntity<?> obtenirProfil(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        // Grâce à @AuthenticationPrincipal, Spring injecte l'objet utilisateur authentifié.
+        // Cela élimine le risque de ClassCastException.
+
+        if (userDetails == null) {
+            // Sécurité : si la route est mal configurée et accessible sans token, on renvoie une erreur claire.
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED) // 401 Unauthorized
+                    .body(MessageResponse.error("Authentification requise pour accéder au profil."));
+        }
+
         try {
-            Citoyen citoyen = authService.getProfilCitoyenConnecte();
+            // On utilise l'ID de l'utilisateur authentifié (stocké dans UserDetailsImpl)
+            // pour récupérer l'entité Citoyen complète depuis la base de données.
+            // NOTE : Vous devez avoir une méthode dans votre service qui permet de faire cela.
+
+            Citoyen citoyen = authService.trouverCitoyenParId(userDetails.getId()); // ou getCitoyenById, etc.
+
             return ResponseEntity.ok(citoyen);
+
         } catch (Exception e) {
+            // Cette exception sera levée si l'ID n'est pas trouvé, par exemple.
             return ResponseEntity.badRequest()
-                    .body(MessageResponse.error("Erreur lors de la récupération du profil: " + e.getMessage()));
+                    .body(MessageResponse.error("Erreur lors de la récupération des détails du profil: " + e.getMessage()));
         }
     }
 

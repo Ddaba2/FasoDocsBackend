@@ -27,4 +27,5 @@ public class ProcedureResponse {
     // Collections
     private Set<EtapeResponse> etapes;
     private Set<DocumentRequisResponse> documentsRequis;
+    private Set<LoiArticleResponse> loisArticles; // Références légales
 }

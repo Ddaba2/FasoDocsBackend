@@ -13,8 +13,10 @@ import java.util.Random;
 
 /**
  * Service pour l'envoi de SMS via Twilio
+ * 
+ * DÉSACTIVÉ - Remplacé par OrangeSmsService
  */
-@Service
+// @Service
 public class TwilioSmsService {
 
     private static final Logger logger = LoggerFactory.getLogger(TwilioSmsService.class);

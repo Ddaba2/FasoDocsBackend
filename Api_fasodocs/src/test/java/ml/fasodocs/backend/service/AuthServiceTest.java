@@ -47,12 +47,10 @@ class AuthServiceTest {
     @BeforeEach
     void setUp() {
         inscriptionRequest = new InscriptionRequest();
-        inscriptionRequest.setNom("Traoré");
-        inscriptionRequest.setPrenom("Amadou");
         inscriptionRequest.setEmail("amadou.traore@example.com");
         inscriptionRequest.setTelephone("76123456");
         inscriptionRequest.setMotDePasse("Password123");
-        inscriptionRequest.setLanguePreferee("fr");
+        inscriptionRequest.setConfirmerMotDePasse("Password123");
 
         roleCitoyen = new Role();
         roleCitoyen.setId(1L);
