@@ -1,7 +1,7 @@
 # 🇲🇱 FASODOCS API - TOUS LES ENDPOINTS DISPONIBLES
 
 ## 📊 Vue d'ensemble
-**Total: 46 endpoints** couvrant l'ensemble des fonctionnalités FasoDocs pour la gestion des procédures administratives au Mali.
+**Total: 54 endpoints** couvrant l'ensemble des fonctionnalités FasoDocs pour la gestion des procédures administratives au Mali.
 
 ---
 
@@ -48,9 +48,36 @@
 - **Description**: Mise à jour du profil du citoyen connecté
 - **Authentification**: Requise
 - **Body**: `MiseAJourProfilRequest`
+  ```json
+  {
+    "nom": "Traoré",
+    "prenom": "Amadou",
+    "telephone": "76654321",
+    "languePreferee": "bm",
+    "photoProfil": "data:image/jpeg;base64,/9j/4AAQSkZJRg..."
+  }
+  ```
 - **Réponse**: `MessageResponse`
 
-### 8. Déconnexion
+### 8. Upload photo de profil
+- **POST** `/auth/profil/photo`
+- **Description**: Upload de la photo de profil du citoyen connecté
+- **Authentification**: Requise
+- **Body**: `UploadPhotoRequest`
+  ```json
+  {
+    "photoProfil": "data:image/jpeg;base64,/9j/4AAQSkZJRg..."
+  }
+  ```
+- **Réponse**: `MessageResponse`
+
+### 9. Suppression photo de profil
+- **DELETE** `/auth/profil/photo`
+- **Description**: Suppression de la photo de profil du citoyen connecté
+- **Authentification**: Requise
+- **Réponse**: `MessageResponse`
+
+### 10. Déconnexion
 - **POST** `/auth/deconnexion`
 - **Description**: Déconnexion du citoyen
 - **Authentification**: Requise
@@ -58,85 +85,146 @@
 
 ---
 
-## 📂 CATÉGORIES (`/categories`)
+## 👤 ADMINISTRATION (`/admin`)
 
-### 9. Liste toutes les catégories
+### 11. Liste tous les utilisateurs
+- **GET** `/admin/utilisateurs`
+- **Description**: Récupère tous les utilisateurs enregistrés dans la base de données
+- **Autorisation**: `ADMIN` uniquement
+- **Réponse**: `List<CitoyenResponse>`
+
+### 12. Créer un utilisateur
+- **POST** `/admin/utilisateurs`
+- **Description**: Crée un nouvel utilisateur (citoyen ou admin)
+- **Autorisation**: `ADMIN` uniquement
+- **Body**: `CreerUtilisateurRequest`
+  ```json
+  {
+    "nom": "Diallo",
+    "prenom": "Amadou",
+    "telephone": "+22370000001",
+    "email": "utilisateur@example.com",
+    "motDePasse": "motdepasse123",
+    "role": "ROLE_CITOYEN"
+  }
+  ```
+- **Réponse**: `CitoyenResponse`
+
+### 13. Supprimer un utilisateur
+- **DELETE** `/admin/utilisateurs/{id}`
+- **Description**: Supprime un utilisateur par son ID (empêche la suppression du dernier admin)
+- **Autorisation**: `ADMIN` uniquement
+- **Paramètres**: `id` (path parameter)
+- **Réponse**: `MessageResponse`
+
+### 14. Statut du service SMS Orange
+- **GET** `/admin/sms/status`
+- **Description**: Consulte le statut du service SMS Orange et le rate limiting
+- **Autorisation**: `ADMIN` uniquement
+- **Réponse**: 
+  ```json
+  {
+    "enabled": true,
+    "configured": true,
+    "rateLimitAvailable": 5,
+    "rateLimitMax": 5,
+    "info": "Rate limit: 5 SMS par seconde (limite Orange)"
+  }
+  ```
+
+---
+
+## 📂 CATÉGORIES (`/categories` ET `/admin/categories`)
+
+### 15. Liste toutes les catégories (Public)
 - **GET** `/categories`
 - **Description**: Récupère toutes les catégories
 - **Accès**: Public
 - **Réponse**: `List<CategorieResponse>`
 
-### 10. Détails d'une catégorie
+### 16. Détails d'une catégorie (Public)
 - **GET** `/categories/{id}`
 - **Description**: Récupère une catégorie par son ID
 - **Accès**: Public
 - **Réponse**: `CategorieResponse`
 
-### 11. Créer une catégorie (Admin)
-- **POST** `/categories`
+### 17. Liste toutes les catégories (Admin)
+- **GET** `/admin/categories`
+- **Description**: Récupère toutes les catégories
+- **Autorisation**: `ADMIN` uniquement
+- **Réponse**: `List<CategorieResponse>`
+
+### 18. Créer une catégorie (Admin)
+- **POST** `/admin/categories`
 - **Description**: Crée une nouvelle catégorie
 - **Autorisation**: `ADMIN` uniquement
 - **Body**: `CategorieRequest`
 - **Réponse**: `CategorieResponse`
 
-### 12. Modifier une catégorie (Admin)
-- **PUT** `/categories/{id}`
+### 19. Modifier une catégorie (Admin)
+- **PUT** `/admin/categories/{id}`
 - **Description**: Met à jour une catégorie
 - **Autorisation**: `ADMIN` uniquement
 - **Body**: `CategorieRequest`
 - **Réponse**: `CategorieResponse`
 
-### 13. Supprimer une catégorie (Admin)
-- **DELETE** `/categories/{id}`
+### 20. Supprimer une catégorie (Admin)
+- **DELETE** `/admin/categories/{id}`
 - **Description**: Supprime une catégorie
 - **Autorisation**: `ADMIN` uniquement
 - **Réponse**: `MessageResponse`
 
 ---
 
-## 📁 SOUS-CATÉGORIES (`/sous-categories`)
+## 📁 SOUS-CATÉGORIES (`/sous-categories` ET `/admin/sous-categories`)
 
-### 14. Liste toutes les sous-catégories
+### 21. Liste toutes les sous-catégories (Public)
 - **GET** `/sous-categories`
 - **Description**: Récupère toutes les sous-catégories
 - **Accès**: Public
 - **Réponse**: `List<SousCategorieResponse>`
 
-### 15. Détails d'une sous-catégorie
+### 22. Détails d'une sous-catégorie (Public)
 - **GET** `/sous-categories/{id}`
 - **Description**: Récupère une sous-catégorie par son ID
 - **Accès**: Public
 - **Réponse**: `SousCategorieResponse`
 
-### 16. Sous-catégories d'une catégorie
+### 23. Sous-catégories d'une catégorie (Public)
 - **GET** `/sous-categories/categorie/{categorieId}`
 - **Description**: Récupère les sous-catégories d'une catégorie
 - **Accès**: Public
 - **Réponse**: `List<SousCategorieResponse>`
 
-### 17. Créer une sous-catégorie (Admin)
-- **POST** `/sous-categories`
+### 24. Liste toutes les sous-catégories (Admin)
+- **GET** `/admin/sous-categories`
+- **Description**: Récupère toutes les sous-catégories
+- **Autorisation**: `ADMIN` uniquement
+- **Réponse**: `List<SousCategorieResponse>`
+
+### 25. Créer une sous-catégorie (Admin)
+- **POST** `/admin/sous-categories`
 - **Description**: Crée une nouvelle sous-catégorie
 - **Autorisation**: `ADMIN` uniquement
 - **Body**: `SousCategorieRequest`
 - **Réponse**: `SousCategorieResponse`
 
-### 18. Modifier une sous-catégorie (Admin)
-- **PUT** `/sous-categories/{id}`
+### 26. Modifier une sous-catégorie (Admin)
+- **PUT** `/admin/sous-categories/{id}`
 - **Description**: Met à jour une sous-catégorie
 - **Autorisation**: `ADMIN` uniquement
 - **Body**: `SousCategorieRequest`
 - **Réponse**: `SousCategorieResponse`
 
-### 19. Supprimer une sous-catégorie (Admin)
-- **DELETE** `/sous-categories/{id}`
+### 27. Supprimer une sous-catégorie (Admin)
+- **DELETE** `/admin/sous-categories/{id}`
 - **Description**: Supprime une sous-catégorie
 - **Autorisation**: `ADMIN` uniquement
 - **Réponse**: `MessageResponse`
 
 ---
 
-## 📋 PROCÉDURES (`/procedures`)
+## 📋 PROCÉDURES (`/procedures` ET `/admin/procedures`)
 
 **IMPORTANT**: Toutes les réponses de procédures incluent maintenant:
 - ✅ Étapes (`etapes`)
@@ -146,13 +234,13 @@
 - ✅ Références légales (`loisArticles`) - **NOUVEAU**
 - ✅ Catégorie et sous-catégorie
 
-### 20. Liste toutes les procédures
+### 28. Liste toutes les procédures (Public)
 - **GET** `/procedures`
 - **Description**: Récupère toutes les procédures avec tous les détails
 - **Accès**: Public
 - **Réponse**: `List<ProcedureResponse>`
 
-### 21. Détails d'une procédure
+### 29. Détails d'une procédure (Public)
 - **GET** `/procedures/{id}`
 - **Description**: Récupère une procédure par son ID avec tous les détails
 - **Accès**: Public
@@ -165,40 +253,70 @@
   - Catégorie et sous-catégorie
   - **Références légales** (lois et articles avec lien audio bambara)
 
-### 22. Procédures par catégorie
+### 30. Procédures par catégorie (Public)
 - **GET** `/procedures/categorie/{categorieId}`
 - **Description**: Récupère les procédures d'une catégorie
 - **Accès**: Public
 - **Réponse**: `List<ProcedureResponse>`
 
-### 23. Procédures par sous-catégorie
+### 31. Procédures par sous-catégorie (Public)
 - **GET** `/procedures/sous-categorie/{sousCategorieId}`
 - **Description**: Récupère les procédures d'une sous-catégorie
 - **Accès**: Public
 - **Réponse**: `List<ProcedureResponse>`
 
-### 24. Rechercher des procédures
+### 32. Rechercher des procédures (Public)
 - **GET** `/procedures/rechercher?q={terme}`
 - **Description**: Recherche des procédures par nom ou titre
 - **Accès**: Public
 - **Réponse**: `List<ProcedureResponse>`
 
-### 25. Créer une procédure (Admin)
-- **POST** `/procedures`
+### 33. Liste toutes les procédures (Admin)
+- **GET** `/admin/procedures`
+- **Description**: Récupère toutes les procédures avec tous les détails
+- **Autorisation**: `ADMIN` uniquement
+- **Réponse**: `List<ProcedureResponse>`
+
+### 34. Créer une procédure (Admin)
+- **POST** `/admin/procedures`
 - **Description**: Crée une nouvelle procédure
 - **Autorisation**: `ADMIN` uniquement
 - **Body**: `ProcedureRequest`
 - **Réponse**: `ProcedureResponse`
 
-### 26. Modifier une procédure (Admin)
-- **PUT** `/procedures/{id}`
+**Exemple de requête (utilisation des IDs) :**
+```json
+{
+  "nom": "demande-passeport-biometrique",
+  "titre": "Demande de passeport biométrique",
+  "delai": "7 jours ouvrables",
+  "description": "Procédure pour obtenir un passeport biométrique",
+  "categorieId": 1,
+  "sousCategorieId": 7
+}
+```
+
+**Exemple de requête (utilisation des noms - nouvelle méthode) :**
+```json
+{
+  "nom": "demande-passeport-biometrique",
+  "titre": "Demande de passeport biométrique",
+  "delai": "7 jours ouvrables",
+  "description": "Procédure pour obtenir un passeport biométrique",
+  "categorieNom": "Identité et citoyenneté",
+  "sousCategorieNom": "Passeport malien"
+}
+```
+
+### 35. Modifier une procédure (Admin)
+- **PUT** `/admin/procedures/{id}`
 - **Description**: Met à jour une procédure
 - **Autorisation**: `ADMIN` uniquement
 - **Body**: `ProcedureRequest`
 - **Réponse**: `ProcedureResponse`
 
-### 27. Supprimer une procédure (Admin)
-- **DELETE** `/procedures/{id}`
+### 36. Supprimer une procédure (Admin)
+- **DELETE** `/admin/procedures/{id}`
 - **Description**: Supprime une procédure
 - **Autorisation**: `ADMIN` uniquement
 - **Réponse**: `MessageResponse`
@@ -207,31 +325,31 @@
 
 ## 🔔 NOTIFICATIONS (`/notifications`)
 
-### 28. Liste toutes les notifications
+### 37. Liste toutes les notifications
 - **GET** `/notifications`
 - **Description**: Récupère toutes les notifications du citoyen connecté
 - **Authentification**: Requise
 - **Réponse**: `List<NotificationResponse>`
 
-### 29. Notifications non lues
+### 38. Notifications non lues
 - **GET** `/notifications/non-lues`
 - **Description**: Récupère les notifications non lues
 - **Authentification**: Requise
 - **Réponse**: `List<NotificationResponse>`
 
-### 30. Nombre de notifications non lues
+### 39. Nombre de notifications non lues
 - **GET** `/notifications/count-non-lues`
 - **Description**: Compte les notifications non lues
 - **Authentification**: Requise
 - **Réponse**: `Long` (nombre)
 
-### 31. Marquer comme lue
+### 40. Marquer comme lue
 - **PUT** `/notifications/{id}/lire`
 - **Description**: Marque une notification comme lue
 - **Authentification**: Requise
 - **Réponse**: `NotificationResponse`
 
-### 32. Marquer toutes comme lues
+### 41. Marquer toutes comme lues
 - **PUT** `/notifications/lire-tout`
 - **Description**: Marque toutes les notifications comme lues
 - **Authentification**: Requise
@@ -241,94 +359,37 @@
 
 ## 📢 SIGNALEMENTS (`/signalements`)
 
-### 33. Créer un signalement
+### 42. Créer un signalement
 - **POST** `/signalements`
 - **Description**: Crée un nouveau signalement
 - **Accès**: Public (pas d'authentification requise)
 - **Body**: `SignalementRequest`
 - **Réponse**: `MessageResponse`
 
-### 34. Mes signalements
+### 43. Mes signalements
 - **GET** `/signalements`
 - **Description**: Récupère tous les signalements du citoyen connecté
 - **Authentification**: Requise
 - **Réponse**: `List<SignalementSimpleResponse>`
 
-### 35. Détails d'un signalement
+### 44. Détails d'un signalement
 - **GET** `/signalements/{id}`
 - **Description**: Récupère un signalement spécifique
 - **Authentification**: Requise
 - **Réponse**: `SignalementResponse`
 
-### 36. Modifier un signalement
+### 45. Modifier un signalement
 - **PUT** `/signalements/{id}`
 - **Description**: Modifie un signalement (seulement si moins de 15 minutes)
 - **Authentification**: Requise
 - **Body**: `ModifierSignalementRequest`
 - **Réponse**: `MessageResponse`
 
-### 37. Supprimer un signalement
+### 46. Supprimer un signalement
 - **DELETE** `/signalements/{id}`
 - **Description**: Supprime un signalement (seulement si moins de 15 minutes)
 - **Authentification**: Requise
 - **Réponse**: `MessageResponse`
-
----
-
-## 🤖 CHATBOT DJELIA (`/chatbot`)
-
-### 38. Chat simple
-- **POST** `/chatbot/chat`
-- **Description**: Chat avec Djelia AI dans différentes langues (français, bambara, etc.)
-- **Body**: `ChatRequest`
-- **Réponse**: `ChatResponse`
-
-### 39. Chat avec synthèse vocale
-- **POST** `/chatbot/chat-audio`
-- **Description**: Chat avec Djelia AI + génération audio en bambara
-- **Body**: `ChatRequest`
-- **Réponse**: `ChatResponse` (avec URL audio)
-
-### 40. Traduction de texte
-- **POST** `/chatbot/translate`
-- **Description**: Traduit un texte du français vers le bambara ou vice versa
-- **Body**: `TranslationRequest`
-- **Réponse**: `TranslationResponse`
-
-### 41. Synthèse vocale
-- **POST** `/chatbot/speak`
-- **Description**: Génère un audio à partir d'un texte en bambara
-- **Body**: `SpeakRequest`
-- **Réponse**: `SpeakResponse` (URL audio)
-
-### 42. Traduction rapide FR → BM
-- **POST** `/chatbot/translate/fr-to-bm`
-- **Description**: Traduction rapide du français vers le bambara
-- **Body**: `String` (texte à traduire)
-- **Réponse**: `TranslationResponse`
-
-### 43. Traduction rapide BM → FR
-- **POST** `/chatbot/translate/bm-to-fr`
-- **Description**: Traduction rapide du bambara vers le français
-- **Body**: `String` (texte à traduire)
-- **Réponse**: `TranslationResponse`
-
-### 44. Lecture audio automatique
-- **POST** `/chatbot/read-audio`
-- **Description**: Traduit un texte français et le lit en bambara
-- **Body**: `String` (texte français)
-- **Réponse**: `SpeakResponse`
-
-### 45. Lecture audio rapide
-- **POST** `/chatbot/read-quick`
-- **Description**: Version simplifiée pour l'icône audio du frontend
-- **Body**: `String` (texte français)
-- **Réponse**: `{"success": boolean, "audioUrl": string, "originalText": string, "translatedText": string}`
-
-### 46. Vérification connectivité
-- **GET** `/chatbot/health`
-- **Description**: Vérifie si le service Djelia AI est accessible
-- **Réponse**: `{"status": "OK/KO", "message": "..."}`
 
 ---
 
@@ -416,12 +477,82 @@ Chaque procédure retournée contient:
 
 ---
 
+## 🎤 DJELIA AI & CHATBOT (`/djelia` ET `/chatbot`)
+
+### 47. Lecture rapide avec traduction et audio
+- **POST** `/chatbot/read-quick`
+- **Description**: Traduit un texte français en bambara et génère l'audio en une seule requête (endpoint de compatibilité)
+- **Accès**: Public
+- **Body**: `TranslateAndSpeakRequest`
+  ```json
+  {
+    "text": "Bienvenue dans FasoDocs",
+    "voiceDescription": "Voix claire et naturelle",
+    "chunkSize": 1.0
+  }
+  ```
+- **Réponse**: `TranslateAndSpeakResponse`
+  ```json
+  {
+    "originalText": "Bienvenue dans FasoDocs",
+    "translatedText": "Aw bisimila FasoDocs kɔnɔ",
+    "audioBase64": "UklGRi4QAABXQVZF...",
+    "format": "wav",
+    "fromCache": false
+  }
+  ```
+
+### 48. Traduction français → bambara
+- **POST** `/djelia/translate`
+- **Description**: Traduit un texte du français vers le bambara
+- **Accès**: Public
+- **Body**: `TranslationRequest`
+- **Réponse**: `TranslationResponse`
+
+### 49. Synthèse vocale bambara
+- **POST** `/djelia/text-to-speech`
+- **Description**: Convertit du texte bambara en audio WAV (Base64)
+- **Accès**: Public
+- **Body**: `TextToSpeechRequest`
+- **Réponse**: `TextToSpeechResponse`
+
+### 50. Traduction + Synthèse vocale combinées
+- **POST** `/djelia/translate-and-speak`
+- **Description**: Combine traduction et audio (même fonction que `/chatbot/read-quick`)
+- **Accès**: Public
+- **Body**: `TranslateAndSpeakRequest`
+- **Réponse**: `TranslateAndSpeakResponse`
+
+### 51. Lecture rapide (alias)
+- **POST** `/djelia/read-quick`
+- **Description**: Alias de `/djelia/translate-and-speak`
+- **Accès**: Public
+
+### 52. Statistiques du cache Djelia
+- **GET** `/djelia/cache/stats`
+- **Description**: Retourne les statistiques d'utilisation du cache de traductions
+- **Accès**: Public
+- **Réponse**: `DjeliaCacheStatsResponse`
+
+### 53. Vider le cache Djelia
+- **DELETE** `/djelia/cache/clear`
+- **Description**: Supprime toutes les traductions du cache
+- **Accès**: Public
+- **Réponse**: `MessageResponse`
+
+### 54. Health check Djelia
+- **GET** `/djelia/health`
+- **Description**: Vérifie que le service Djelia AI est opérationnel
+- **Accès**: Public
+- **Réponse**: `MessageResponse`
+
+---
+
 ## 🔒 SÉCURITÉ ET AUTORISATIONS
 
 ### Endpoints publics (pas d'authentification)
 - Tous les endpoints d'authentification
 - Consultation des catégories, sous-catégories et procédures
-- Endpoints du chatbot Djelia
 - Création des signalements
 
 ### Endpoints protégés (authentification requise)
@@ -433,6 +564,7 @@ Chaque procédure retournée contient:
 - Création, modification et suppression des catégories
 - Création, modification et suppression des sous-catégories
 - Création, modification et suppression des procédures
+- Liste de tous les utilisateurs
 
 ### Authentification
 Pour les endpoints protégés, ajouter dans les headers:

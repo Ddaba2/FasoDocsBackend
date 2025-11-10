@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -63,6 +64,10 @@ public class Citoyen {
     @Column(name = "langue_preferee", length = 2)
     private String languePreferee = "fr"; // fr ou bm (bambara)
 
+    @Lob
+    @Column(name = "photo_profil", columnDefinition = "LONGTEXT")
+    private String photoProfil; // Photo de profil en Base64
+
     @CreationTimestamp
     @Column(name = "date_creation", updatable = false)
     private LocalDateTime dateCreation;
@@ -72,15 +77,19 @@ public class Citoyen {
     private LocalDateTime dateModification;
 
     @OneToMany(mappedBy = "citoyen", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     private Set<HistoriqueLog> historiques = new HashSet<>();
 
     @OneToMany(mappedBy = "citoyen", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     private Set<Notification> notifications = new HashSet<>();
 
     @OneToMany(mappedBy = "citoyen", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     private Set<Signalement> signalements = new HashSet<>();
 
     @OneToOne(mappedBy = "citoyen", cascade = CascadeType.ALL)
+    @JsonBackReference
     private Parametre parametre;
 
     @ManyToMany(fetch = FetchType.EAGER)

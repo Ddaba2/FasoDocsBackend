@@ -27,10 +27,15 @@ public class ProcedureRequest {
 
     private Set<String> etapes;
 
+    // L'administrateur peut fournir soit l'ID soit le nom de la catégorie
     @NotNull(message = "La catégorie est obligatoire")
     private Long categorieId;
+    private String categorieNom;
 
+    // L'administrateur peut fournir soit l'ID soit le nom de la sous-catégorie
     private Long sousCategorieId;
+    private String sousCategorieNom;
+    
     private Long coutId;
     private Long centreId;
 }

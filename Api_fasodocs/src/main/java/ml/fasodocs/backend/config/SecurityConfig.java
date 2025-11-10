@@ -142,6 +142,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/public/**").permitAll()
                                 .requestMatchers("/procedures/**").permitAll()
                                 .requestMatchers("/categories/**").permitAll()
@@ -188,8 +189,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Autoriser les origines spécifiées dans application.properties
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins));
+        // Autoriser les origines via des patterns (ex: localhost:*, 192.168.*:*)
+        configuration.setAllowedOriginPatterns(Arrays.asList(allowedOrigins));
         
         // Autoriser les méthodes HTTP standards
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));

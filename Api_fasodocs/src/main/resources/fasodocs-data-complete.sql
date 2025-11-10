@@ -376,6 +376,20 @@ INSERT INTO etapes (nom, description, niveau, procedure_id) VALUES
  (SELECT id FROM procedures WHERE nom = 'Extrait d''acte de mariage' LIMIT 1));
 
 -- ============================================
+-- 3.2.1. DOCUMENTS REQUIS POUR EXTREDIT D'ACTE DE MARIAGE
+-- ============================================
+
+INSERT INTO documents_requis (nom, description, est_obligatoire, procedure_id) VALUES
+('Copie de la carte d''identité des futurs époux', 'Copie de la carte d''identité des futurs époux (les deux époux doivent fournir une copie de leur pièce d''identité)', true,
+ (SELECT id FROM procedures WHERE nom = 'Extrait d''acte de mariage' LIMIT 1)),
+
+('Copie de la carte d''identité des témoins', 'Copie de la carte d''identité des témoins (les témoins doivent fournir une copie de leur pièce d''identité)', true,
+ (SELECT id FROM procedures WHERE nom = 'Extrait d''acte de mariage' LIMIT 1)),
+
+('Extrait d''acte de naissance des futurs époux', 'Extrait d''acte de naissance des futurs époux (les deux époux doivent fournir un extrait d''acte de naissance récent)', true,
+ (SELECT id FROM procedures WHERE nom = 'Extrait d''acte de mariage' LIMIT 1));
+
+-- ============================================
 -- 3.3. COÛTS DE LA PROCÉDURE
 -- ============================================
 
@@ -1339,6 +1353,15 @@ SET cout_id = (SELECT id FROM couts WHERE nom = 'Redevance Propres DNT - Cartes 
 WHERE nom = 'Carte grise (mutation)';
 
 -- ============================================
+-- 3.59.bis. ARTICLES DE LOI POUR CARTE GRISE (MUTATION)
+-- ============================================
+
+INSERT INTO lois_articles (description, consulter_article, procedure_id) VALUES
+('Arrêté n°2023-5150/MTI-SG du 29 décembre 2023', 
+'Arrêté fixant les nouvelles dispositions d\'immatriculation et instaurant le nouveau système d\'immatriculation à partir de septembre 2024. Autorité compétente : Direction Nationale des Transports Terrestres (DNTT).',
+ (SELECT id FROM procedures WHERE nom = 'Carte grise (mutation)' LIMIT 1));
+
+-- ============================================
 -- 3.60. PROCÉDURE: CARTE GRISE (RENOUVELLEMENT)
 -- ============================================
 
@@ -1433,6 +1456,15 @@ SET cout_id = (SELECT id FROM couts WHERE nom = 'Redevance DNT' LIMIT 1)
 WHERE nom = 'Carte grise (renouvellement)';
 
 -- ============================================
+-- 3.63.bis. ARTICLES DE LOI POUR CARTE GRISE (RENOUVELLEMENT)
+-- ============================================
+
+INSERT INTO lois_articles (description, consulter_article, procedure_id) VALUES
+('Arrêté n°2023-5150/MTI-SG du 29 décembre 2023', 
+'Arrêté fixant les nouvelles dispositions d\'immatriculation et instaurant le nouveau système d\'immatriculation à partir de septembre 2024. Autorité compétente : Direction Nationale des Transports Terrestres (DNTT).',
+ (SELECT id FROM procedures WHERE nom = 'Carte grise (renouvellement)' LIMIT 1));
+
+-- ============================================
 -- 3.64. CENTRE POUR LES PROCÉDURES CARTE GRISE
 -- ============================================
 
@@ -1523,6 +1555,15 @@ SET cout_id = (SELECT id FROM couts WHERE nom = 'Visite technique - Véhicules l
 WHERE nom = 'Visite technique';
 
 -- ============================================
+-- 3.68.bis. ARTICLES DE LOI POUR VISITE TECHNIQUE
+-- ============================================
+
+INSERT INTO lois_articles (description, consulter_article, procedure_id) VALUES
+('Décret n°94-181/PM-RM du 11 mai 1994', 
+'Décret encadrant les tarifs et modalités de la visite technique au Mali. L\'exécution est assurée par des entités agréées (ex. Mali Technic Services - MTS) sous la tutelle de la Direction Nationale des Transports Terrestres (DNTT).',
+ (SELECT id FROM procedures WHERE nom = 'Visite technique' LIMIT 1));
+
+-- ============================================
 -- 3.69. PROCÉDURE: VIGNETTE
 -- ============================================
 
@@ -1608,6 +1649,15 @@ SET centre_id = (SELECT id FROM centres WHERE nom = 'Service des Impôts' LIMIT 
 WHERE nom = 'Vignette';
 
 -- ============================================
+-- 3.73.bis. ARTICLES DE LOI POUR VIGNETTE
+-- ============================================
+
+INSERT INTO lois_articles (description, consulter_article, procedure_id) VALUES
+('Loi n°2004-271 du 15 avril 2004 (Annexe fiscale, art. 29-2°)', 
+'La taxe sur les véhicules automobiles (vignette) est régie par l\'annexe fiscale de la Loi n°2004-271 du 15 avril 2004, notamment son article 29-2°. Tarifs publiés par la Direction Générale des Impôts (ex.: document « Vignette » juin 2020) et mises à jour périodiques (ex.: TTR mai 2024).',
+ (SELECT id FROM procedures WHERE nom = 'Vignette' LIMIT 1));
+
+-- ============================================
 -- 3.74. PROCÉDURE: CHANGEMENT DE COULEUR DE PLAQUE
 -- ============================================
 
@@ -1618,6 +1668,15 @@ INSERT INTO procedures (nom, titre, delai, description, categorie_id, sous_categ
  (SELECT id FROM categories WHERE titre = 'Documents auto' LIMIT 1),
  (SELECT id FROM sous_categories WHERE titre = 'Changement de couleur de plaque' LIMIT 1),
  NOW());
+
+-- ============================================
+-- 3.74.bis. ARTICLES DE LOI POUR CHANGEMENT DE COULEUR DE PLAQUE
+-- ============================================
+
+INSERT INTO lois_articles (description, consulter_article, procedure_id) VALUES
+('Arrêté n°2023-5150/MTI-SG du 29 décembre 2023', 
+'L\'arrêté instaure le nouveau système d\'immatriculation et fixe la normalisation des plaques. Le changement de couleur est strictement encadré et non autorisé hors du cadre réglementaire.',
+ (SELECT id FROM procedures WHERE nom = 'Changement de couleur de plaque' LIMIT 1));
 
 -- ============================================
 -- 3.75. ÉTAPES DE LA PROCÉDURE CHANGEMENT DE COULEUR DE PLAQUE
@@ -2559,6 +2618,15 @@ SET centre_id = (SELECT id FROM centres WHERE nom = 'Centre de Gestion Intégré
 WHERE nom = 'Création de Société en Commandite Simple (SCS)';
 
 -- ============================================
+-- 3.129.bis. ARTICLES DE LOI POUR CRÉATION DE SCS
+-- ============================================
+
+INSERT INTO lois_articles (description, consulter_article, procedure_id) VALUES
+('Acte uniforme OHADA (AUSCGIE) - 2014', 
+'Acte uniforme relatif au droit des sociétés commerciales et du groupement d\'intérêt économique (AUSCGIE), OHADA 2014. Dispositions relatives à la création, au fonctionnement et à la dissolution des Sociétés en Commandite Simple (SCS). Applicable au Mali (État membre OHADA).',
+ (SELECT id FROM procedures WHERE nom = 'Création de Société en Commandite Simple (SCS)' LIMIT 1));
+
+-- ============================================
 -- 3.129. PROCÉDURE: TRANSFERT DE PARCELLE À USAGE D'HABITATION
 -- ============================================
 
@@ -2569,6 +2637,176 @@ INSERT INTO procedures (nom, titre, delai, description, categorie_id, sous_categ
  (SELECT id FROM categories WHERE titre = 'Service fonciers' LIMIT 1),
  (SELECT id FROM sous_categories WHERE titre = 'Lettre de transfert de parcelle à usage d''habitation' LIMIT 1),
  NOW());
+
+-- ============================================
+-- X+. RÉFÉRENCES JURIDIQUES COMPLÉMENTAIRES (OHADA, Codes nationaux)
+-- ============================================
+
+-- Entreprise individuelle (Entreprenant) – AUDPE
+INSERT INTO lois_articles (description, consulter_article, procedure_id) VALUES
+('Acte uniforme portant sur le droit de l\'entreprenant (AUDPE)', 
+'Régit le statut d\'entreprenant (entreprise individuelle) dans l\'espace OHADA (révision 2010). Procédure d\'immatriculation via le Guichet Unique (API-Mali).',
+ (SELECT id FROM procedures WHERE nom = 'Création d''entreprise individuelle' LIMIT 1));
+
+-- SARL – AUSCGIE art. 309 et s.
+INSERT INTO lois_articles (description, consulter_article, procedure_id) VALUES
+('AUSCGIE – SARL (art. 309 et suivants)', 
+'Acte uniforme OHADA relatif au droit des sociétés commerciales – dispositions applicables aux SARL (constitution, fonctionnement, dissolution).',
+ (SELECT id FROM procedures WHERE nom = 'Création d''une Société à Responsabilité Limitée (SARL)' LIMIT 1));
+
+-- SCS – AUSCGIE art. 293 et s. (complément)
+INSERT INTO lois_articles (description, consulter_article, procedure_id) VALUES
+('AUSCGIE – SCS (art. 293 et suivants)', 
+'Dispositions OHADA applicables aux Sociétés en Commandite Simple : associés commandités/commanditaires, responsabilité, fonctionnement.',
+ (SELECT id FROM procedures WHERE nom = 'Création de Société en Commandite Simple (SCS)' LIMIT 1));
+
+-- SAS – AUSCGIE art. 853-1 et s.
+INSERT INTO lois_articles (description, consulter_article, procedure_id) VALUES
+('AUSCGIE – SAS (art. 853-1 et suivants)', 
+'Dispositions OHADA (révision 2014) introduisant la SAS : grande liberté statutaire, règles de constitution et de gouvernance.',
+ (SELECT id FROM procedures WHERE nom = 'Création de Société par Actions Simplifiée (SAS)' LIMIT 1));
+
+-- SA – AUSCGIE art. 383 et s.
+INSERT INTO lois_articles (description, consulter_article, procedure_id) VALUES
+('AUSCGIE – SA (art. 383 et suivants)', 
+'Dispositions OHADA applicables aux Sociétés Anonymes : capital, organes, assemblées, contrôle et dissolution.',
+ (SELECT id FROM procedures WHERE nom = 'Création de Société Anonyme (SA)' LIMIT 1));
+
+-- Circulation routière – Visite technique (compléments nationaux)
+INSERT INTO lois_articles (description, consulter_article, procedure_id) VALUES
+('Loi n°99-004/AN-RM du 02 mars 1999', 
+'Régissant la circulation routière au Mali : obligations et contrôles techniques.',
+ (SELECT id FROM procedures WHERE nom = 'Visite technique' LIMIT 1)),
+('Décret n°99-134/P-RM du 26 mai 1999', 
+'Fixant les conditions d\'utilisation des voies routières (contrôles, sanctions, prescriptions).',
+ (SELECT id FROM procedures WHERE nom = 'Visite technique' LIMIT 1));
+
+-- Vignette – Références loi de finances (complément générique)
+INSERT INTO lois_articles (description, consulter_article, procedure_id) VALUES
+('Loi de finances annuelle – Modalités de la vignette', 
+'Les tarifs et modalités de la taxe sur les véhicules (vignette) sont fixés par la loi de finances du Mali, publiés par la DGI.',
+ (SELECT id FROM procedures WHERE nom = 'Vignette' LIMIT 1));
+
+-- Armes et munitions
+INSERT INTO lois_articles (description, consulter_article, procedure_id) VALUES
+('Loi n°2021-028 du 31 mars 2021 (armes et munitions)', 
+'Cadre légal de l\'acquisition et la détention d\'armes et munitions au Mali; conditions, autorisations et sanctions.',
+ (SELECT id FROM procedures WHERE nom = 'Autorisation d''achat d''armes et munitions' LIMIT 1));
+
+-- Libération conditionnelle – Code de procédure pénale (réf. 2024)
+INSERT INTO lois_articles (description, consulter_article, procedure_id) VALUES
+('Code de procédure pénale (Loi n°2024-027 – déc. 2024)', 
+'Conditions et procédure de la libération conditionnelle; compétence des juridictions et modalités d\'exécution.',
+ (SELECT id FROM procedures WHERE nom = 'Libération conditionnelle' LIMIT 1));
+
+-- Déclaration de perte – Procédure administrative
+INSERT INTO lois_articles (description, consulter_article, procedure_id) VALUES
+('Procédure administrative – Déclaration de perte', 
+'Démarches auprès des autorités (police/gendarmerie) pour la déclaration de perte de documents officiels.',
+ (SELECT id FROM procedures WHERE nom = 'Déclaration de perte' LIMIT 1));
+
+-- ============================================
+-- X++. CENTRES DE TRAITEMENT – BAIL & LOGEMENTS SOCIAUX
+-- ============================================
+
+-- Centres pour Demande de bail (Domaines & Cadastre)
+INSERT INTO centres (nom, adresse, horaires, telephone, email, date_creation) VALUES
+('Direction Nationale des Domaines et du Cadastre (DNDC)', 'Bamako – Ministère de l''Économie et des Finances', 'Lundi–Vendredi: 8h–16h', 'Contact DNDC', 'dndc@mef.ml', NOW()),
+('Direction Régionale des Domaines et du Cadastre', 'Services régionaux des Domaines et du Cadastre', 'Lundi–Vendredi: 8h–16h', 'Contact Régional', 'domaines@region.ml', NOW());
+
+UPDATE procedures
+SET centre_id = (SELECT id FROM centres WHERE nom = 'Direction Nationale des Domaines et du Cadastre (DNDC)' LIMIT 1)
+WHERE nom = 'Demande de bail';
+
+-- Centre pour Logements sociaux (OMH)
+INSERT INTO centres (nom, adresse, horaires, telephone, email, date_creation) VALUES
+('Office Malien de l''Habitat (OMH)', 'Direction Générale OMH, Darsalam, Bamako', 'Lundi–Vendredi: 8h–16h', 'Contact OMH', 'contact@omh-mali.org', NOW());
+
+UPDATE procedures
+SET centre_id = (SELECT id FROM centres WHERE nom = 'Office Malien de l''Habitat (OMH)' LIMIT 1)
+WHERE nom = 'Attribution des logements sociaux';
+
+-- ============================================
+-- X. RELIAGE DES SOUS-CATÉGORIES (Option A - cohérence UI)
+-- ============================================
+
+-- FDI NINA -> Fiche individuelle
+UPDATE procedures p
+SET p.sous_categorie_id = (
+  SELECT id FROM sous_categories WHERE titre = 'Fiche individuelle' LIMIT 1
+)
+WHERE p.sous_categorie_id = (
+  SELECT id FROM sous_categories WHERE titre = 'Fiche Descriptive Individuelle (FDI) NINA' LIMIT 1
+);
+
+-- Passeport biométrique -> Passeport malien
+UPDATE procedures p
+SET p.sous_categorie_id = (
+  SELECT id FROM sous_categories WHERE titre = 'Passeport malien' LIMIT 1
+)
+WHERE p.sous_categorie_id = (
+  SELECT id FROM sous_categories WHERE titre = 'Passeport biométrique' LIMIT 1
+);
+
+-- Création d'entreprise individuelle -> Entreprise individuelle
+UPDATE procedures p
+SET p.sous_categorie_id = (
+  SELECT id FROM sous_categories WHERE titre = 'Entreprise individuelle' LIMIT 1
+)
+WHERE p.sous_categorie_id = (
+  SELECT id FROM sous_categories WHERE titre = 'Création d''entreprise individuelle' LIMIT 1
+);
+
+-- SA (création) -> Sociétés Anonymes (SA)
+UPDATE procedures p
+SET p.sous_categorie_id = (
+  SELECT id FROM sous_categories WHERE titre = 'Sociétés Anonymes (SA)' LIMIT 1
+)
+WHERE p.sous_categorie_id = (
+  SELECT id FROM sous_categories WHERE titre = 'Création de Société Anonyme (SA)' LIMIT 1
+);
+
+-- SAS (création) -> Sociétés par Actions Simplifiées (SAS)
+UPDATE procedures p
+SET p.sous_categorie_id = (
+  SELECT id FROM sous_categories WHERE titre = 'Sociétés par Actions Simplifiées (SAS)' LIMIT 1
+)
+WHERE p.sous_categorie_id = (
+  SELECT id FROM sous_categories WHERE titre = 'Création de Société par Actions Simplifiée (SAS)' LIMIT 1
+);
+
+-- SNC (singulier) -> Sociétés en Nom Collectif (SNC)
+UPDATE procedures p
+SET p.sous_categorie_id = (
+  SELECT id FROM sous_categories WHERE titre = 'Sociétés en Nom Collectif (SNC)' LIMIT 1
+)
+WHERE p.sous_categorie_id = (
+  SELECT id FROM sous_categories WHERE titre = 'Société en Nom Collectif (SNC)' LIMIT 1
+);
+
+-- Permis de construire à usage industriel -> sous-catégorie dédiée
+UPDATE procedures p
+SET p.sous_categorie_id = (
+  SELECT id FROM sous_categories WHERE titre = 'Permis de construire à usage industriel' LIMIT 1
+)
+WHERE p.nom = 'Permis de construire à usage industriel';
+
+-- Permis de construire à usage personnel -> sous-catégorie "à usage personnelle" (libellé UI)
+UPDATE procedures p
+SET p.sous_categorie_id = (
+  SELECT id FROM sous_categories WHERE titre = 'Permis de construire à usage personnelle' LIMIT 1
+)
+WHERE p.nom = 'Permis de construire à usage personnel';
+
+-- Logement sociaux: rattacher la procédure d'attribution à la sous-catégorie UI
+UPDATE procedures p
+SET p.sous_categorie_id = (
+  SELECT id FROM sous_categories WHERE titre = 'Logement sociaux' LIMIT 1
+)
+WHERE p.nom = 'Attribution des logements sociaux';
+
+-- Vérification des titres de propriétés (si écart UI, conserver le rattachement existant)
+-- (Aucun changement si la sous-catégorie UI correspond déjà à 'Vérification des titres de propriétés')
 
 -- ============================================
 -- 3.130. ÉTAPES DE LA PROCÉDURE TRANSFERT DE PARCELLE À USAGE D'HABITATION
@@ -8206,12 +8444,16 @@ SET cout_id = (SELECT id FROM couts WHERE nom = 'Frais d''immatriculation RCCM' 
 WHERE nom = 'Création d''une Société en Nom Collectif (SNC)';
 
 -- ============================================
--- 3.421. ASSOCIATION DU CENTRE POUR CRÉATION SNC
+-- 3.421. CENTRES POUR CRÉATION SNC
 -- ============================================
+
+-- Ajout du centre API-Mali pour SNC
+INSERT INTO centres (nom, adresse, horaires, telephone, email, date_creation) VALUES
+('API-Mali', 'Agence pour la Promotion des Investissements au Mali (API-Mali)', 'Lundi-Vendredi: 8h-16h', 'Contactez l''API-Mali', 'contact@api-mali.ml', NOW());
 
 -- Association du centre à la procédure
 UPDATE procedures 
-SET centre_id = (SELECT id FROM centres WHERE nom = 'Agence pour la Promotion des Investissements au Mali (API-Mali)' LIMIT 1)
+SET centre_id = (SELECT id FROM centres WHERE nom = 'API-Mali' LIMIT 1)
 WHERE nom = 'Création d''une Société en Nom Collectif (SNC)';
 
 -- ============================================
@@ -8663,12 +8905,22 @@ SET cout_id = (SELECT id FROM couts WHERE nom = 'Fiche Descriptive Individuelle'
 WHERE nom = 'Fiche Descriptive Individuelle (FDI) NINA';
 
 -- ============================================
--- 3.445. ASSOCIATION DU CENTRE POUR FDI NINA
+-- 3.445. CENTRES POUR FICHE INDIVIDUELLE (FDI NINA)
 -- ============================================
+
+-- Ajout du centre DNEC pour fiche individuelle
+INSERT INTO centres (nom, adresse, horaires, telephone, email, date_creation) VALUES
+('Direction Nationale de l''État Civil (DNEC)', 'Route de Kati, Bamako', 'Lundi-Vendredi: 8h-16h', 'Contactez la DNEC', 'contact@dnec.gouv.ml', NOW());
+
+-- Note: La DNEC est la structure centrale qui supervise l'enregistrement des données d'état civil, 
+-- y compris celles du Fichier National d'Identification (NINA). 
+-- Fonction : Gère le fichier national et peut traiter les demandes plus complexes 
+-- (corrections, vérifications, etc.) qui ne peuvent pas être finalisées en ligne.
+-- Site web : dnec.gouv.ml
 
 -- Association du centre à la procédure
 UPDATE procedures 
-SET centre_id = (SELECT id FROM centres WHERE nom = 'Centre de Traitement des Données d''État Civil (CTDEC)' LIMIT 1)
+SET centre_id = (SELECT id FROM centres WHERE nom = 'Direction Nationale de l''État Civil (DNEC)' LIMIT 1)
 WHERE nom = 'Fiche Descriptive Individuelle (FDI) NINA';
 
 -- ============================================
@@ -8766,12 +9018,17 @@ SET cout_id = (SELECT id FROM couts WHERE nom = 'Passeport ordinaire' LIMIT 1)
 WHERE nom = 'Passeport biométrique';
 
 -- ============================================
--- 3.451. ASSOCIATION DU CENTRE POUR PASSEPORT BIOMÉTRIQUE
+-- 3.451. CENTRES POUR PASSEPORT BIOMÉTRIQUE
 -- ============================================
 
--- Association du centre à la procédure
+-- Ajout des centres spécifiques pour passeport biométrique
+INSERT INTO centres (nom, adresse, horaires, telephone, email, date_creation) VALUES
+('Direction Nationale de la Police', 'Direction Nationale de la Police, Bamako', 'Lundi-Vendredi: 8h-16h', 'Contactez la Direction Nationale de la Police', 'contact@police.ml', NOW()),
+('Passeport Express ACI 2000', 'Passeport Express ACI 2000 pour les passeports premium', 'Lundi-Vendredi: 8h-16h', 'Contactez le centre Passeport Express ACI 2000', 'passeport.express@mali.ml', NOW());
+
+-- Association du centre principal à la procédure
 UPDATE procedures 
-SET centre_id = (SELECT id FROM centres WHERE nom = 'Centre de Traitement des Documents d''Enrôlement et de Commandement (CTDEC)' LIMIT 1)
+SET centre_id = (SELECT id FROM centres WHERE nom = 'Direction Nationale de la Police' LIMIT 1)
 WHERE nom = 'Passeport biométrique';
 
 -- ============================================
@@ -8991,12 +9248,18 @@ SET cout_id = (SELECT id FROM couts WHERE nom = 'Frais de visite technique' LIMI
 WHERE nom = 'Changer sa voiture en taxi';
 
 -- ============================================
--- 3.463. ASSOCIATION DU CENTRE POUR CHANGER VOITURE EN TAXI
+-- 3.463. CENTRES POUR CHANGER VOITURE EN TAXI
 -- ============================================
 
--- Association du centre à la procédure
+-- Ajout des centres spécifiques pour changement voiture en taxi
+INSERT INTO centres (nom, adresse, horaires, telephone, email, date_creation) VALUES
+('Direction Générale des Impôts', 'Direction Générale des Impôts, Bamako', 'Lundi-Vendredi: 8h-16h', 'Contactez la Direction Générale des Impôts', 'contact@impots.ml', NOW()),
+('Ministère de l''Équipement et des Transports', 'Ministère de l''Équipement et des Transports, Bamako', 'Lundi-Vendredi: 8h-16h', 'Contactez le Ministère de l''Équipement et des Transports', 'contact@transport.ml', NOW()),
+('Direction Régionale des Transports Terrestres et Fluviaux (DRTTF)', 'Direction Régionale des Transports Terrestres et Fluviaux, Bamako', 'Lundi-Vendredi: 8h-16h', 'Contactez la DRTTF', 'contact@drttf.ml', NOW());
+
+-- Association du centre principal à la procédure (DRTTF comme principal)
 UPDATE procedures 
-SET centre_id = (SELECT id FROM centres WHERE nom = 'Direction Nationale des Transports' LIMIT 1)
+SET centre_id = (SELECT id FROM centres WHERE nom = 'Direction Régionale des Transports Terrestres et Fluviaux (DRTTF)' LIMIT 1)
 WHERE nom = 'Changer sa voiture en taxi';
 
 -- ============================================

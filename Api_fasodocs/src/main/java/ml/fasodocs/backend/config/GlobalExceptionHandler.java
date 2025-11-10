@@ -1,6 +1,7 @@
 package ml.fasodocs.backend.config;
 
 import ml.fasodocs.backend.dto.response.MessageResponse;
+import ml.fasodocs.backend.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -51,6 +52,9 @@ public class GlobalExceptionHandler {
         StringBuilder message = new StringBuilder("Erreur de validation: ");
         errors.forEach((field, msg) -> message.append(field).append(": ").append(msg).append("; "));
 
+        logger.warn("❌ Validation échouée: {}", message);
+        logger.warn("📋 Erreurs détaillées: {}", errors);
+
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(MessageResponse.error(message.toString()));
@@ -88,6 +92,50 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(MessageResponse.error("Accès refusé : vous n'avez pas les permissions nécessaires"));
+    }
+
+    /**
+     * Gère les erreurs d'authentification avec l'API Djelia
+     */
+    @ExceptionHandler(DjeliaAuthenticationException.class)
+    public ResponseEntity<?> handleDjeliaAuthenticationException(DjeliaAuthenticationException ex) {
+        logger.error("Erreur d'authentification Djelia AI: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(MessageResponse.error("Erreur d'authentification avec Djelia AI: " + ex.getMessage()));
+    }
+
+    /**
+     * Gère les erreurs de quota dépassé avec l'API Djelia
+     */
+    @ExceptionHandler(DjeliaQuotaExceededException.class)
+    public ResponseEntity<?> handleDjeliaQuotaExceededException(DjeliaQuotaExceededException ex) {
+        logger.warn("Quota Djelia AI dépassé: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(MessageResponse.error("Quota API Djelia dépassé: " + ex.getMessage()));
+    }
+
+    /**
+     * Gère les erreurs générales avec l'API Djelia
+     */
+    @ExceptionHandler(DjeliaAPIException.class)
+    public ResponseEntity<?> handleDjeliaAPIException(DjeliaAPIException ex) {
+        logger.error("Erreur API Djelia: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.valueOf(ex.getStatusCode()))
+                .body(MessageResponse.error("Erreur Djelia AI: " + ex.getMessage()));
+    }
+
+    /**
+     * Gère les erreurs de cache Djelia
+     */
+    @ExceptionHandler(DjeliaCacheException.class)
+    public ResponseEntity<?> handleDjeliaCacheException(DjeliaCacheException ex) {
+        logger.warn("Erreur cache Djelia: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(MessageResponse.error("Erreur cache: " + ex.getMessage()));
     }
 
     /**

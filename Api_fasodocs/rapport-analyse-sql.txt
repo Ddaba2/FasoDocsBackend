@@ -1,0 +1,121 @@
+quand je click sur ces "Permis de construire à usage industriel, permis de construire à usage personnelle, Logement sociaux, Vérification des titres de propriétés" sous categories rien il dis qu'il y a aucune procdédure liée à cette sous catégories alors qu'elles sont présent dans la sous catégories vérifiction des titres de propriété ================================================================================
+RAPPORT D'ANALYSE DU FICHIER fasodocs-data-complete.sql
+================================================================================
+
+Total procédures trouvées: 55
+Procédures complètes: 0
+Procédures incomplètes: 55
+Taux de complétude: 0.00%
+
+================================================================================
+DÉTAIL DES PROBLÈMES
+================================================================================
+
+⚠️  Procédures avec PLUSIEURS problèmes (50):
+  ❌ Concession urbaine à usage d
+     Manque: Coût, Centre, Délai, Étapes, Documents, Lois
+  ❌ Contribution de solidarité sur les billets d
+     Manque: Coût, Centre, Délai, Étapes, Documents, Lois
+  ❌ Taxe sur l
+     Manque: Coût, Centre, Délai, Étapes, Documents, Lois
+  ❌ Taxe sur les contrats d
+     Manque: Coût, Centre, Délai, Étapes, Documents, Lois
+  ❌ Création d
+     Manque: Coût, Centre, Délai, Étapes, Documents, Lois
+  ❌ Carte nationale d
+     Manque: Coût, Centre, Délai, Étapes, Documents, Lois
+  ❌ Demande de carte d'électeur
+     Manque: Coût, Centre, Délai, Documents
+  ❌ Vignette
+     Manque: Coût, Centre, Délai, Lois
+  ❌ Création de SARL
+     Manque: Coût, Centre, Délai, Lois
+  ❌ Inscription sur la liste électorale
+     Manque: Centre, Délai, Documents
+  ❌ Visite technique
+     Manque: Coût, Centre, Lois
+  ❌ Changement de couleur de plaque
+     Manque: Coût, Centre, Lois
+  ❌ Création d'entreprise individuelle
+     Manque: Coût, Centre, Lois
+  ❌ Vérification des titres de propriétés
+     Manque: Coût, Centre, Délai
+  ❌ Transaction immobilière complète
+     Manque: Coût, Centre, Délai
+  ❌ Lettre d'attribution du titre provisoire de concession rurale
+     Manque: Coût, Centre, Délai
+  ❌ Appel d'une décision de justice
+     Manque: Coût, Centre, Délai
+  ❌ Raccordement et installation d'un compteur d'eau
+     Manque: Coût, Centre, Délai
+  ❌ Demande de transférer d'un compteur d'électricité
+     Manque: Coût, Centre, Délai
+  ❌ Demande de transférer d'un compteur d'eau
+     Manque: Coût, Centre, Délai
+  ❌ Les prélèvements
+     Manque: Coût, Centre, Délai
+  ❌ Demande de divorce
+     Manque: Coût, Centre
+  ❌ Demande d'acte de décès
+     Manque: Coût, Centre
+  ❌ Demande d'extrait d'acte de naissance
+     Manque: Coût, Centre
+  ❌ Demande de casier judiciaire
+     Manque: Coût, Centre
+  ❌ Nationalité malienne par mariage
+     Manque: Coût, Centre
+  ❌ Nationalité malienne par naturalisation
+     Manque: Coût, Centre
+  ❌ Libération conditionnelle
+     Manque: Centre, Lois
+  ❌ Déclaration de perte
+     Manque: Centre, Lois
+  ❌ Autorisation d'achat d'armes et munitions
+     Manque: Centre, Lois
+  ❌ Demande de visite d'un prisonnier
+     Manque: Coût, Centre
+  ❌ Transfert de parcelle à usage d'habitation
+     Manque: Coût, Centre
+  ❌ Permis de construire à usage industriel
+     Manque: Coût, Centre
+  ❌ Permis de construire à usage personnel
+     Manque: Coût, Centre
+  ❌ Titre foncier
+     Manque: Coût, Centre
+  ❌ Autorisation de vente des biens d'un mineur
+     Manque: Coût, Centre
+  ❌ Demande d'un compteur d'électricité
+     Manque: Coût, Centre
+  ❌ Patente professionnelle et licence
+     Manque: Coût, Centre
+  ❌ Enregistrement d'un contrat
+     Manque: Coût, Centre
+  ❌ Déclaration de revenu foncier
+     Manque: Coût, Centre
+  ❌ Patente sur marchés
+     Manque: Coût, Centre
+  ❌ Taxe sur les exportateurs d'or non régis par le code minier
+     Manque: Coût, Centre
+  ❌ Redevance et recouvrement de régulation sur les marchés publics
+     Manque: Coût, Centre
+  ❌ Taxe sur les armes à feu
+     Manque: Coût, Centre
+  ❌ Permis de conduire renouvellement
+     Manque: Coût, Centre
+  ❌ Attribution des logements sociaux
+     Manque: Coût, Centre
+  ❌ Demande de bail
+     Manque: Coût, Centre
+  ❌ Passeport biométrique
+     Manque: Coût, Centre
+  ❌ Certificat de résidence
+     Manque: Coût, Centre
+  ❌ Changer sa voiture en taxi
+     Manque: Coût, Centre
+
+❌ Procédures sans CENTRE (5):
+  - Extrait d'acte de mariage
+  - Certificat de nationalité
+  - Demande de libération provisoire
+  - Impôt synthétique
+  - Déclaration de vol

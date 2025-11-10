@@ -3,7 +3,9 @@ package ml.fasodocs.backend.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import ml.fasodocs.backend.entity.converters.TypeSignalementConverter;
 import java.time.LocalDateTime;
 
 /**
@@ -29,9 +31,12 @@ public class Signalement {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = TypeSignalementConverter.class)
     @Column(nullable = false, length = 50)
     private TypeSignalement type;
+
+    @Column(name = "structure", nullable = true, length = 200)
+    private String structure;
 
     @CreationTimestamp
     @Column(name = "date_creation", updatable = false)
@@ -39,6 +44,7 @@ public class Signalement {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "citoyen_id", nullable = false)
+    @JsonManagedReference
     private Citoyen citoyen;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -59,7 +65,56 @@ public class Signalement {
         ABSENCE_DU_SERVICE,
         NON_RESPECT_DU_DELAI,
         MAUVAISE_QUALITE_DU_SERVICE,
-        AUTRE
+        AUTRE;
+
+        @JsonCreator
+        public static TypeSignalement fromString(String value) {
+            if (value == null || value.trim().isEmpty()) {
+                return null;
+            }
+            
+            // Nettoyer la valeur
+            String cleanValue = value.trim();
+            
+            // Handle exact string values first (case sensitive)
+            try {
+                return TypeSignalement.valueOf(cleanValue);
+            } catch (IllegalArgumentException e) {
+                // Continue with other matching strategies
+            }
+            
+            // Handle exact string values (case insensitive)
+            for (TypeSignalement type : TypeSignalement.values()) {
+                if (type.name().equalsIgnoreCase(cleanValue)) {
+                    return type;
+                }
+            }
+            
+            // Handle French string values
+            switch (cleanValue.toLowerCase()) {
+                case "absence du service":
+                case "absence_du_service":
+                    return ABSENCE_DU_SERVICE;
+                case "non respect du délai":
+                case "non_respect_du_delai":
+                    return NON_RESPECT_DU_DELAI;
+                case "mauvaise qualité du service":
+                case "mauvaise_qualité_du_service":
+                    return MAUVAISE_QUALITE_DU_SERVICE;
+                case "signalement d'abus":
+                case "abus":
+                case "autre":
+                    return AUTRE;
+                default:
+                    // Default to AUTRE for unknown values
+                    return AUTRE;
+            }
+        }
+        
+        @Override
+        public String toString() {
+            return this.name();
+        }
     }
 
 

@@ -7,17 +7,22 @@ import ml.fasodocs.backend.dto.request.ConnexionRequest;
 import ml.fasodocs.backend.dto.request.ConnexionTelephoneRequest;
 import ml.fasodocs.backend.dto.request.InscriptionRequest;
 import ml.fasodocs.backend.dto.request.MiseAJourProfilRequest;
+import ml.fasodocs.backend.dto.request.UploadPhotoRequest;
 import ml.fasodocs.backend.dto.request.VerificationSmsRequest;
 import ml.fasodocs.backend.dto.response.JwtResponse;
 import ml.fasodocs.backend.dto.response.MessageResponse;
+import ml.fasodocs.backend.dto.response.CitoyenProfilResponse;
 import ml.fasodocs.backend.entity.Citoyen;
 import ml.fasodocs.backend.security.UserDetailsImpl;
 import ml.fasodocs.backend.service.AuthService;
+import ml.fasodocs.backend.service.OrangeSmsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 /**
  * Contrôleur REST pour l'authentification et la gestion du profil
@@ -30,6 +35,9 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+    
+    @Autowired
+    private OrangeSmsService orangeSmsService;
 
     /**
      * Inscription d'un nouveau citoyen
@@ -131,8 +139,24 @@ public class AuthController {
             // NOTE : Vous devez avoir une méthode dans votre service qui permet de faire cela.
 
             Citoyen citoyen = authService.trouverCitoyenParId(userDetails.getId()); // ou getCitoyenById, etc.
+            
+            // Convertir l'entité en DTO pour éviter les problèmes de sérialisation JSON
+            CitoyenProfilResponse response = new CitoyenProfilResponse(
+                citoyen.getId(),
+                citoyen.getNom(),
+                citoyen.getPrenom(),
+                citoyen.getTelephone(),
+                citoyen.getEmail(),
+                citoyen.getEstActif(),
+                citoyen.getEmailVerifie(),
+                citoyen.getTelephoneVerifie(),
+                citoyen.getLanguePreferee(),
+                citoyen.getPhotoProfil(),
+                citoyen.getDateCreation(),
+                citoyen.getDateModification()
+            );
 
-            return ResponseEntity.ok(citoyen);
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             // Cette exception sera levée si l'ID n'est pas trouvé, par exemple.
@@ -153,6 +177,36 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body(MessageResponse.error("Erreur lors de la mise à jour du profil: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Upload de photo de profil
+     */
+    @Operation(summary = "Upload de la photo de profil du citoyen connecté")
+    @PostMapping("/profil/photo")
+    public ResponseEntity<?> uploadPhotoProfil(@Valid @RequestBody UploadPhotoRequest request) {
+        try {
+            MessageResponse response = authService.uploadPhotoProfil(request);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(MessageResponse.error("Erreur lors de l'upload de la photo: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Suppression de la photo de profil
+     */
+    @Operation(summary = "Suppression de la photo de profil du citoyen connecté")
+    @DeleteMapping("/profil/photo")
+    public ResponseEntity<?> supprimerPhotoProfil() {
+        try {
+            MessageResponse response = authService.supprimerPhotoProfil();
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(MessageResponse.error("Erreur lors de la suppression de la photo: " + e.getMessage()));
         }
     }
 

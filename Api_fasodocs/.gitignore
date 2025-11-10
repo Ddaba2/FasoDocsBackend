@@ -3,7 +3,6 @@
 
 # Log file
 *.log
-SOLUTION_TWILIO_TRIAL.mdSOLUTION_TWILIO_TRIAL.md
 
 # BlueJ files
 *.ctxt
@@ -59,12 +58,20 @@ nbdist/
 # VS Code
 .vscode/
 
-# Application specific
-application.properties
-application-dev.properties
-application-prod.properties
+# Application specific - CORRIGEZ CES LIGNES :
+#application.properties          # COMMENTEZ OU SUPPRIMEZ CETTE LIGNE
+application-dev.properties       # Gardez pour les environnements spécifiques
+application-prod.properties      # Gardez pour les environnements spécifiques
 firebase-service-account.json
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Secrets
+*.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+config/application-*.properties

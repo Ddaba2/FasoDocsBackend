@@ -4,6 +4,7 @@ import ml.fasodocs.backend.dto.request.ConnexionRequest;
 import ml.fasodocs.backend.dto.request.ConnexionTelephoneRequest;
 import ml.fasodocs.backend.dto.request.InscriptionRequest;
 import ml.fasodocs.backend.dto.request.MiseAJourProfilRequest;
+import ml.fasodocs.backend.dto.request.UploadPhotoRequest;
 import ml.fasodocs.backend.dto.request.VerificationSmsRequest;
 import ml.fasodocs.backend.dto.response.JwtResponse;
 import ml.fasodocs.backend.dto.response.MessageResponse;
@@ -57,6 +58,9 @@ public class AuthService {
      * Inscription d'un nouveau citoyen
      */
     public MessageResponse inscrireCitoyen(InscriptionRequest request) {
+        // Format phone number with +223 prefix if not already present
+        String formattedTelephone = formatPhoneNumber(request.getTelephone());
+
         // Vérifier que les mots de passe correspondent
         if (!request.getMotDePasse().equals(request.getConfirmerMotDePasse())) {
             return MessageResponse.error("Erreur: Les mots de passe ne correspondent pas!");
@@ -68,14 +72,14 @@ public class AuthService {
         }
 
         // Vérifier si le téléphone existe déjà
-        if (citoyenRepository.existsByTelephone(request.getTelephone())) {
+        if (citoyenRepository.existsByTelephone(formattedTelephone)) {
             return MessageResponse.error("Erreur: Le téléphone est déjà utilisé!");
         }
 
         // Créer le nouveau citoyen
         Citoyen citoyen = new Citoyen();
         citoyen.setEmail(request.getEmail());
-        citoyen.setTelephone(request.getTelephone());
+        citoyen.setTelephone(formattedTelephone);
         citoyen.setMotDePasse(encoder.encode(request.getMotDePasse()));
         citoyen.setEstActif(true);
         citoyen.setEmailVerifie(false);
@@ -96,14 +100,47 @@ public class AuthService {
 
         return MessageResponse.success("Inscription réussie! Vous pouvez maintenant vous connecter.");
     }
+    
+    /**
+     * Format phone number with +223 prefix if not already present
+     */
+    private String formatPhoneNumber(String telephone) {
+        if (telephone == null || telephone.isEmpty()) {
+            return telephone;
+        }
+        
+        // Remove any existing + or spaces
+        String cleanNumber = telephone.replaceAll("[+\\s]", "");
+        
+        // If it starts with 223, add the + prefix
+        if (cleanNumber.startsWith("223")) {
+            return "+" + cleanNumber;
+        }
+        
+        // If it doesn't start with 223 but has 8 digits, assume it's a local Mali number
+        if (!cleanNumber.startsWith("223") && cleanNumber.length() == 8) {
+            return "+223" + cleanNumber;
+        }
+        
+        // If it already has the +223 prefix, return as is
+        if (cleanNumber.startsWith("+223")) {
+            return cleanNumber;
+        }
+        
+        // Return the original if we can't format it
+        return telephone;
+    }
 
     /**
      * Connexion par téléphone uniquement - Envoie un code SMS
      * SÉCURITÉ : Vérifie d'abord que le numéro existe en base de données
      */
     public MessageResponse connecterParTelephone(ConnexionTelephoneRequest request) {
+        // Format phone number with +223 prefix for consistent lookup
+        String formattedTelephone = formatPhoneNumber(request.getTelephone());
+        
         // 1. Vérifier si le téléphone existe dans la base de données
-        Citoyen citoyen = citoyenRepository.findByTelephone(request.getTelephone())
+        Citoyen citoyen = citoyenRepository.findByTelephone(formattedTelephone)
                 .orElseThrow(() -> new RuntimeException("Numéro de téléphone non enregistré. Veuillez vous inscrire d'abord."));
 
         // 2. Vérifier si le compte est actif
@@ -111,18 +148,26 @@ public class AuthService {
             throw new RuntimeException("Votre compte a été désactivé. Veuillez contacter le support.");
         }
 
-        // 3. Générer un code SMS à 6 chiffres
+        // 3. Générer un code SMS à 4 chiffres
         String codeSms = orangeSmsService.genererCodeVerification();
         citoyen.setCodeSms(codeSms);
         citoyen.setCodeSmsExpiration(java.time.LocalDateTime.now().plusMinutes(5));
         citoyenRepository.save(citoyen);
 
         // 4. Envoyer le SMS UNIQUEMENT si toutes les vérifications sont OK
-        orangeSmsService.envoyerSmsConnexion(citoyen.getTelephone(), codeSms);
-        logger.info("Code SMS envoyé avec succès pour: {}", citoyen.getTelephone());
+        try {
+            orangeSmsService.envoyerSmsConnexion(citoyen.getTelephone(), codeSms);
+            logger.info("Code SMS envoyé avec succès pour: {}", citoyen.getTelephone());
+        } catch (RuntimeException e) {
+            logger.error("Échec de l'envoi du SMS à {}: {}", citoyen.getTelephone(), e.getMessage());
+            // Ne pas lever d'exception ici car le code est déjà généré et sauvegardé
+            // L'utilisateur peut toujours utiliser le code manuellement si nécessaire
+            // Mais on ne log pas "succès" si l'envoi a échoué
+            throw new RuntimeException("Impossible d'envoyer le SMS. Veuillez réessayer plus tard ou contacter le support.");
+        }
 
         return MessageResponse.success("Un code de vérification a été envoyé au " + 
-                                      request.getTelephone().substring(0, 7) + "***");
+                                      formattedTelephone.substring(0, 7) + "***");
     }
 
     /**
@@ -138,6 +183,9 @@ public class AuthService {
         Citoyen citoyen = citoyenRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new RuntimeException("Citoyen non trouvé"));
 
+        // Format phone number with +223 prefix for consistent SMS sending
+        String formattedTelephone = formatPhoneNumber(citoyen.getTelephone());
+
         // Générer un code SMS
         String codeSms = orangeSmsService.genererCodeVerification();
         citoyen.setCodeSms(codeSms);
@@ -145,9 +193,9 @@ public class AuthService {
         citoyenRepository.save(citoyen);
 
         // Envoyer le SMS
-        orangeSmsService.envoyerSmsConnexion(citoyen.getTelephone(), codeSms);
+        orangeSmsService.envoyerSmsConnexion(formattedTelephone, codeSms);
 
-        logger.info("Code SMS envoyé pour la connexion: {}", citoyen.getTelephone());
+        logger.info("Code SMS envoyé pour la connexion: {}", formattedTelephone);
 
         return MessageResponse.success("Un code de vérification a été envoyé à votre téléphone.");
     }
@@ -156,11 +204,14 @@ public class AuthService {
      * Vérification du code SMS et connexion
      */
     public JwtResponse verifierCodeSms(VerificationSmsRequest request) {
-        logger.info("Tentative de vérification SMS pour: {}", request.getTelephone());
+        // Format phone number with +223 prefix for consistent lookup
+        String formattedTelephone = formatPhoneNumber(request.getTelephone());
         
-        Citoyen citoyen = citoyenRepository.findByTelephone(request.getTelephone())
+        logger.info("Tentative de vérification SMS pour: {}", formattedTelephone);
+        
+        Citoyen citoyen = citoyenRepository.findByTelephone(formattedTelephone)
                 .orElseThrow(() -> {
-                    logger.error("Numéro de téléphone non trouvé: {}", request.getTelephone());
+                    logger.error("Numéro de téléphone non trouvé: {}", formattedTelephone);
                     return new RuntimeException("Numéro de téléphone non trouvé");
                 });
 
@@ -168,7 +219,7 @@ public class AuthService {
         
         // Vérifier le code SMS
         if (citoyen.getCodeSms() == null) {
-            logger.error("Aucun code SMS en base pour: {}", request.getTelephone());
+            logger.error("Aucun code SMS en base pour: {}", formattedTelephone);
             throw new RuntimeException("Aucun code SMS n'a été généré. Veuillez d'abord demander un code.");
         }
         
@@ -256,19 +307,35 @@ public class AuthService {
 
     /**
      * Mise à jour du profil
+     * Mise à jour partielle : seuls les champs non-null sont modifiés
      */
     public MessageResponse mettreAJourProfil(MiseAJourProfilRequest request) {
         Citoyen citoyen = getProfilCitoyenConnecte();
 
-        citoyen.setNom(request.getNom());
-        citoyen.setPrenom(request.getPrenom());
-        
-        if (request.getTelephone() != null) {
-            citoyen.setTelephone(request.getTelephone());
+        // Mise à jour du nom si fourni
+        if (request.getNom() != null && !request.getNom().trim().isEmpty()) {
+            citoyen.setNom(request.getNom().trim());
         }
         
-        if (request.getLanguePreferee() != null) {
-            citoyen.setLanguePreferee(request.getLanguePreferee());
+        // Mise à jour du prénom si fourni
+        if (request.getPrenom() != null && !request.getPrenom().trim().isEmpty()) {
+            citoyen.setPrenom(request.getPrenom().trim());
+        }
+        
+        // Mise à jour du téléphone si fourni
+        if (request.getTelephone() != null && !request.getTelephone().trim().isEmpty()) {
+            citoyen.setTelephone(request.getTelephone().trim());
+        }
+        
+        // Mise à jour de la langue si fournie
+        if (request.getLanguePreferee() != null && !request.getLanguePreferee().trim().isEmpty()) {
+            citoyen.setLanguePreferee(request.getLanguePreferee().trim());
+        }
+        
+        // Mise à jour de la photo si fournie
+        if (request.getPhotoProfil() != null && !request.getPhotoProfil().trim().isEmpty()) {
+            citoyen.setPhotoProfil(request.getPhotoProfil());
+            logger.info("Photo de profil mise à jour pour: {} {}", citoyen.getNom(), citoyen.getPrenom());
         }
 
         citoyenRepository.save(citoyen);
@@ -276,6 +343,34 @@ public class AuthService {
         logger.info("Profil mis à jour pour: {} {}", citoyen.getNom(), citoyen.getPrenom());
 
         return MessageResponse.success("Profil mis à jour avec succès!");
+    }
+
+    /**
+     * Upload de photo de profil
+     */
+    public MessageResponse uploadPhotoProfil(UploadPhotoRequest request) {
+        Citoyen citoyen = getProfilCitoyenConnecte();
+
+        citoyen.setPhotoProfil(request.getPhotoProfil());
+        citoyenRepository.save(citoyen);
+
+        logger.info("Photo de profil mise à jour pour: {} {}", citoyen.getNom(), citoyen.getPrenom());
+
+        return MessageResponse.success("Photo de profil mise à jour avec succès!");
+    }
+
+    /**
+     * Suppression de la photo de profil
+     */
+    public MessageResponse supprimerPhotoProfil() {
+        Citoyen citoyen = getProfilCitoyenConnecte();
+
+        citoyen.setPhotoProfil(null);
+        citoyenRepository.save(citoyen);
+
+        logger.info("Photo de profil supprimée pour: {} {}", citoyen.getNom(), citoyen.getPrenom());
+
+        return MessageResponse.success("Photo de profil supprimée avec succès!");
     }
 
     /**

@@ -1,21 +1,40 @@
 package ml.fasodocs.backend.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
  * DTO pour la mise à jour du profil
+ * Tous les champs sont optionnels pour permettre des mises à jour partielles
  */
 @Data
 public class MiseAJourProfilRequest {
 
-    @NotBlank(message = "Le nom est obligatoire")
+    // Optionnel : permet de ne mettre à jour que certains champs
     private String nom;
 
-    @NotBlank(message = "Le prénom est obligatoire")
+    // Optionnel : permet de ne mettre à jour que certains champs
     private String prenom;
 
     private String telephone;
 
     private String languePreferee;
+    
+    private String photoProfil; // Photo de profil en Base64
+    
+    // Champ supplémentaire pour compatibilité avec les clients qui envoient nomComplet
+    private String nomComplet;
+    
+    // Setter personnalisé pour extraire nom et prénom depuis nomComplet
+    public void setNomComplet(String nomComplet) {
+        this.nomComplet = nomComplet;
+        if (nomComplet != null && !nomComplet.trim().isEmpty()) {
+            String[] parties = nomComplet.trim().split("\s+", 2);
+            if (parties.length >= 1) {
+                this.prenom = parties[0];
+            }
+            if (parties.length >= 2) {
+                this.nom = parties[1];
+            }
+        }
+    }
 }

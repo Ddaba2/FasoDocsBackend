@@ -1,0 +1,220 @@
+{
+  "info": {
+    "name": "FasoDocs - Djelia AI",
+    "description": "Collection de tests pour l'intégration Djelia AI : traduction français-bambara et synthèse vocale",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/djelia/health",
+          "host": ["{{base_url}}"],
+          "path": ["djelia", "health"]
+        },
+        "description": "Vérifie que le service Djelia AI est opérationnel"
+      },
+      "response": []
+    },
+    {
+      "name": "2. Traduction Simple (FR → BM)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text\": \"Bonjour, comment allez-vous?\",\n  \"sourceLang\": \"fr\",\n  \"targetLang\": \"bm\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/djelia/translate",
+          "host": ["{{base_url}}"],
+          "path": ["djelia", "translate"]
+        },
+        "description": "Traduit un texte français en bambara"
+      },
+      "response": []
+    },
+    {
+      "name": "3. Synthèse Vocale (TTS)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text\": \"Aw ni sogoma, i ka kɛnɛ wa?\",\n  \"description\": \"Voix claire et naturelle\",\n  \"chunkSize\": 1.0\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/djelia/text-to-speech",
+          "host": ["{{base_url}}"],
+          "path": ["djelia", "text-to-speech"]
+        },
+        "description": "Convertit du texte bambara en audio (WAV encodé en Base64)"
+      },
+      "response": []
+    },
+    {
+      "name": "4. Traduction + Audio (COMBO) ⭐",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text\": \"Bienvenue dans FasoDocs, l'application qui simplifie vos démarches administratives au Mali\",\n  \"voiceDescription\": \"Moussa parle lentement et clairement\",\n  \"chunkSize\": 1.0\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/djelia/translate-and-speak",
+          "host": ["{{base_url}}"],
+          "path": ["djelia", "translate-and-speak"]
+        },
+        "description": "Endpoint optimisé : traduit du français vers le bambara ET génère l'audio en une seule requête. Recommandé pour Flutter !"
+      },
+      "response": []
+    },
+    {
+      "name": "5. Traduction Courte",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text\": \"Merci beaucoup\",\n  \"sourceLang\": \"fr\",\n  \"targetLang\": \"bm\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/djelia/translate",
+          "host": ["{{base_url}}"],
+          "path": ["djelia", "translate"]
+        },
+        "description": "Test de traduction courte"
+      },
+      "response": []
+    },
+    {
+      "name": "6. Traduction Procédure Administrative",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text\": \"Demande de carte d'identité nationale\",\n  \"sourceLang\": \"fr\",\n  \"targetLang\": \"bm\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/djelia/translate",
+          "host": ["{{base_url}}"],
+          "path": ["djelia", "translate"]
+        },
+        "description": "Traduit le nom d'une procédure administrative"
+      },
+      "response": []
+    },
+    {
+      "name": "7. Statistiques du Cache",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/djelia/cache/stats",
+          "host": ["{{base_url}}"],
+          "path": ["djelia", "cache", "stats"]
+        },
+        "description": "Récupère les statistiques d'utilisation du cache de traductions"
+      },
+      "response": []
+    },
+    {
+      "name": "8. Vider le Cache",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/djelia/cache/clear",
+          "host": ["{{base_url}}"],
+          "path": ["djelia", "cache", "clear"]
+        },
+        "description": "Supprime toutes les traductions du cache"
+      },
+      "response": []
+    },
+    {
+      "name": "9. Guide Vocal Long",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text\": \"Pour obtenir votre carte d'identité nationale, rendez-vous au centre d'état civil de votre commune avec votre acte de naissance, une photo d'identité et un justificatif de domicile. Le délai de traitement est de quinze jours ouvrables.\",\n  \"voiceDescription\": \"Voix pédagogique et claire\",\n  \"chunkSize\": 1.0\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/djelia/translate-and-speak",
+          "host": ["{{base_url}}"],
+          "path": ["djelia", "translate-and-speak"]
+        },
+        "description": "Test avec un texte long pour générer un guide vocal complet"
+      },
+      "response": []
+    },
+    {
+      "name": "10. Test Cache Hit",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"text\": \"Bonjour, comment allez-vous?\",\n  \"sourceLang\": \"fr\",\n  \"targetLang\": \"bm\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/djelia/translate",
+          "host": ["{{base_url}}"],
+          "path": ["djelia", "translate"]
+        },
+        "description": "Même requête que le test 2 - devrait utiliser le cache (fromCache: true)"
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080/api",
+      "type": "string"
+    }
+  ]
+}
+

@@ -41,6 +41,9 @@ public class SignalementService {
      */
     public MessageResponse creerSignalement(SignalementRequest request) {
         try {
+            // Validate and set defaults for the request
+            request.validateAndSetDefaults();
+            
             // Récupérer le citoyen connecté
             Citoyen citoyen = getCitoyenConnecte();
             if (citoyen == null) {
@@ -62,6 +65,7 @@ public class SignalementService {
             signalement.setTitre(request.getTitre());
             signalement.setDescription(request.getDescription());
             signalement.setType(request.getType());
+            signalement.setStructure(request.getStructure());
             signalement.setCitoyen(citoyen);
             signalement.setProcedure(procedure);
 
@@ -70,6 +74,7 @@ public class SignalementService {
             return MessageResponse.success("Signalement créé avec succès", new SignalementResponse(signalement));
 
         } catch (Exception e) {
+            e.printStackTrace(); // Pour aider au débogage
             return MessageResponse.error("Erreur lors de la création du signalement: " + e.getMessage());
         }
     }

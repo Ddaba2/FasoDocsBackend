@@ -25,7 +25,7 @@ public class InscriptionRequest {
 
     /**
      * Numéro de téléphone du citoyen
-     * Format attendu : +223XXXXXXXX ou 223XXXXXXXX
+     * Format attendu : +223XXXXXXXX, 223XXXXXXXX, ou XXXXXXXX
      * Longueur : entre 8 et 20 caractères
      */
     @NotBlank(message = "Le téléphone est obligatoire")

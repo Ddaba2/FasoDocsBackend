@@ -97,6 +97,10 @@ public class SousCategorieService {
         SousCategorie sousCategorie = sousCategorieOpt.get();
         
         // Vérifier si la catégorie parent existe
+        if (request.getCategorieId() == null) {
+            throw new RuntimeException("ID de catégorie parent requis");
+        }
+        
         Optional<Categorie> categorieOpt = categorieRepository.findById(request.getCategorieId());
         if (categorieOpt.isEmpty()) {
             throw new RuntimeException("Catégorie parent non trouvée");

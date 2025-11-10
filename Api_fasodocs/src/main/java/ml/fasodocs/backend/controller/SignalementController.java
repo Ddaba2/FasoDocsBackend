@@ -8,6 +8,7 @@ import ml.fasodocs.backend.dto.request.SignalementRequest;
 import ml.fasodocs.backend.dto.response.MessageResponse;
 import ml.fasodocs.backend.dto.response.SignalementResponse;
 import ml.fasodocs.backend.dto.response.SignalementSimpleResponse;
+import ml.fasodocs.backend.entity.Signalement;
 import ml.fasodocs.backend.service.SignalementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +50,15 @@ public class SignalementController {
     public ResponseEntity<List<SignalementSimpleResponse>> obtenirMesSignalements() {
         List<SignalementSimpleResponse> signalements = signalementService.obtenirMesSignalements();
         return ResponseEntity.ok(signalements);
+    }
+
+    /**
+     * Récupère les types de signalements disponibles
+     */
+    @Operation(summary = "Récupère les types de signalements disponibles")
+    @GetMapping("/types")
+    public ResponseEntity<Signalement.TypeSignalement[]> obtenirTypesSignalements() {
+        return ResponseEntity.ok(Signalement.TypeSignalement.values());
     }
 
     /**

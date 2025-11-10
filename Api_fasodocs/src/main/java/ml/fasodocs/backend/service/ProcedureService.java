@@ -113,8 +113,17 @@ public class ProcedureService {
      * Crée une nouvelle procédure (Admin)
      */
     public ProcedureResponse creerProcedure(ProcedureRequest request) {
-        Categorie categorie = categorieRepository.findById(request.getCategorieId())
-                .orElseThrow(() -> new RuntimeException("Catégorie non trouvée"));
+        // Gestion de la catégorie (par ID ou par nom)
+        Categorie categorie;
+        if (request.getCategorieId() != null) {
+            categorie = categorieRepository.findById(request.getCategorieId())
+                    .orElseThrow(() -> new RuntimeException("Catégorie non trouvée avec l'ID: " + request.getCategorieId()));
+        } else if (request.getCategorieNom() != null && !request.getCategorieNom().isEmpty()) {
+            categorie = categorieRepository.findByTitre(request.getCategorieNom())
+                    .orElseThrow(() -> new RuntimeException("Catégorie non trouvée avec le nom: " + request.getCategorieNom()));
+        } else {
+            throw new RuntimeException("Vous devez fournir soit l'ID soit le nom de la catégorie");
+        }
 
         Procedure procedure = new Procedure();
         procedure.setNom(request.getNom());
@@ -124,10 +133,14 @@ public class ProcedureService {
         procedure.setDescription(request.getDescription());
         procedure.setCategorie(categorie);
 
-        // Gestion de la sous-catégorie
+        // Gestion de la sous-catégorie (par ID ou par nom)
         if (request.getSousCategorieId() != null) {
             SousCategorie sousCategorie = sousCategorieRepository.findById(request.getSousCategorieId())
-                    .orElseThrow(() -> new RuntimeException("Sous-catégorie non trouvée"));
+                    .orElseThrow(() -> new RuntimeException("Sous-catégorie non trouvée avec l'ID: " + request.getSousCategorieId()));
+            procedure.setSousCategorie(sousCategorie);
+        } else if (request.getSousCategorieNom() != null && !request.getSousCategorieNom().isEmpty()) {
+            SousCategorie sousCategorie = sousCategorieRepository.findByTitre(request.getSousCategorieNom())
+                    .orElseThrow(() -> new RuntimeException("Sous-catégorie non trouvée avec le nom: " + request.getSousCategorieNom()));
             procedure.setSousCategorie(sousCategorie);
         }
 
@@ -183,10 +196,26 @@ public class ProcedureService {
         procedure.setDelai(request.getDelai());
         procedure.setDescription(request.getDescription());
 
+        // Gestion de la catégorie (par ID ou par nom)
         if (request.getCategorieId() != null) {
             Categorie categorie = categorieRepository.findById(request.getCategorieId())
-                    .orElseThrow(() -> new RuntimeException("Catégorie non trouvée"));
+                    .orElseThrow(() -> new RuntimeException("Catégorie non trouvée avec l'ID: " + request.getCategorieId()));
             procedure.setCategorie(categorie);
+        } else if (request.getCategorieNom() != null && !request.getCategorieNom().isEmpty()) {
+            Categorie categorie = categorieRepository.findByTitre(request.getCategorieNom())
+                    .orElseThrow(() -> new RuntimeException("Catégorie non trouvée avec le nom: " + request.getCategorieNom()));
+            procedure.setCategorie(categorie);
+        }
+
+        // Gestion de la sous-catégorie (par ID ou par nom)
+        if (request.getSousCategorieId() != null) {
+            SousCategorie sousCategorie = sousCategorieRepository.findById(request.getSousCategorieId())
+                    .orElseThrow(() -> new RuntimeException("Sous-catégorie non trouvée avec l'ID: " + request.getSousCategorieId()));
+            procedure.setSousCategorie(sousCategorie);
+        } else if (request.getSousCategorieNom() != null && !request.getSousCategorieNom().isEmpty()) {
+            SousCategorie sousCategorie = sousCategorieRepository.findByTitre(request.getSousCategorieNom())
+                    .orElseThrow(() -> new RuntimeException("Sous-catégorie non trouvée avec le nom: " + request.getSousCategorieNom()));
+            procedure.setSousCategorie(sousCategorie);
         }
 
         Procedure updatedProcedure = procedureRepository.save(procedure);
@@ -225,17 +254,20 @@ public class ProcedureService {
         response.setTitre(procedure.getTitre());
         response.setUrlVersFormulaire(procedure.getUrlVersFormulaire());
         response.setDelai(procedure.getDelai());
-        response.setDescription(procedure.getDescription());
+        // ✅ Ne jamais renvoyer null pour la description - utiliser le titre comme fallback
+        response.setDescription(procedure.getDescription() != null ? procedure.getDescription() : procedure.getTitre());
         response.setDateCreation(procedure.getDateCreation());
         response.setDateModification(procedure.getDateModification());
 
         // Catégorie
-        CategorieSimpleResponse categorieResponse = new CategorieSimpleResponse();
-        categorieResponse.setId(procedure.getCategorie().getId());
-        categorieResponse.setTitre(procedure.getCategorie().getTitre());
-        categorieResponse.setDescription(procedure.getCategorie().getDescription());
-        categorieResponse.setIconeUrl(procedure.getCategorie().getIconeUrl());
-        response.setCategorie(categorieResponse);
+        if (procedure.getCategorie() != null) {
+            CategorieSimpleResponse categorieResponse = new CategorieSimpleResponse();
+            categorieResponse.setId(procedure.getCategorie().getId());
+            categorieResponse.setTitre(procedure.getCategorie().getTitre());
+            categorieResponse.setDescription(procedure.getCategorie().getDescription());
+            categorieResponse.setIconeUrl(procedure.getCategorie().getIconeUrl());
+            response.setCategorie(categorieResponse);
+        }
 
         // Sous-catégorie
         if (procedure.getSousCategorie() != null) {
@@ -258,25 +290,31 @@ public class ProcedureService {
         }
 
         // Étapes
-        response.setEtapes(
-            procedure.getEtapes().stream()
-                .map(this::convertirEtapeEnResponse)
-                .collect(Collectors.toSet())
-        );
+        if (procedure.getEtapes() != null) {
+            response.setEtapes(
+                procedure.getEtapes().stream()
+                    .map(this::convertirEtapeEnResponse)
+                    .collect(Collectors.toSet())
+            );
+        }
 
         // Documents requis
-        response.setDocumentsRequis(
-            procedure.getDocumentsRequis().stream()
-                .map(this::convertirDocumentEnResponse)
-                .collect(Collectors.toSet())
-        );
+        if (procedure.getDocumentsRequis() != null) {
+            response.setDocumentsRequis(
+                procedure.getDocumentsRequis().stream()
+                    .map(this::convertirDocumentEnResponse)
+                    .collect(Collectors.toSet())
+            );
+        }
 
         // Références légales
-        response.setLoisArticles(
-            procedure.getLoisArticles().stream()
-                .map(this::convertirLoiArticleEnResponse)
-                .collect(Collectors.toSet())
-        );
+        if (procedure.getLoisArticles() != null) {
+            response.setLoisArticles(
+                procedure.getLoisArticles().stream()
+                    .map(this::convertirLoiArticleEnResponse)
+                    .collect(Collectors.toSet())
+            );
+        }
 
         return response;
     }
@@ -284,6 +322,7 @@ public class ProcedureService {
     private DocumentRequisResponse convertirDocumentEnResponse(DocumentRequis document) {
         DocumentRequisResponse response = new DocumentRequisResponse();
         response.setId(document.getId());
+        response.setNom(document.getNom());
         response.setDescription(document.getDescription());
         response.setEstObligatoire(document.getEstObligatoire());
         response.setModeleUrl(document.getModeleUrl());
