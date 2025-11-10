@@ -30,7 +30,8 @@ app = Flask(__name__)
 CORS(app)  # Activer CORS pour permettre requêtes depuis le frontend
 
 # Configuration Djelia
-DJELIA_API_KEY = "83c313b9-aeba-441b-8b7f-a194720ad1d3"
+# Lire depuis variable d'environnement ou fichier .env
+DJELIA_API_KEY = os.getenv('DJELIA_API_KEY', '83c313b9-aeba-441b-8b7f-a194720ad1d3')
 os.environ['DJELIA_API_KEY'] = DJELIA_API_KEY
 
 # Initialiser client Djelia

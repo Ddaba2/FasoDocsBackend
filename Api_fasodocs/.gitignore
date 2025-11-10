@@ -58,10 +58,10 @@ nbdist/
 # VS Code
 .vscode/
 
-# Application specific - CORRIGEZ CES LIGNES :
-#application.properties          # COMMENTEZ OU SUPPRIMEZ CETTE LIGNE
-application-dev.properties       # Gardez pour les environnements spécifiques
-application-prod.properties      # Gardez pour les environnements spécifiques
+# Application specific
+src/main/resources/application.properties  # ← Secrets protégés
+application-dev.properties
+application-prod.properties
 firebase-service-account.json
 
 # OS
