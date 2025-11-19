@@ -2,8 +2,10 @@ package ml.fasodocs.backend.config;
 
 import ml.fasodocs.backend.dto.response.MessageResponse;
 import ml.fasodocs.backend.exception.*;
+import ml.fasodocs.backend.service.MessageHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -28,6 +30,9 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    
+    @Autowired
+    private MessageHelper messageHelper;
 
     /**
      * Gère les erreurs de validation des requêtes Bean Validation
@@ -49,15 +54,17 @@ public class GlobalExceptionHandler {
         });
 
         // Créer un message clair
-        StringBuilder message = new StringBuilder("Erreur de validation: ");
-        errors.forEach((field, msg) -> message.append(field).append(": ").append(msg).append("; "));
+        StringBuilder details = new StringBuilder();
+        errors.forEach((field, msg) -> details.append(field).append(": ").append(msg).append("; "));
+        
+        String message = messageHelper.get("validation.error", details.toString());
 
         logger.warn("❌ Validation échouée: {}", message);
         logger.warn("📋 Erreurs détaillées: {}", errors);
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(MessageResponse.error(message.toString()));
+                .body(MessageResponse.error(message));
     }
 
     /**
@@ -91,7 +98,7 @@ public class GlobalExceptionHandler {
         logger.warn("Accès refusé: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
-                .body(MessageResponse.error("Accès refusé : vous n'avez pas les permissions nécessaires"));
+                .body(MessageResponse.error(messageHelper.get("error.forbidden")));
     }
 
     /**
@@ -102,7 +109,7 @@ public class GlobalExceptionHandler {
         logger.error("Erreur d'authentification Djelia AI: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .body(MessageResponse.error("Erreur d'authentification avec Djelia AI: " + ex.getMessage()));
+                .body(MessageResponse.error(messageHelper.get("error.djelia.api", ex.getMessage())));
     }
 
     /**
@@ -113,7 +120,7 @@ public class GlobalExceptionHandler {
         logger.warn("Quota Djelia AI dépassé: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.TOO_MANY_REQUESTS)
-                .body(MessageResponse.error("Quota API Djelia dépassé: " + ex.getMessage()));
+                .body(MessageResponse.error(messageHelper.get("error.djelia.api", ex.getMessage())));
     }
 
     /**
@@ -124,7 +131,7 @@ public class GlobalExceptionHandler {
         logger.error("Erreur API Djelia: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.valueOf(ex.getStatusCode()))
-                .body(MessageResponse.error("Erreur Djelia AI: " + ex.getMessage()));
+                .body(MessageResponse.error(messageHelper.get("error.djelia.api", ex.getMessage())));
     }
 
     /**
@@ -135,7 +142,7 @@ public class GlobalExceptionHandler {
         logger.warn("Erreur cache Djelia: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(MessageResponse.error("Erreur cache: " + ex.getMessage()));
+                .body(MessageResponse.error(messageHelper.get("error.djelia.api", ex.getMessage())));
     }
 
     /**
@@ -155,7 +162,7 @@ public class GlobalExceptionHandler {
         // Retourner un message générique sans exposer les détails internes
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(MessageResponse.error("Une erreur inattendue s'est produite. Veuillez réessayer plus tard."));
+                .body(MessageResponse.error(messageHelper.get("error.internal")));
     }
 }
 

@@ -13,6 +13,7 @@ import ml.fasodocs.backend.exception.DjeliaCacheException;
 import ml.fasodocs.backend.exception.DjeliaQuotaExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,9 @@ public class DjeliaAIService {
     private static final Logger logger = LoggerFactory.getLogger(DjeliaAIService.class);
 
     private final RestTemplate restTemplate;
+
+    @Autowired(required = false)
+    private AudioService audioService;
 
     @Value("${djelia.ai.api.key}")
     private String apiKey;
@@ -108,23 +112,22 @@ public class DjeliaAIService {
 
         cacheMisses.incrementAndGet();
 
-        // Appeler le backend Flask (qui utilise le SDK Djelia Python)
+        // Appeler le backend Flask pour la traduction
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             
-            // Pour l'instant, on simule la traduction car Flask n'a pas d'endpoint /translate
-            // TODO: Ajouter endpoint de traduction dans Flask ou utiliser Google Translate
             Map<String, Object> requestBody = Map.of(
                     "text", request.getText(),
-                    "speaker", 1
+                    "source", request.getSourceLang() != null ? request.getSourceLang() : "fra_Latn",
+                    "target", request.getTargetLang() != null ? request.getTargetLang() : "bam_Latn"
             );
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
             
-            // Appeler Flask /speak pour avoir l'audio bambara
-            String url = baseUrl + "/speak";
-            logger.debug("🔊 Appel Flask TTS: POST {}", url);
+            // Appeler Flask /api/translate pour obtenir uniquement le texte traduit
+            String url = baseUrl + "/translate";
+            logger.debug("🌐 Appel Flask Translation: POST {}", url);
             
             @SuppressWarnings("rawtypes")
             ResponseEntity<Map> response = restTemplate.exchange(
@@ -137,6 +140,14 @@ public class DjeliaAIService {
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 @SuppressWarnings("unchecked")
                 Map<String, Object> body = response.getBody();
+                
+                // Vérifier le champ success
+                Boolean success = (Boolean) body.get("success");
+                if (success == null || !success) {
+                    String error = (String) body.get("error");
+                    throw new DjeliaAPIException("Erreur traduction Flask: " + (error != null ? error : "Erreur inconnue"));
+                }
+                
                 String translatedText = (String) body.get("translated_text");
 
                 if (translatedText == null || translatedText.isEmpty()) {
@@ -249,6 +260,9 @@ public class DjeliaAIService {
     public TranslateAndSpeakResponse translateAndSpeak(TranslateAndSpeakRequest request) {
         logger.info("Traduction + Synthèse vocale demandée pour: '{}'", request.getText());
 
+        // Vérifier si un ID de procédure est fourni pour le fallback audio
+        Long procedureId = request.getProcedureId();
+        
         try {
             // Appeler Flask /speak qui fait TRADUCTION + TTS
             // Flask traduit automatiquement FR → BM puis génère l'audio bambara
@@ -266,6 +280,28 @@ public class DjeliaAIService {
                     
         } catch (Exception e) {
             logger.error("❌ Erreur translateAndSpeak: {}", e.getMessage());
+            
+            // FALLBACK : Utiliser l'audio de la procédure si disponible
+            if (procedureId != null && audioService != null) {
+                logger.info("🔄 Tentative de fallback audio pour la procédure {}", procedureId);
+                String fallbackAudio = audioService.getAudioBase64(procedureId);
+                
+                if (fallbackAudio != null) {
+                    logger.info("✅ Audio de fallback trouvé pour la procédure {}", procedureId);
+                    return TranslateAndSpeakResponse.builder()
+                            .originalText(request.getText())
+                            .translatedText(request.getText()) // Pas de traduction en fallback
+                            .audioBase64(fallbackAudio)
+                            .format("wav")
+                            .fromCache(false)
+                            .voiceDescription("Audio de fallback")
+                            .timestamp(LocalDateTime.now())
+                            .build();
+                } else {
+                    logger.warn("⚠️ Aucun audio de fallback disponible pour la procédure {}", procedureId);
+                }
+            }
+            
             throw new DjeliaAPIException("Erreur lors de la traduction et synthèse: " + e.getMessage(), e);
         }
     }
@@ -288,19 +324,65 @@ public class DjeliaAIService {
      */
     private TranslateAndSpeakFlaskResponse callFlaskTranslateAndSpeak(String text) {
         try {
-            // Appeler Flask /speak (qui fait traduction + TTS)
-            byte[] audioBytes = callFlaskTTS(text);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
             
-            // Encoder en Base64
-            String audioBase64 = Base64.getEncoder().encodeToString(audioBytes);
+            // Demander JSON avec texte traduit et audio en Base64
+            Map<String, Object> requestBody = Map.of(
+                "text", text,
+                "speaker", 1,
+                "return_json", true  // Demander JSON au lieu d'audio WAV
+            );
             
-            // TODO: Flask devrait retourner aussi le texte traduit
-            // Pour l'instant on simule
-            TranslateAndSpeakFlaskResponse response = new TranslateAndSpeakFlaskResponse();
-            response.setAudioBase64(audioBase64);
-            response.setTranslatedText("[Traduit en bambara]");
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
             
-            return response;
+            String url = baseUrl + "/speak";
+            logger.debug("🔊 Appel Flask TTS avec JSON: POST {}", url);
+            
+            @SuppressWarnings("rawtypes")
+            ResponseEntity<Map> response = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                entity,
+                Map.class
+            );
+            
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> body = response.getBody();
+                
+                // Vérifier le champ success
+                Boolean success = (Boolean) body.get("success");
+                if (success == null || !success) {
+                    String error = (String) body.get("error");
+                    throw new DjeliaAPIException("Erreur Flask TTS: " + (error != null ? error : "Erreur inconnue"));
+                }
+                
+                // Extraire le texte traduit et l'audio
+                String translatedText = (String) body.get("translated_text");
+                String audioBase64 = (String) body.get("audio_base64");
+                
+                if (translatedText == null || translatedText.isEmpty()) {
+                    logger.warn("⚠️ Texte traduit manquant dans la réponse Flask, utilisation du texte original");
+                    translatedText = text;
+                }
+                
+                if (audioBase64 == null || audioBase64.isEmpty()) {
+                    throw new DjeliaAPIException("Audio Base64 manquant dans la réponse Flask");
+                }
+                
+                logger.info("✅ Audio et traduction reçus de Flask: {} bytes, texte: '{}'", 
+                           audioBase64.length(), translatedText.substring(0, Math.min(50, translatedText.length())));
+                
+                TranslateAndSpeakFlaskResponse flaskResponse = new TranslateAndSpeakFlaskResponse();
+                flaskResponse.setTranslatedText(translatedText);
+                flaskResponse.setAudioBase64(audioBase64);
+                
+                return flaskResponse;
+                
+            } else {
+                throw new DjeliaAPIException("Erreur Flask TTS: " + response.getStatusCode());
+            }
             
         } catch (Exception e) {
             logger.error("❌ Erreur Flask translate+speak: {}", e.getMessage());
@@ -309,7 +391,8 @@ public class DjeliaAIService {
     }
     
     /**
-     * Appelle le backend Flask pour Text-to-Speech
+     * Appelle le backend Flask pour Text-to-Speech (retourne uniquement l'audio)
+     * Méthode utilisée uniquement pour textToSpeech() qui n'a pas besoin du texte traduit
      */
     private byte[] callFlaskTTS(String text) {
         try {
@@ -318,13 +401,14 @@ public class DjeliaAIService {
             
             Map<String, Object> requestBody = Map.of(
                 "text", text,
-                "speaker", 1
+                "speaker", 1,
+                "return_json", false  // Retourner audio WAV (comportement par défaut)
             );
             
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
             
             String url = baseUrl + "/speak";
-            logger.debug("🔊 Appel Flask TTS: POST {}", url);
+            logger.debug("🔊 Appel Flask TTS (audio WAV): POST {}", url);
             
             ResponseEntity<byte[]> response = restTemplate.exchange(
                 url,

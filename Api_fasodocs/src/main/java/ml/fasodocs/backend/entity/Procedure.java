@@ -29,18 +29,47 @@ public class Procedure {
     @Column(nullable = false, length = 200)
     private String nom;
 
+    @Column(name = "nom_en", length = 200)
+    private String nomEn;
+
+    @Column(name = "nom_bm", length = 200)
+    private String nomBm;
+
     @Column(nullable = false, length = 100)
     private String titre;
+
+    @Column(name = "titre_en", length = 100)
+    private String titreEn;
+
+    @Column(name = "titre_bm", length = 100)
+    private String titreBm;
 
     @Column(name = "url_vers_formulaire", length = 500)
     private String urlVersFormulaire;
 
-
     @Column(nullable = false, length = 500)
     private String delai;
 
+    @Column(name = "delai_en", length = 500)
+    private String delaiEn;
+
+    @Column(name = "delai_bm", length = 500)
+    private String delaiBm;
+
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(name = "description_en", columnDefinition = "TEXT")
+    private String descriptionEn;
+
+    @Column(name = "description_bm", columnDefinition = "TEXT")
+    private String descriptionBm;
+
+    @Column(name = "audio_url", length = 500)
+    private String audioUrl; // URL ou chemin vers le fichier audio de fallback
+
+    @Column(name = "peut_etre_delegatee")
+    private Boolean peutEtreDelegatee = false; // Si la procédure peut être déléguée (service disponible)
 
     @OneToMany(mappedBy = "procedure", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Etape> etapes = new HashSet<>();

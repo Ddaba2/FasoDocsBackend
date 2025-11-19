@@ -23,13 +23,16 @@ public class CategorieService {
     @Autowired
     private CategorieRepository categorieRepository;
 
+    @Autowired
+    private TranslationHelper translationHelper;
+
     /**
      * Récupère toutes les catégories
      */
     @Transactional(readOnly = true)
     public List<CategorieResponse> obtenirToutesCategories() {
         return categorieRepository.findAll().stream()
-                .map(CategorieResponse::new)
+                .map(cat -> new CategorieResponse(cat, translationHelper))
                 .collect(Collectors.toList());
     }
 
@@ -42,7 +45,7 @@ public class CategorieService {
         if (categorieOpt.isEmpty()) {
             throw new RuntimeException("Catégorie non trouvée");
         }
-        return new CategorieResponse(categorieOpt.get());
+        return new CategorieResponse(categorieOpt.get(), translationHelper);
     }
 
     /**

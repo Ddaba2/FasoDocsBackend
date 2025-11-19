@@ -26,10 +26,12 @@ public class CitoyenProfilResponse {
     private String photoProfil;
     private LocalDateTime dateCreation;
     private LocalDateTime dateModification;
+    private String role; // USER ou ADMIN
 
     public CitoyenProfilResponse(Long id, String nom, String prenom, String telephone, String email,
                                 Boolean estActif, Boolean emailVerifie, Boolean telephoneVerifie,
-                                String languePreferee, String photoProfil, LocalDateTime dateCreation, LocalDateTime dateModification) {
+                                String languePreferee, String photoProfil, LocalDateTime dateCreation, 
+                                LocalDateTime dateModification, String role) {
         this.id = id;
         this.nom = nom;
         this.prenom = prenom;
@@ -42,5 +44,6 @@ public class CitoyenProfilResponse {
         this.photoProfil = photoProfil;
         this.dateCreation = dateCreation;
         this.dateModification = dateModification;
+        this.role = role;
     }
 }

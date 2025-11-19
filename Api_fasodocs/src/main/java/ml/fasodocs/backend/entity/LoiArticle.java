@@ -23,6 +23,12 @@ public class LoiArticle {
     @Column(nullable = false, length = 500)
     private String description;
 
+    @Column(name = "description_en", length = 500)
+    private String descriptionEn;
+
+    @Column(name = "description_bm", length = 500)
+    private String descriptionBm;
+
     @Column(name = "consulter_article", columnDefinition = "TEXT")
     private String consulterArticle;
 

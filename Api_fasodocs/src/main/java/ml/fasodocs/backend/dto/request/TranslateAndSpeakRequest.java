@@ -21,5 +21,8 @@ public class TranslateAndSpeakRequest {
     
     // Taille des chunks (optionnel)
     private Float chunkSize = 1.0f;
+    
+    // ID de la procédure pour le fallback audio (optionnel)
+    private Long procedureId;
 }
 

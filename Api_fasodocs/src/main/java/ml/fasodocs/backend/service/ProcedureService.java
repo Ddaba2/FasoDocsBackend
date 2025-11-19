@@ -47,6 +47,9 @@ public class ProcedureService {
     @Autowired
     private SousCategorieRepository sousCategorieRepository;
 
+    @Autowired
+    private TranslationHelper translationHelper;
+
     /**
      * Récupère toutes les procédures
      */
@@ -160,6 +163,13 @@ public class ProcedureService {
 
         Procedure savedProcedure = procedureRepository.save(procedure);
 
+        // Notifier tous les citoyens de la création
+        try {
+            notificationService.notifierCreationProcedure(savedProcedure);
+        } catch (Exception e) {
+            logger.warn("Impossible d'envoyer les notifications de création: {}", e.getMessage());
+        }
+
         // Créer les étapes si fournies
         if (request.getEtapes() != null && !request.getEtapes().isEmpty()) {
             int niveau = 1;
@@ -237,6 +247,13 @@ public class ProcedureService {
         Procedure procedure = procedureRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Procédure non trouvée"));
 
+        // Notifier la suppression à tous les citoyens
+        try {
+            notificationService.notifierSuppressionProcedure(procedure);
+        } catch (Exception e) {
+            logger.warn("Impossible d'envoyer les notifications de suppression: {}", e.getMessage());
+        }
+
         procedureRepository.delete(procedure);
         
         logger.info("Procédure supprimée: {}", procedure.getNom());
@@ -250,12 +267,15 @@ public class ProcedureService {
     private ProcedureResponse convertirEnResponse(Procedure procedure) {
         ProcedureResponse response = new ProcedureResponse();
         response.setId(procedure.getId());
-        response.setNom(procedure.getNom());
-        response.setTitre(procedure.getTitre());
+        response.setNom(translationHelper.getNom(procedure));
+        response.setTitre(translationHelper.getTitre(procedure));
         response.setUrlVersFormulaire(procedure.getUrlVersFormulaire());
-        response.setDelai(procedure.getDelai());
+        response.setDelai(translationHelper.getDelai(procedure));
         // ✅ Ne jamais renvoyer null pour la description - utiliser le titre comme fallback
-        response.setDescription(procedure.getDescription() != null ? procedure.getDescription() : procedure.getTitre());
+        String description = translationHelper.getDescription(procedure);
+        response.setDescription(description != null ? description : translationHelper.getTitre(procedure));
+        response.setAudioUrl(procedure.getAudioUrl()); // URL vers le fichier audio de fallback
+        response.setPeutEtreDelegatee(procedure.getPeutEtreDelegatee()); // Si la procédure peut être déléguée
         response.setDateCreation(procedure.getDateCreation());
         response.setDateModification(procedure.getDateModification());
 
@@ -263,8 +283,8 @@ public class ProcedureService {
         if (procedure.getCategorie() != null) {
             CategorieSimpleResponse categorieResponse = new CategorieSimpleResponse();
             categorieResponse.setId(procedure.getCategorie().getId());
-            categorieResponse.setTitre(procedure.getCategorie().getTitre());
-            categorieResponse.setDescription(procedure.getCategorie().getDescription());
+            categorieResponse.setTitre(translationHelper.getTitre(procedure.getCategorie()));
+            categorieResponse.setDescription(translationHelper.getDescription(procedure.getCategorie()));
             categorieResponse.setIconeUrl(procedure.getCategorie().getIconeUrl());
             response.setCategorie(categorieResponse);
         }
@@ -273,15 +293,17 @@ public class ProcedureService {
         if (procedure.getSousCategorie() != null) {
             CategorieSimpleResponse sousCategorieResponse = new CategorieSimpleResponse();
             sousCategorieResponse.setId(procedure.getSousCategorie().getId());
-            sousCategorieResponse.setTitre(procedure.getSousCategorie().getTitre());
-            sousCategorieResponse.setDescription(procedure.getSousCategorie().getDescription());
+            sousCategorieResponse.setTitre(translationHelper.getTitre(procedure.getSousCategorie()));
+            sousCategorieResponse.setDescription(translationHelper.getDescription(procedure.getSousCategorie()));
             response.setSousCategorie(sousCategorieResponse);
         }
 
         // Coût
         if (procedure.getCout() != null) {
             response.setCout(procedure.getCout().getPrix());
-            response.setCoutDescription(procedure.getCout().getNom());
+            // Utiliser la description traduite si disponible, sinon le nom
+            String coutDescription = translationHelper.getDescription(procedure.getCout());
+            response.setCoutDescription(coutDescription != null ? coutDescription : procedure.getCout().getNom());
         }
 
         // Centre
@@ -323,7 +345,7 @@ public class ProcedureService {
         DocumentRequisResponse response = new DocumentRequisResponse();
         response.setId(document.getId());
         response.setNom(document.getNom());
-        response.setDescription(document.getDescription());
+        response.setDescription(translationHelper.getDescription(document));
         response.setEstObligatoire(document.getEstObligatoire());
         response.setModeleUrl(document.getModeleUrl());
         return response;
@@ -333,9 +355,9 @@ public class ProcedureService {
     private CentreResponse convertirCentreEnResponse(Centre centre) {
         CentreResponse response = new CentreResponse();
         response.setId(centre.getId());
-        response.setNom(centre.getNom());
-        response.setAdresse(centre.getAdresse());
-        response.setHoraires(centre.getHoraires());
+        response.setNom(translationHelper.getNom(centre));
+        response.setAdresse(translationHelper.getAdresse(centre));
+        response.setHoraires(translationHelper.getHoraires(centre));
         response.setCoordonneesGPS(centre.getCoordonneesGPS());
         response.setTelephone(centre.getTelephone());
         response.setEmail(centre.getEmail());
@@ -346,7 +368,7 @@ public class ProcedureService {
         EtapeResponse response = new EtapeResponse();
         response.setId(etape.getId());
         response.setNom(etape.getNom());
-        response.setDescription(etape.getDescription());
+        response.setDescription(translationHelper.getDescription(etape));
         response.setNiveau(etape.getNiveau());
         return response;
     }
@@ -354,7 +376,7 @@ public class ProcedureService {
     private LoiArticleResponse convertirLoiArticleEnResponse(LoiArticle loiArticle) {
         LoiArticleResponse response = new LoiArticleResponse();
         response.setId(loiArticle.getId());
-        response.setDescription(loiArticle.getDescription());
+        response.setDescription(translationHelper.getDescription(loiArticle));
         response.setConsulterArticle(loiArticle.getConsulterArticle());
         response.setLienAudio(loiArticle.getLienAudio());
         return response;

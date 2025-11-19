@@ -32,6 +32,6 @@ public class CreerUtilisateurRequest {
     private String motDePasse;
 
     @NotBlank(message = "Le rôle est obligatoire")
-    private String role; // "ROLE_CITOYEN" ou "ROLE_ADMIN"
+    private String role; // "USER" ou "ADMIN"
 }
 

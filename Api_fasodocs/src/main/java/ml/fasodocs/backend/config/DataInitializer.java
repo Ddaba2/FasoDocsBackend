@@ -10,9 +10,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Initialise les données de base de l'application
  */
@@ -20,9 +17,6 @@ import java.util.Set;
 public class DataInitializer implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
-
-    @Autowired
-    private RoleRepository roleRepository;
 
     @Autowired
     private CitoyenRepository citoyenRepository;
@@ -41,7 +35,6 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        initializeRoles();
         initializeAdminAccount();
         
         // NOTE: Les données complètes (catégories, procédures, etc.) sont maintenant
@@ -50,56 +43,52 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     /**
-     * Initialise les rôles par défaut
-     */
-    private void initializeRoles() {
-        if (roleRepository.count() == 0) {
-            Role roleCitoyen = new Role();
-            roleCitoyen.setNom(Role.NomRole.ROLE_CITOYEN);
-            roleRepository.save(roleCitoyen);
-
-            Role roleAdmin = new Role();
-            roleAdmin.setNom(Role.NomRole.ROLE_ADMIN);
-            roleRepository.save(roleAdmin);
-
-            logger.info("Rôles initialisés: ROLE_CITOYEN, ROLE_ADMIN");
-        }
-    }
-
-    /**
      * Initialise un compte administrateur par défaut
      */
     private void initializeAdminAccount() {
-        // Vérifier si un admin existe déjà
-        Role roleAdmin = roleRepository.findByNom(Role.NomRole.ROLE_ADMIN)
-                .orElseThrow(() -> new RuntimeException("Role ADMIN non trouvé"));
+        try {
+            // Vérifier si un compte avec cet email existe déjà
+            if (citoyenRepository.findByEmail("admin@fasodocs.ml").isPresent()) {
+                logger.info("Compte administrateur déjà existant (admin@fasodocs.ml)");
+                
+                // Optionnel : Mettre à jour le rôle si nécessaire
+                Citoyen admin = citoyenRepository.findByEmail("admin@fasodocs.ml").get();
+                if (admin.getRole() == null || admin.getRole() != Citoyen.RoleCitoyen.ADMIN) {
+                    admin.setRole(Citoyen.RoleCitoyen.ADMIN);
+                    citoyenRepository.save(admin);
+                    logger.info("Rôle ADMIN attribué au compte existant");
+                }
+                return;
+            }
 
-        boolean adminExists = citoyenRepository.findAll().stream()
-                .anyMatch(c -> c.getRoles().contains(roleAdmin));
+            // Vérifier si un admin existe déjà par rôle
+            boolean adminExists = citoyenRepository.findAll().stream()
+                    .anyMatch(c -> c.getRole() == Citoyen.RoleCitoyen.ADMIN);
 
-        if (!adminExists) {
-            Citoyen admin = new Citoyen();
-            admin.setNom("Admin");
-            admin.setPrenom("FasoDocs");
-            admin.setEmail("admin@fasodocs.ml");
-            admin.setTelephone("+22370000000");
-            admin.setMotDePasse(passwordEncoder.encode("Admin@2025"));
-            admin.setEstActif(true);
-            admin.setEmailVerifie(true);
-            admin.setLanguePreferee("fr");
+            if (!adminExists) {
+                Citoyen admin = new Citoyen();
+                admin.setNom("Admin");
+                admin.setPrenom("FasoDocs");
+                admin.setEmail("madyehsylla427@gmail.com");
+                admin.setTelephone("+22370000000");
+                admin.setMotDePasse(passwordEncoder.encode("Admin@2025"));
+                admin.setEstActif(true);
+                admin.setEmailVerifie(true);
+                admin.setTelephoneVerifie(true);
+                admin.setLanguePreferee("fr");
+                admin.setRole(Citoyen.RoleCitoyen.ADMIN);
 
-            Set<Role> roles = new HashSet<>();
-            roles.add(roleAdmin);
-            admin.setRoles(roles);
+                citoyenRepository.save(admin);
 
-            citoyenRepository.save(admin);
-
-            logger.info("================================================");
-            logger.info("Compte administrateur créé avec succès !");
-            logger.info("Email: admin@fasodocs.ml");
-            logger.info("Mot de passe: Admin@2025");
-            logger.info("⚠️  CHANGEZ CE MOT DE PASSE EN PRODUCTION !");
-            logger.info("================================================");
+                logger.info("================================================");
+                logger.info("✅ Compte administrateur créé avec succès !");
+                logger.info("🔑 Mot de passe: Admin@2025");
+                logger.info("⚠️  CHANGEZ CE MOT DE PASSE EN PRODUCTION !");
+                logger.info("================================================");
+            }
+        } catch (Exception e) {
+            logger.error("⚠️  Erreur lors de l'initialisation du compte admin: {}", e.getMessage());
+            logger.info("Le compte admin existe probablement déjà. Vous pouvez continuer.");
         }
     }
     

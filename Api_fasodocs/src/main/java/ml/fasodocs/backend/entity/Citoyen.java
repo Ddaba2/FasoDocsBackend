@@ -20,7 +20,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(exclude = {"historiques", "notifications", "signalements", "parametre"})
-@EqualsAndHashCode(exclude = {"historiques", "notifications", "signalements", "parametre", "roles"})
+@EqualsAndHashCode(exclude = {"historiques", "notifications", "signalements", "parametre"})
 public class Citoyen {
 
     @Id
@@ -92,13 +92,17 @@ public class Citoyen {
     @JsonBackReference
     private Parametre parametre;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "citoyen_roles",
-        joinColumns = @JoinColumn(name = "citoyen_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> roles = new HashSet<>();
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, length = 20)
+    private RoleCitoyen role = RoleCitoyen.USER;
+
+    /**
+     * Enum pour les rôles des citoyens
+     */
+    public enum RoleCitoyen {
+        USER,
+        ADMIN
+    }
 
     /**
      * Méthode pour créer un compte

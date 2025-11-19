@@ -31,6 +31,12 @@ public class Cout {
     @Column(length = 500)
     private String description;
 
+    @Column(name = "description_en", length = 500)
+    private String descriptionEn;
+
+    @Column(name = "description_bm", length = 500)
+    private String descriptionBm;
+
     @OneToMany(mappedBy = "cout", cascade = CascadeType.ALL)
     private Set<Procedure> procedures = new HashSet<>();
 

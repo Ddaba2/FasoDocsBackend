@@ -2,6 +2,7 @@ package ml.fasodocs.backend.service;
 
 import ml.fasodocs.backend.dto.response.NotificationResponse;
 import ml.fasodocs.backend.entity.Citoyen;
+import ml.fasodocs.backend.entity.DemandeService;
 import ml.fasodocs.backend.entity.Notification;
 import ml.fasodocs.backend.entity.Procedure;
 import ml.fasodocs.backend.repository.CitoyenRepository;
@@ -32,6 +33,9 @@ public class NotificationService {
 
     @Autowired
     private CitoyenRepository citoyenRepository;
+
+    @Autowired
+    private EmailService emailService;
 
 
     /**
@@ -117,6 +121,53 @@ public class NotificationService {
     }
 
     /**
+     * Notifie tous les citoyens de la création d'une nouvelle procédure
+     */
+    public void notifierCreationProcedure(Procedure procedure) {
+        List<Citoyen> citoyens = citoyenRepository.findAllActifs();
+
+        String contenu = String.format(
+                "Nouvelle procédure publiée: '%s' — %s",
+                procedure.getTitre(),
+                procedure.getDescription() != null ? procedure.getDescription() : ""
+        );
+
+        for (Citoyen citoyen : citoyens) {
+            Notification notification = new Notification();
+            notification.setContenu(contenu);
+            notification.setType("INFO");
+            notification.setCitoyen(citoyen);
+            notification.setProcedure(procedure);
+            notificationRepository.save(notification);
+        }
+
+        logger.info("Notifications de création envoyées pour la procédure: {}", procedure.getNom());
+    }
+
+    /**
+     * Notifie tous les citoyens de la suppression d'une procédure
+     */
+    public void notifierSuppressionProcedure(Procedure procedure) {
+        List<Citoyen> citoyens = citoyenRepository.findAllActifs();
+
+        String contenu = String.format(
+                "La procédure '%s' a été supprimée.",
+                procedure.getTitre()
+        );
+
+        for (Citoyen citoyen : citoyens) {
+            Notification notification = new Notification();
+            notification.setContenu(contenu);
+            notification.setType("ALERTE");
+            notification.setCitoyen(citoyen);
+            notification.setProcedure(null); // la procédure n'existera plus
+            notificationRepository.save(notification);
+        }
+
+        logger.info("Notifications de suppression envoyées pour la procédure supprimée: {}", procedure.getNom());
+    }
+
+    /**
      * Envoie une notification à un citoyen spécifique
      */
     public void envoyerNotification(Long citoyenId, String contenu, String type, Procedure procedure) {
@@ -133,6 +184,166 @@ public class NotificationService {
         // Notification en base de données uniquement
         
         logger.info("Notification envoyée au citoyen: {} {}", citoyen.getNom(), citoyen.getPrenom());
+    }
+
+    /**
+     * Notifie la création d'une demande de service
+     */
+    public void notifierCreationDemandeService(DemandeService demande) {
+        // Notification au client
+        String contenuClient = String.format(
+                "Votre demande de service pour '%s' a été soumise avec succès. Numéro de demande: #%d",
+                demande.getProcedure().getNom(),
+                demande.getId()
+        );
+        
+        Notification notificationClient = new Notification();
+        notificationClient.setContenu(contenuClient);
+        notificationClient.setType("INFO");
+        notificationClient.setCitoyen(demande.getCitoyen());
+        notificationClient.setProcedure(demande.getProcedure());
+        notificationRepository.save(notificationClient);
+
+        // Notification aux admins (dans la base de données)
+        List<Citoyen> admins = citoyenRepository.findByRole(Citoyen.RoleCitoyen.ADMIN);
+        String contenuAdmin = String.format(
+                "Nouvelle demande de service pour '%s' - Client: %s %s - Commune: %s - Tarif: %.0f FCFA",
+                demande.getProcedure().getNom(),
+                demande.getCitoyen().getPrenom(),
+                demande.getCitoyen().getNom(),
+                demande.getCommune(),
+                demande.getTarif()
+        );
+
+        for (Citoyen admin : admins) {
+            // Notification dans la base de données
+            Notification notificationAdmin = new Notification();
+            notificationAdmin.setContenu(contenuAdmin);
+            notificationAdmin.setType("ALERTE");
+            notificationAdmin.setCitoyen(admin);
+            notificationAdmin.setProcedure(demande.getProcedure());
+            notificationRepository.save(notificationAdmin);
+
+            // Envoi d'email à l'admin (si l'admin a un email)
+            if (admin.getEmail() != null && !admin.getEmail().trim().isEmpty()) {
+                try {
+                    String sujetEmail = "🔔 Nouvelle demande de service - FasoDocs";
+                    String contenuEmail = String.format(
+                            "Bonjour %s %s,\n\n" +
+                            "Une nouvelle demande de service a été soumise sur FasoDocs.\n\n" +
+                            "📋 Détails de la demande:\n" +
+                            "   • Numéro de demande: #%d\n" +
+                            "   • Procédure: %s\n" +
+                            "   • Client: %s %s\n" +
+                            "   • Téléphone client: %s\n" +
+                            "   • Commune: %s\n" +
+                            "   • Quartier: %s\n" +
+                            "   • Tarif total: %.0f FCFA\n" +
+                            "   • Tarif service: %.0f FCFA\n" +
+                            "   • Coût légal: %s\n" +
+                            "   • Date souhaitée: %s\n" +
+                            "   • Date de création: %s\n" +
+                            "   • Statut: EN ATTENTE\n\n" +
+                            "%s\n\n" +
+                            "🔗 Pour gérer cette demande:\n" +
+                            "   • Connectez-vous au tableau de bord admin\n" +
+                            "   • Accédez à la section services\n" +
+                            "   • Consultez la demande #%d\n\n" +
+                            "Merci de traiter cette demande dans les plus brefs délais.\n\n" +
+                            "Cordialement,\n" +
+                            "L'équipe FasoDocs\n\n" +
+                            "---\n" +
+                            "Cet email a été envoyé automatiquement, merci de ne pas y répondre.",
+                            admin.getPrenom() != null ? admin.getPrenom() : "Admin",
+                            admin.getNom() != null ? admin.getNom() : "",
+                            demande.getId(),
+                            demande.getProcedure().getNom(),
+                            demande.getCitoyen().getPrenom() != null ? demande.getCitoyen().getPrenom() : "",
+                            demande.getCitoyen().getNom() != null ? demande.getCitoyen().getNom() : "",
+                            demande.getCitoyen().getTelephone() != null ? demande.getCitoyen().getTelephone() : "Non renseigné",
+                            demande.getCommune(),
+                            demande.getQuartier() != null && !demande.getQuartier().trim().isEmpty() ? demande.getQuartier() : "Non renseigné",
+                            demande.getTarif(),
+                            demande.getTarifService(),
+                            demande.getCoutLegal() != null ? String.format("%.0f FCFA", demande.getCoutLegal()) : "Non applicable",
+                            demande.getDateSouhaitee() != null ? demande.getDateSouhaitee().toString() : "Non spécifiée",
+                            demande.getDateCreation() != null ? demande.getDateCreation().toString() : "Non disponible",
+                            demande.getCommentaires() != null && !demande.getCommentaires().trim().isEmpty() 
+                                ? "📝 Commentaires du client:\n   " + demande.getCommentaires().replace("\n", "\n   ")
+                                : "",
+                            demande.getId()
+                    );
+
+                    emailService.envoyerNotificationEmail(admin.getEmail(), sujetEmail, contenuEmail);
+                    logger.info("Email de service envoyé à l'admin: {}", admin.getEmail());
+                } catch (Exception e) {
+                    logger.error("Erreur lors de l'envoi de l'email à l'admin {}: {}", admin.getEmail(), e.getMessage());
+                }
+            }
+        }
+
+        logger.info("Notifications et emails de service envoyés pour la demande: {}", demande.getId());
+    }
+
+    /**
+     * Notifie un changement de statut d'une demande de service
+     */
+    public void notifierChangementStatutDemandeService(DemandeService demande, DemandeService.StatutDemande ancienStatut) {
+        String statutLibelle = getLibelleStatut(demande.getStatut());
+        String ancienStatutLibelle = getLibelleStatut(ancienStatut);
+        
+        String contenu;
+        String type;
+        
+        // Personnaliser le message selon le nouveau statut
+        switch (demande.getStatut()) {
+            case EN_COURS:
+                contenu = String.format(
+                        "Votre demande de service pour '%s' est maintenant en cours de traitement. Numéro de demande: #%d",
+                        demande.getProcedure().getNom(),
+                        demande.getId()
+                );
+                type = "INFO";
+                break;
+            case TERMINEE:
+                contenu = String.format(
+                        "Votre demande de service pour '%s' est terminée. Vous pouvez récupérer vos documents. Numéro de demande: #%d",
+                        demande.getProcedure().getNom(),
+                        demande.getId()
+                );
+                type = "SUCCESS";
+                break;
+            default:
+                contenu = String.format(
+                        "Le statut de votre demande de service pour '%s' a changé: %s → %s. Numéro de demande: #%d",
+                        demande.getProcedure().getNom(),
+                        ancienStatutLibelle,
+                        statutLibelle,
+                        demande.getId()
+                );
+                type = "INFO";
+        }
+        
+        Notification notification = new Notification();
+        notification.setContenu(contenu);
+        notification.setType(type);
+        notification.setCitoyen(demande.getCitoyen());
+        notification.setProcedure(demande.getProcedure());
+        notificationRepository.save(notification);
+
+        logger.info("Notification de changement de statut envoyée pour la demande: {}", demande.getId());
+    }
+
+    /**
+     * Retourne le libellé d'un statut
+     */
+    private String getLibelleStatut(DemandeService.StatutDemande statut) {
+        switch (statut) {
+            case EN_ATTENTE: return "En attente";
+            case EN_COURS: return "En cours";
+            case TERMINEE: return "Terminée";
+            default: return statut.name();
+        }
     }
 
     /**

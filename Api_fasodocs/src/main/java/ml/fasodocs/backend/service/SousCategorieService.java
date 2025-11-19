@@ -28,13 +28,16 @@ public class SousCategorieService {
     @Autowired
     private CategorieRepository categorieRepository;
 
+    @Autowired
+    private TranslationHelper translationHelper;
+
     /**
      * Récupère toutes les sous-catégories
      */
     @Transactional(readOnly = true)
     public List<SousCategorieResponse> obtenirToutesSousCategories() {
         return sousCategorieRepository.findAllWithProcedures().stream()
-                .map(SousCategorieResponse::new)
+                .map(sc -> new SousCategorieResponse(sc, translationHelper))
                 .collect(Collectors.toList());
     }
 
@@ -47,7 +50,7 @@ public class SousCategorieService {
         if (sousCategorieOpt.isEmpty()) {
             throw new RuntimeException("Sous-catégorie non trouvée");
         }
-        return new SousCategorieResponse(sousCategorieOpt.get());
+        return new SousCategorieResponse(sousCategorieOpt.get(), translationHelper);
     }
 
     /**
@@ -56,7 +59,7 @@ public class SousCategorieService {
     @Transactional(readOnly = true)
     public List<SousCategorieResponse> obtenirSousCategoriesParCategorie(Long categorieId) {
         return sousCategorieRepository.findByCategorieIdWithProcedures(categorieId).stream()
-                .map(SousCategorieResponse::new)
+                .map(sc -> new SousCategorieResponse(sc, translationHelper))
                 .collect(Collectors.toList());
     }
 

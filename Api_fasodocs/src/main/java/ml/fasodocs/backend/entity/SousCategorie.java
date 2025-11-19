@@ -28,8 +28,20 @@ public class SousCategorie {
     @Column(nullable = false, length = 100)
     private String titre;
 
+    @Column(name = "titre_en", length = 100)
+    private String titreEn;
+
+    @Column(name = "titre_bm", length = 100)
+    private String titreBm;
+
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(name = "description_en", columnDefinition = "TEXT")
+    private String descriptionEn;
+
+    @Column(name = "description_bm", columnDefinition = "TEXT")
+    private String descriptionBm;
 
     @Column(name = "icone_url")
     private String iconeUrl;

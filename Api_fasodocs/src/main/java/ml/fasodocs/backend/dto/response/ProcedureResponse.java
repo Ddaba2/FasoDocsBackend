@@ -12,6 +12,8 @@ public class ProcedureResponse {
     private String urlVersFormulaire;
     private String delai;
     private String description;
+    private String audioUrl; // URL vers le fichier audio de fallback
+    private Boolean peutEtreDelegatee; // Si la procédure peut être déléguée
     private LocalDateTime dateCreation;
     private LocalDateTime dateModification;
     

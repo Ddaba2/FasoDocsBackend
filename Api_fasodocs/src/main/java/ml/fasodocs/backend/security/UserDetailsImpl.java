@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Implémentation de UserDetails pour Spring Security
@@ -31,14 +30,16 @@ public class UserDetailsImpl implements UserDetails {
     private String password;
 
     private Collection<? extends GrantedAuthority> authorities;
+    
+    private boolean estActif; // Statut du compte
 
     /**
      * Construit un UserDetailsImpl à partir d'un Citoyen
      */
     public static UserDetailsImpl build(Citoyen citoyen) {
-        List<GrantedAuthority> authorities = citoyen.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getNom().name()))
-                .collect(Collectors.toList());
+        // Créer l'autorité à partir du rôle du citoyen
+        String roleName = "ROLE_" + citoyen.getRole().name();
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(roleName));
 
         return new UserDetailsImpl(
                 citoyen.getId(),
@@ -47,7 +48,8 @@ public class UserDetailsImpl implements UserDetails {
                 citoyen.getEmail(),
                 citoyen.getTelephone(),
                 citoyen.getMotDePasse(),
-                authorities);
+                authorities,
+                citoyen.getEstActif() != null ? citoyen.getEstActif() : true);
     }
 
     @Override
@@ -82,6 +84,6 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return estActif;
     }
 }

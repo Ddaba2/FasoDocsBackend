@@ -87,4 +87,13 @@ public interface CitoyenRepository extends JpaRepository<Citoyen, Long> {
      */
     @Query("SELECT c FROM Citoyen c WHERE c.email = :identifiant OR c.telephone = :identifiant")
     Optional<Citoyen> findByEmailOrTelephone(@Param("identifiant") String identifiant);
+
+    /**
+     * Recherche tous les citoyens par rôle
+     * 
+     * @param role Le rôle recherché (USER ou ADMIN)
+     * @return Liste des citoyens avec ce rôle
+     */
+    @Query("SELECT c FROM Citoyen c WHERE c.role = :role")
+    java.util.List<Citoyen> findByRole(@Param("role") Citoyen.RoleCitoyen role);
 }

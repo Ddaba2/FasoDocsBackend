@@ -27,11 +27,29 @@ public class Centre {
     @Column(nullable = false, length = 200)
     private String nom;
 
+    @Column(name = "nom_en", length = 200)
+    private String nomEn;
+
+    @Column(name = "nom_bm", length = 200)
+    private String nomBm;
+
     @Column(length = 500)
     private String adresse;
 
+    @Column(name = "adresse_en", length = 500)
+    private String adresseEn;
+
+    @Column(name = "adresse_bm", length = 500)
+    private String adresseBm;
+
     @Column(length = 200)
     private String horaires;
+
+    @Column(name = "horaires_en", length = 200)
+    private String horairesEn;
+
+    @Column(name = "horaires_bm", length = 200)
+    private String horairesBm;
 
     @Column(name = "coordonnees_gps", length = 100)
     private String coordonneesGPS;

@@ -26,6 +26,12 @@ public class DocumentRequis {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "description_en", columnDefinition = "TEXT")
+    private String descriptionEn;
+
+    @Column(name = "description_bm", columnDefinition = "TEXT")
+    private String descriptionBm;
+
     @Column(name = "est_obligatoire")
     private Boolean estObligatoire = true;
 

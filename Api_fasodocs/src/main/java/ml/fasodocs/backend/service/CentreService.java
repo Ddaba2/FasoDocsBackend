@@ -24,6 +24,9 @@ public class CentreService {
     @Autowired
     private CentreRepository centreRepository;
 
+    @Autowired
+    private TranslationHelper translationHelper;
+
     /**
      * Récupère tous les centres
      */
@@ -67,9 +70,9 @@ public class CentreService {
     private CentreResponse convertirEnResponse(Centre centre) {
         CentreResponse response = new CentreResponse();
         response.setId(centre.getId());
-        response.setNom(centre.getNom());
-        response.setAdresse(centre.getAdresse());
-        response.setHoraires(centre.getHoraires());
+        response.setNom(translationHelper.getNom(centre));
+        response.setAdresse(translationHelper.getAdresse(centre));
+        response.setHoraires(translationHelper.getHoraires(centre));
         response.setCoordonneesGPS(centre.getCoordonneesGPS());
         response.setTelephone(centre.getTelephone());
         response.setEmail(centre.getEmail());

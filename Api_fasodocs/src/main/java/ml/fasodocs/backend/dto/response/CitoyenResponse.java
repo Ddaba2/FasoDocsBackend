@@ -2,11 +2,8 @@ package ml.fasodocs.backend.dto.response;
 
 import lombok.Data;
 import ml.fasodocs.backend.entity.Citoyen;
-import ml.fasodocs.backend.entity.Role;
 
 import java.time.LocalDateTime;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Data
 public class CitoyenResponse {
@@ -22,7 +19,7 @@ public class CitoyenResponse {
     private String photoProfil;
     private LocalDateTime dateCreation;
     private LocalDateTime dateModification;
-    private Set<String> roles;
+    private String role;
 
     public CitoyenResponse(Citoyen citoyen) {
         this.id = citoyen.getId();
@@ -37,11 +34,6 @@ public class CitoyenResponse {
         this.photoProfil = citoyen.getPhotoProfil();
         this.dateCreation = citoyen.getDateCreation();
         this.dateModification = citoyen.getDateModification();
-        
-        if (citoyen.getRoles() != null) {
-            this.roles = citoyen.getRoles().stream()
-                    .map(role -> role.getNom().name())
-                    .collect(Collectors.toSet());
-        }
+        this.role = citoyen.getRole().name();
     }
 }

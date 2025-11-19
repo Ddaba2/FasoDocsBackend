@@ -141,7 +141,10 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeHttpRequests(auth ->
                         auth
+                                // Endpoints publics - Accessibles par tous (Flutter + Angular)
                                 .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/auth/connexion-admin").permitAll()
+                                .requestMatchers("/auth/verifier-sms-admin").permitAll()
                                 .requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/public/**").permitAll()
                                 .requestMatchers("/procedures/**").permitAll()
@@ -150,15 +153,26 @@ public class SecurityConfig {
                                 .requestMatchers("/lieux/**").permitAll()
                                 .requestMatchers("/traductions/**").permitAll()
                                 .requestMatchers("/chatbot/**").permitAll()
-                                .requestMatchers("/signalements/**").authenticated()
+                                .requestMatchers("/djelia/**").permitAll()
                                 .requestMatchers("/error").permitAll()
-                                // Swagger/OpenAPI endpoints
+                                
+                                // Swagger/OpenAPI - Documentation API
                                 .requestMatchers("/swagger-ui/**").permitAll()
                                 .requestMatchers("/swagger-ui.html").permitAll()
                                 .requestMatchers("/v3/api-docs/**").permitAll()
                                 .requestMatchers("/api-docs/**").permitAll()
                                 .requestMatchers("/swagger-resources/**").permitAll()
                                 .requestMatchers("/webjars/**").permitAll()
+                                
+                                // Endpoints ADMIN - UNIQUEMENT pour Angular Admin
+                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                
+                                // Endpoints USER - Authentification requise (Flutter)
+                                .requestMatchers("/signalements/**").authenticated()
+                                .requestMatchers("/notifications/**").authenticated()
+                                .requestMatchers("/services/**").authenticated()
+                                
+                                // Tous les autres endpoints nécessitent une authentification
                                 .anyRequest().authenticated()
                 );
 

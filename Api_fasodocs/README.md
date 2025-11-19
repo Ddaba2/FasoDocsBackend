@@ -23,8 +23,9 @@
 
 FasoDocs est une plateforme qui aide les citoyens maliens à naviguer les procédures administratives en fournissant :
 - ✅ **83 procédures complètes** (documents d'identité, état civil, justice, etc.)
+- ✅ **Services de délégation** (prise en charge complète des démarches)
 - ✅ **Authentification par SMS** (Orange SMS API)
-- ✅ **Assistant vocal bambara** (Djelia AI)
+- ✅ **Assistant vocal bambara** (Djelia AI + Voix off de fallback)
 - ✅ **Signalement de problèmes**
 - ✅ **Notifications en temps réel**
 - ✅ **Interface multilingue** (Français / Bambara)
@@ -55,6 +56,8 @@ FasoDocs est une plateforme qui aide les citoyens maliens à naviguer les procé
 - Synthèse vocale (TTS) en bambara
 - Reconnaissance vocale (STT) bambara
 - Architecture hybride (Spring Boot + Flask)
+- **Note** : Actuellement désactivé (`djelia.ai.enabled=false`)
+- **Fallback** : Utilisation de fichiers audio préenregistrés
 
 ### 📱 Orange SMS
 - Envoi de codes de vérification par SMS
@@ -62,10 +65,24 @@ FasoDocs est une plateforme qui aide les citoyens maliens à naviguer les procé
 - Rate limiting (5 SMS/seconde)
 - Mode développement (logs des codes)
 
+### 🛎️ Services de Délégation
+- Demande de service pour prise en charge complète
+- Tarifs selon la commune
+- Suivi des demandes (EN_ATTENTE, EN_COURS, TERMINEE)
+- Notifications automatiques aux admins par email
+- Gestion admin des demandes
+
+### 🔊 Audio & Voix Off
+- Audio préenregistré pour chaque procédure
+- Fallback automatique si Djelia AI indisponible
+- Support formats : WAV, MP3, OGG, AAC
+- Endpoints Base64 pour Flutter
+
 ### 🔔 Notifications
 - Notifications en temps réel
 - Système de marquage lu/non-lu
 - Filtrage par statut
+- Emails automatiques aux admins
 
 ### 📢 Signalements
 - Signalement de problèmes
@@ -193,10 +210,13 @@ orange.sms.enabled=false  # true en production
 orange.sms.client.id=votre_client_id
 orange.sms.client.secret=votre_client_secret
 
-# Djelia AI
-djelia.ai.enabled=true
+# Djelia AI (actuellement désactivé)
+djelia.ai.enabled=false
 djelia.ai.base.url=http://localhost:5000/api
 djelia.ai.timeout=60000
+
+# Audio Fallback (Voix Off)
+app.audio.directory=src/main/resources/static/audio/procedures
 ```
 
 ### 2. Configuration Djelia AI
@@ -265,12 +285,20 @@ Consultez **`TOUS_LES_ENDPOINTS_FASODOCS.md`** pour la liste complète des 54 en
 | `/auth/profil` | GET | Profil utilisateur |
 | `/procedures` | GET | Liste des procédures |
 | `/procedures/{id}` | GET | Détails procédure |
+| `/procedures/{id}/audio/base64` | GET | Audio en Base64 (voix off) |
+| `/services/procedures/{id}/tarif` | GET | Tarif d'un service |
+| `/services/demandes` | POST | Créer demande de service |
+| `/services/mes-demandes` | GET | Mes demandes de service |
 | `/chatbot/read-quick` | POST | Djelia AI (traduction + audio) |
 | `/categories` | GET | Liste catégories |
 | `/notifications` | GET | Notifications utilisateur |
 | `/signalements` | POST | Créer signalement |
 
-**Documentation complète** : `TOUS_LES_ENDPOINTS_FASODOCS.md`
+**Documentation complète** :
+- `TOUS_LES_ENDPOINTS_FASODOCS.md` - Tous les endpoints
+- `NOUVEAUX_ENDPOINTS_SERVICE.md` - Endpoints Services (remplacement délégation)
+- `ENDPOINTS_ADMIN_DELEGATIONS.md` - Endpoints Admin Services
+- `ENDPOINTS_FLUTTER_VOIX_OFF.md` - Endpoints Audio/Voix Off
 
 ---
 
@@ -285,8 +313,20 @@ Consultez **`TOUS_LES_ENDPOINTS_FASODOCS.md`** pour la liste complète des 54 en
 - Spring Boot sert de proxy vers Flask
 - Traduction automatique FR → BM
 - Synthèse vocale en bambara
+- **Statut actuel** : Désactivé (`djelia.ai.enabled=false`)
+- **Fallback** : Fichiers audio préenregistrés dans `src/main/resources/static/audio/procedures/`
 
-### 2. Orange SMS API (Mali)
+### 2. Voix Off (Audio Fallback)
+
+**Voir** : `POINT_VOIX_OFF_FALLBACK.md` et `ENDPOINTS_FLUTTER_VOIX_OFF.md`
+
+**Résumé** :
+- Fichiers audio préenregistrés pour chaque procédure
+- Formats supportés : WAV, MP3, OGG, AAC
+- Endpoints Base64 pour Flutter
+- Chargement depuis le classpath Spring
+
+### 3. Orange SMS API (Mali)
 
 **Voir** : `GUIDE_INTEGRATION_ORANGE_SMS.md` pour les détails complets.
 
@@ -296,9 +336,10 @@ Consultez **`TOUS_LES_ENDPOINTS_FASODOCS.md`** pour la liste complète des 54 en
 - Rate limiting (5 SMS/seconde)
 - Mode développement (codes dans les logs)
 
-### 3. Gmail SMTP
+### 4. Gmail SMTP
 
 - Envoi d'emails de vérification
+- Emails automatiques aux admins pour nouvelles demandes de service
 - Configuration dans `application.properties`
 
 ---
@@ -364,6 +405,7 @@ Api_fasodocs/
 - **notifications** : Notifications utilisateurs
 - **signalements** : Signalements de problèmes
 - **historiques** : Historique des actions
+- **demandes_service** : Demandes de service (remplacement délégation)
 
 ### Initialisation des Données
 
@@ -395,6 +437,10 @@ Les données sont chargées automatiquement au démarrage si `app.init.data=true
 - Gestion utilisateurs (`/admin/utilisateurs/*`)
 - CRUD Catégories (`/admin/categories/*`)
 - CRUD Procédures (`/admin/procedures/*`)
+- Gestion Services (`/admin/services/demandes/*`)
+  - Lister toutes les demandes
+  - Modifier le statut des demandes
+  - Filtrer par statut (EN_ATTENTE, EN_COURS, TERMINEE)
 
 ---
 
@@ -441,6 +487,8 @@ curl http://localhost:8080/api/admin/sms/status \
 - **Email** : dabadiallo694@gmail.com
 - **Documentation API** : `/swagger-ui.html`
 - **Guide Endpoints** : `TOUS_LES_ENDPOINTS_FASODOCS.md`
+- **Guide Services** : `NOUVEAUX_ENDPOINTS_SERVICE.md`
+- **Guide Voix Off** : `ENDPOINTS_FLUTTER_VOIX_OFF.md` et `POINT_VOIX_OFF_FALLBACK.md`
 - **Guide Djelia** : `GUIDE_INTEGRATION_DJELIA_AI.md`
 - **Guide SMS** : `GUIDE_INTEGRATION_ORANGE_SMS.md`
 
