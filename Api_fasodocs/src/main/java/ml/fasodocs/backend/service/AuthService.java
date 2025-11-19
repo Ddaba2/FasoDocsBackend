@@ -106,6 +106,7 @@ public class AuthService {
     
     /**
      * Format phone number with +223 prefix if not already present
+     * Valide que le numéro commence par 5, 6, 7, 8 ou 9 (numéros mobiles Mali)
      */
     private String formatPhoneNumber(String telephone) {
         if (telephone == null || telephone.isEmpty()) {
@@ -115,23 +116,42 @@ public class AuthService {
         // Remove any existing + or spaces
         String cleanNumber = telephone.replaceAll("[+\\s]", "");
         
-        // If it starts with 223, add the + prefix
+        // Extraire le numéro local (8 chiffres sans le préfixe 223)
+        String localNumber;
+        if (cleanNumber.startsWith("223") && cleanNumber.length() == 11) {
+            // Format: 223XXXXXXXX (11 chiffres)
+            localNumber = cleanNumber.substring(3);
+        } else if (cleanNumber.length() == 8) {
+            // Format: XXXXXXXX (8 chiffres locaux)
+            localNumber = cleanNumber;
+        } else {
+            // Si le format n'est pas reconnu, essayer de l'utiliser tel quel
+            localNumber = cleanNumber;
+        }
+        
+        // Valider que le numéro local commence par 5, 6, 7, 8 ou 9
+        if (localNumber.length() == 8) {
+            char firstDigit = localNumber.charAt(0);
+            if (firstDigit != '5' && firstDigit != '6' && firstDigit != '7' && 
+                firstDigit != '8' && firstDigit != '9') {
+                throw new IllegalArgumentException(
+                    "Le numéro de téléphone doit commencer par 5, 6, 7, 8 ou 9"
+                );
+            }
+        } else if (localNumber.length() != 8) {
+            // Si la longueur n'est pas 8, c'est peut-être un format invalide
+            throw new IllegalArgumentException(
+                "Format de numéro de téléphone invalide. Attendu: 8 chiffres commençant par 5, 6, 7, 8 ou 9"
+            );
+        }
+        
+        // Formater avec le préfixe +223
         if (cleanNumber.startsWith("223")) {
             return "+" + cleanNumber;
         }
         
-        // If it doesn't start with 223 but has 8 digits, assume it's a local Mali number
-        if (!cleanNumber.startsWith("223") && cleanNumber.length() == 8) {
-            return "+223" + cleanNumber;
-        }
-        
-        // If it already has the +223 prefix, return as is
-        if (cleanNumber.startsWith("+223")) {
-            return cleanNumber;
-        }
-        
-        // Return the original if we can't format it
-        return telephone;
+        // Si c'est un numéro local de 8 chiffres, ajouter +223
+        return "+223" + localNumber;
     }
 
     /**
@@ -154,7 +174,7 @@ public class AuthService {
         // 3. Générer un code SMS à 4 chiffres
         String codeSms = orangeSmsService.genererCodeVerification();
         citoyen.setCodeSms(codeSms);
-        citoyen.setCodeSmsExpiration(java.time.LocalDateTime.now().plusMinutes(1));
+        citoyen.setCodeSmsExpiration(java.time.LocalDateTime.now().plusMinutes(2));
         citoyenRepository.save(citoyen);
 
         // 4. Envoyer le SMS - Mode fallback si échec
@@ -173,7 +193,7 @@ public class AuthService {
             logger.warn("═══════════════════════════════════════════════════════════");
             logger.warn("📞 Téléphone : {}", formattedTelephone);
             logger.warn("🔑 Code SMS  : {}", codeSms);
-            logger.warn("⏰ Expiration: {} (1 minute)", 
+            logger.warn("⏰ Expiration: {} (2 minutes)", 
                 citoyen.getCodeSmsExpiration() != null ? citoyen.getCodeSmsExpiration() : "N/A");
             logger.warn("═══════════════════════════════════════════════════════════");
             logger.warn("⚠️  L'envoi SMS a échoué mais le code est disponible ci-dessus");
@@ -223,7 +243,7 @@ public class AuthService {
         // Générer un code SMS
         String codeSms = orangeSmsService.genererCodeVerification();
         citoyen.setCodeSms(codeSms);
-        citoyen.setCodeSmsExpiration(java.time.LocalDateTime.now().plusMinutes(1));
+        citoyen.setCodeSmsExpiration(java.time.LocalDateTime.now().plusMinutes(2));
         citoyenRepository.save(citoyen);
 
         // Envoyer le SMS - Mode fallback si échec
@@ -378,8 +398,11 @@ public class AuthService {
         
         // Mise à jour du téléphone si fourni
         if (request.getTelephone() != null && !request.getTelephone().trim().isEmpty()) {
-            citoyen.setTelephone(request.getTelephone().trim());
-            logger.debug("   ✅ Téléphone mis à jour: {}", request.getTelephone());
+            String telephone = request.getTelephone().trim();
+            // Valider et formater le numéro
+            String formattedTelephone = formatPhoneNumber(telephone);
+            citoyen.setTelephone(formattedTelephone);
+            logger.debug("Téléphone mis à jour pour citoyen ID {}", citoyen.getId());
         }
         
         // Mise à jour de la langue si fournie
@@ -529,7 +552,7 @@ public class AuthService {
         // 4. Générer un code SMS à 4 chiffres
         String codeSms = orangeSmsService.genererCodeVerification();
         citoyen.setCodeSms(codeSms);
-        citoyen.setCodeSmsExpiration(java.time.LocalDateTime.now().plusMinutes(1));
+        citoyen.setCodeSmsExpiration(java.time.LocalDateTime.now().plusMinutes(2));
         citoyenRepository.save(citoyen);
 
         // 5. Envoyer le SMS - Mode fallback si échec
@@ -599,7 +622,7 @@ public class AuthService {
         if (citoyen.getCodeSmsExpiration().isBefore(java.time.LocalDateTime.now())) {
             logger.error("❌ Code SMS expiré. Expiration: {}, Maintenant: {}", 
                         citoyen.getCodeSmsExpiration(), java.time.LocalDateTime.now());
-            throw new RuntimeException("Code SMS expiré (valide 1 minute). Veuillez demander un nouveau code.");
+            throw new RuntimeException("Code SMS expiré (valide 2 minutes). Veuillez demander un nouveau code.");
         }
 
         // Marquer le téléphone comme vérifié
