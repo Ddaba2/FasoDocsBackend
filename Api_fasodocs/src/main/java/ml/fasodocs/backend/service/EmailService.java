@@ -23,12 +23,19 @@ public class EmailService {
     private String fromEmail;
 
     /**
+     * Formate l'adresse email avec le nom d'expéditeur FasoDocs
+     */
+    private String formatFromAddress() {
+        return "FasoDocs <" + fromEmail + ">";
+    }
+
+    /**
      * Envoie un email de vérification
      */
     public void envoyerEmailVerification(String toEmail, String codeVerification) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(formatFromAddress());
             message.setTo(toEmail);
             message.setSubject("FasoDocs - Vérification de votre compte");
             message.setText("Bienvenue sur FasoDocs!\n\n" +
@@ -51,7 +58,7 @@ public class EmailService {
     public void envoyerNotificationEmail(String toEmail, String sujet, String contenu) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(formatFromAddress());
             message.setTo(toEmail);
             message.setSubject("FasoDocs - " + sujet);
             message.setText(contenu);
@@ -69,7 +76,7 @@ public class EmailService {
     public void envoyerEmailInscriptionReussie(String toEmail, String telephone) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(formatFromAddress());
             message.setTo(toEmail);
             message.setSubject("FasoDocs - Bienvenue ! Inscription réussie 🎉");
             
@@ -102,7 +109,7 @@ public class EmailService {
                 "📞 Besoin d'aide ?\n" +
                 "Notre équipe est à votre disposition:\n" +
                 "   • Email: support@fasodocs.ml\n" +
-                "   • Téléphone: +223 XX XX XX XX\n\n" +
+                "   • Téléphone: +223 74 32 38 74\n\n" +
                 "Merci de nous faire confiance pour vos démarches administratives !\n\n" +
                 "Cordialement,\n" +
                 "L'équipe FasoDocs\n\n" +
@@ -125,7 +132,7 @@ public class EmailService {
     public void envoyerEmailCreationCompte(String toEmail, String nom, String prenom, String telephone, String motDePasseTemporaire) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(formatFromAddress());
             message.setTo(toEmail);
             message.setSubject("FasoDocs - Bienvenue ! Votre compte a été créé");
             
@@ -164,7 +171,7 @@ public class EmailService {
     public void envoyerEmailActivationCompte(String toEmail, String nom, String prenom) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(formatFromAddress());
             message.setTo(toEmail);
             message.setSubject("FasoDocs - ✅ Votre compte a été activé");
             
@@ -203,7 +210,7 @@ public class EmailService {
     public void envoyerEmailDesactivationCompte(String toEmail, String nom, String prenom, String raison) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(formatFromAddress());
             message.setTo(toEmail);
             message.setSubject("FasoDocs - ⚠️ Votre compte a été désactivé");
             
