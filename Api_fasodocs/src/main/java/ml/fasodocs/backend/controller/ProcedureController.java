@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import ml.fasodocs.backend.dto.request.ProcedureRequest;
+import ml.fasodocs.backend.dto.request.ProcedureUpdateRequest;
 import ml.fasodocs.backend.dto.response.AudioResponse;
 import ml.fasodocs.backend.dto.response.MessageResponse;
 import ml.fasodocs.backend.dto.response.ProcedureResponse;
@@ -109,7 +110,7 @@ public class ProcedureController {
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<?> mettreAJourProcedure(@PathVariable Long id, 
-                                                  @Valid @RequestBody ProcedureRequest request) {
+                                                  @RequestBody ProcedureUpdateRequest request) {
         try {
             ProcedureResponse response = procedureService.mettreAJourProcedure(id, request);
             return ResponseEntity.ok(response);

@@ -36,6 +36,10 @@ public class ProcedureRequest {
     private Long sousCategorieId;
     private String sousCategorieNom;
     
+    // Gestion du coût : soit par ID existant, soit directement par prix
     private Long coutId;
+    private Integer cout; // Prix direct en FCFA
+    private String typeMonnaie; // Type de monnaie (ex: "FCFA")
+    
     private Long centreId;
 }

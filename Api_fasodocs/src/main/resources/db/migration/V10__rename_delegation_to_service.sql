@@ -18,3 +18,7 @@ MODIFY COLUMN tarif DECIMAL(10,2) NOT NULL COMMENT 'Tarif total (service + coût
 
 
 
+
+
+
+

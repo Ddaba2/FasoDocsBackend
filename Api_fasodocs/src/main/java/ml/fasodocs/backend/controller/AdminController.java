@@ -7,6 +7,7 @@ import ml.fasodocs.backend.dto.request.CategorieRequest;
 import ml.fasodocs.backend.dto.request.CreerUtilisateurRequest;
 import ml.fasodocs.backend.dto.request.ModifierStatutDemandeRequest;
 import ml.fasodocs.backend.dto.request.ProcedureRequest;
+import ml.fasodocs.backend.dto.request.ProcedureUpdateRequest;
 import ml.fasodocs.backend.dto.request.SousCategorieRequest;
 import ml.fasodocs.backend.dto.response.DemandeServiceResponse;
 import ml.fasodocs.backend.dto.response.*;
@@ -553,6 +554,22 @@ public class AdminController {
     }
 
     /**
+     * Récupère une procédure par ID
+     */
+    @Operation(summary = "Récupère une procédure par son ID (Admin)")
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/procedures/{id}")
+    public ResponseEntity<?> obtenirProcedureParId(@PathVariable Long id) {
+        try {
+            ProcedureResponse response = procedureService.obtenirProcedureParId(id);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(MessageResponse.error("Procédure non trouvée: " + e.getMessage()));
+        }
+    }
+
+    /**
      * Crée une nouvelle procédure
      */
     @Operation(summary = "Crée une nouvelle procédure (Admin)")
@@ -575,7 +592,7 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/procedures/{id}")
     public ResponseEntity<?> mettreAJourProcedure(@PathVariable Long id, 
-                                                 @Valid @RequestBody ProcedureRequest request) {
+                                                 @RequestBody ProcedureUpdateRequest request) {
         try {
             ProcedureResponse response = procedureService.mettreAJourProcedure(id, request);
             return ResponseEntity.ok(response);

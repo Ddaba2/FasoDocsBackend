@@ -97,13 +97,35 @@ public class NotificationService {
      * Notifie tous les citoyens d'une mise à jour de procédure
      */
     public void notifierMiseAJourProcedure(Procedure procedure) {
+        notifierMiseAJourProcedure(procedure, null);
+    }
+
+    /**
+     * Notifie tous les citoyens d'une mise à jour de procédure avec détails des changements
+     */
+    public void notifierMiseAJourProcedure(Procedure procedure, List<String> changements) {
         List<Citoyen> citoyens = citoyenRepository.findAllActifs();
         
-        String contenu = String.format(
-                "La procédure '%s' a été mise à jour. Nouveau délai: %s",
-                procedure.getTitre(),
-                procedure.getDelai()
-        );
+        // Construire le message de notification
+        StringBuilder contenuBuilder = new StringBuilder();
+        contenuBuilder.append(String.format("La procédure '%s' a été mise à jour.", procedure.getTitre()));
+        
+        if (changements != null && !changements.isEmpty()) {
+            contenuBuilder.append("\n\nModifications apportées :");
+            for (String changement : changements) {
+                contenuBuilder.append("\n• ").append(changement);
+            }
+        } else {
+            // Message par défaut si aucun détail n'est fourni
+            contenuBuilder.append(String.format("\n\nNouveau délai: %s", procedure.getDelai()));
+            if (procedure.getCout() != null) {
+                contenuBuilder.append(String.format("\nCoût: %d %s", 
+                    procedure.getCout().getPrix(), 
+                    procedure.getCout().getDescription() != null && procedure.getCout().getDescription().contains("FCFA") ? "FCFA" : ""));
+            }
+        }
+        
+        String contenu = contenuBuilder.toString();
         
         for (Citoyen citoyen : citoyens) {
             // Créer la notification en base
@@ -113,11 +135,10 @@ public class NotificationService {
             notification.setCitoyen(citoyen);
             notification.setProcedure(procedure);
             notificationRepository.save(notification);
-            
-            // Notification en base de données uniquement
         }
         
-        logger.info("Notifications de mise à jour envoyées pour la procédure: {}", procedure.getNom());
+        logger.info("Notifications de mise à jour envoyées pour la procédure: {} ({} changements détectés)", 
+            procedure.getNom(), changements != null ? changements.size() : 0);
     }
 
     /**
