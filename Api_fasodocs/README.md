@@ -172,6 +172,9 @@ cd fasodocs-backend
 CREATE DATABASE FasoDocs CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
+> 💡 **Nouveau !** Le système importe automatiquement toutes les données au démarrage.
+> Voir [GUIDE_EXPORT_IMPORT_DONNEES.md](GUIDE_EXPORT_IMPORT_DONNEES.md) pour plus de détails.
+
 ### 3. Installer les Dépendances Java
 
 ```bash
