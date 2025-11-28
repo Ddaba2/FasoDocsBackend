@@ -7,6 +7,8 @@ import ml.fasodocs.backend.entity.Categorie;
 import ml.fasodocs.backend.entity.SousCategorie;
 import ml.fasodocs.backend.repository.CategorieRepository;
 import ml.fasodocs.backend.repository.SousCategorieRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
 @Transactional
 public class SousCategorieService {
 
+    private static final Logger logger = LoggerFactory.getLogger(SousCategorieService.class);
+
     @Autowired
     private SousCategorieRepository sousCategorieRepository;
 
@@ -30,6 +34,9 @@ public class SousCategorieService {
 
     @Autowired
     private TranslationHelper translationHelper;
+
+    @Autowired
+    private NotificationService notificationService;
 
     /**
      * Récupère toutes les sous-catégories
@@ -120,8 +127,16 @@ public class SousCategorieService {
         sousCategorie.setIconeUrl(request.getIconeUrl());
         sousCategorie.setCategorie(categorieOpt.get());
 
-        sousCategorieRepository.save(sousCategorie);
-        return new SousCategorieResponse(sousCategorie);
+        SousCategorie updatedSousCategorie = sousCategorieRepository.save(sousCategorie);
+        
+        // Notifier tous les citoyens de la mise à jour
+        try {
+            notificationService.notifierMiseAJourSousCategorie(updatedSousCategorie);
+        } catch (Exception e) {
+            logger.warn("Impossible d'envoyer les notifications de mise à jour de sous-catégorie: {}", e.getMessage());
+        }
+        
+        return new SousCategorieResponse(updatedSousCategorie);
     }
 
     /**
@@ -138,6 +153,13 @@ public class SousCategorieService {
         // Vérifier si la sous-catégorie a des procédures associées
         if (!sousCategorie.getProcedures().isEmpty()) {
             throw new RuntimeException("Impossible de supprimer une sous-catégorie qui contient des procédures");
+        }
+
+        // Notifier tous les citoyens de la suppression (avant la suppression)
+        try {
+            notificationService.notifierSuppressionSousCategorie(sousCategorie);
+        } catch (Exception e) {
+            logger.warn("Impossible d'envoyer les notifications de suppression de sous-catégorie: {}", e.getMessage());
         }
 
         sousCategorieRepository.delete(sousCategorie);

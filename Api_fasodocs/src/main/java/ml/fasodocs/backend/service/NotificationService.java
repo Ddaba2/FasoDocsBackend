@@ -106,34 +106,74 @@ public class NotificationService {
     public void notifierMiseAJourProcedure(Procedure procedure, List<String> changements) {
         List<Citoyen> citoyens = citoyenRepository.findAllActifs();
         
-        // Construire le message de notification
-        StringBuilder contenuBuilder = new StringBuilder();
-        contenuBuilder.append(String.format("La procédure '%s' a été mise à jour.", procedure.getTitre()));
-        
-        if (changements != null && !changements.isEmpty()) {
-            contenuBuilder.append("\n\nModifications apportées :");
-            for (String changement : changements) {
-                contenuBuilder.append("\n• ").append(changement);
-            }
-        } else {
-            // Message par défaut si aucun détail n'est fourni
-            contenuBuilder.append(String.format("\n\nNouveau délai: %s", procedure.getDelai()));
-            if (procedure.getCout() != null) {
-                contenuBuilder.append(String.format("\nCoût: %d %s", 
-                    procedure.getCout().getPrix(), 
-                    procedure.getCout().getDescription() != null && procedure.getCout().getDescription().contains("FCFA") ? "FCFA" : ""));
-            }
-        }
-        
-        String contenu = contenuBuilder.toString();
-        
         for (Citoyen citoyen : citoyens) {
-            // Créer la notification en base
+            String langue = citoyen.getLanguePreferee() != null && citoyen.getLanguePreferee().startsWith("en") ? "en" : "fr";
+            
+            // Construire le message de notification selon la langue
+            StringBuilder contenuBuilder = new StringBuilder();
+            StringBuilder contenuEnBuilder = new StringBuilder();
+            
+            if ("en".equals(langue)) {
+                contenuEnBuilder.append(String.format("The procedure '%s' has been updated.", procedure.getTitre()));
+                if (changements != null && !changements.isEmpty()) {
+                    contenuEnBuilder.append("\n\nChanges made:");
+                    for (String changement : changements) {
+                        contenuEnBuilder.append("\n• ").append(changement);
+                    }
+                } else {
+                    contenuEnBuilder.append(String.format("\n\nNew deadline: %s", procedure.getDelai()));
+                    if (procedure.getCout() != null) {
+                        contenuEnBuilder.append(String.format("\nCost: %d %s", 
+                            procedure.getCout().getPrix(), 
+                            procedure.getCout().getDescription() != null && procedure.getCout().getDescription().contains("FCFA") ? "FCFA" : ""));
+                    }
+                }
+            } else {
+                contenuBuilder.append(String.format("La procédure '%s' a été mise à jour.", procedure.getTitre()));
+                if (changements != null && !changements.isEmpty()) {
+                    contenuBuilder.append("\n\nModifications apportées :");
+                    for (String changement : changements) {
+                        contenuBuilder.append("\n• ").append(changement);
+                    }
+                } else {
+                    contenuBuilder.append(String.format("\n\nNouveau délai: %s", procedure.getDelai()));
+                    if (procedure.getCout() != null) {
+                        contenuBuilder.append(String.format("\nCoût: %d %s", 
+                            procedure.getCout().getPrix(), 
+                            procedure.getCout().getDescription() != null && procedure.getCout().getDescription().contains("FCFA") ? "FCFA" : ""));
+                    }
+                }
+            }
+            
+            // Créer la notification en base avec les deux langues
             Notification notification = new Notification();
-            notification.setContenu(contenu);
             notification.setType("MISE_A_JOUR");
             notification.setCitoyen(citoyen);
             notification.setProcedure(procedure);
+            
+            if ("en".equals(langue)) {
+                notification.setContenu(contenuEnBuilder.toString());
+                notification.setContenuEn(contenuEnBuilder.toString());
+            } else {
+                notification.setContenu(contenuBuilder.toString());
+                // Générer aussi la version EN
+                contenuEnBuilder.append(String.format("The procedure '%s' has been updated.", procedure.getTitre()));
+                if (changements != null && !changements.isEmpty()) {
+                    contenuEnBuilder.append("\n\nChanges made:");
+                    for (String changement : changements) {
+                        contenuEnBuilder.append("\n• ").append(changement);
+                    }
+                } else {
+                    contenuEnBuilder.append(String.format("\n\nNew deadline: %s", procedure.getDelai()));
+                    if (procedure.getCout() != null) {
+                        contenuEnBuilder.append(String.format("\nCost: %d %s", 
+                            procedure.getCout().getPrix(), 
+                            procedure.getCout().getDescription() != null && procedure.getCout().getDescription().contains("FCFA") ? "FCFA" : ""));
+                    }
+                }
+                notification.setContenuEn(contenuEnBuilder.toString());
+            }
+            
             notificationRepository.save(notification);
         }
         
@@ -147,18 +187,34 @@ public class NotificationService {
     public void notifierCreationProcedure(Procedure procedure) {
         List<Citoyen> citoyens = citoyenRepository.findAllActifs();
 
-        String contenu = String.format(
-                "Nouvelle procédure publiée: '%s' — %s",
-                procedure.getTitre(),
-                procedure.getDescription() != null ? procedure.getDescription() : ""
-        );
-
         for (Citoyen citoyen : citoyens) {
+            String langue = citoyen.getLanguePreferee() != null && citoyen.getLanguePreferee().startsWith("en") ? "en" : "fr";
+            
+            String contenuFr = String.format(
+                    "Nouvelle procédure publiée: '%s' — %s",
+                    procedure.getTitre(),
+                    procedure.getDescription() != null ? procedure.getDescription() : ""
+            );
+            
+            String contenuEn = String.format(
+                    "New procedure published: '%s' — %s",
+                    procedure.getTitre(),
+                    procedure.getDescription() != null ? procedure.getDescription() : ""
+            );
+
             Notification notification = new Notification();
-            notification.setContenu(contenu);
             notification.setType("INFO");
             notification.setCitoyen(citoyen);
             notification.setProcedure(procedure);
+            
+            if ("en".equals(langue)) {
+                notification.setContenu(contenuEn);
+                notification.setContenuEn(contenuEn);
+            } else {
+                notification.setContenu(contenuFr);
+                notification.setContenuEn(contenuEn);
+            }
+            
             notificationRepository.save(notification);
         }
 
@@ -171,17 +227,25 @@ public class NotificationService {
     public void notifierSuppressionProcedure(Procedure procedure) {
         List<Citoyen> citoyens = citoyenRepository.findAllActifs();
 
-        String contenu = String.format(
-                "La procédure '%s' a été supprimée.",
-                procedure.getTitre()
-        );
-
         for (Citoyen citoyen : citoyens) {
+            String langue = citoyen.getLanguePreferee() != null && citoyen.getLanguePreferee().startsWith("en") ? "en" : "fr";
+            
+            String contenuFr = String.format("La procédure '%s' a été supprimée.", procedure.getTitre());
+            String contenuEn = String.format("The procedure '%s' has been deleted.", procedure.getTitre());
+
             Notification notification = new Notification();
-            notification.setContenu(contenu);
             notification.setType("ALERTE");
             notification.setCitoyen(citoyen);
             notification.setProcedure(null); // la procédure n'existera plus
+            
+            if ("en".equals(langue)) {
+                notification.setContenu(contenuEn);
+                notification.setContenuEn(contenuEn);
+            } else {
+                notification.setContenu(contenuFr);
+                notification.setContenuEn(contenuEn);
+            }
+            
             notificationRepository.save(notification);
         }
 
@@ -379,12 +443,220 @@ public class NotificationService {
     }
 
     /**
-     * Convertit une notification en NotificationResponse
+     * Notifie tous les citoyens de la création d'une nouvelle catégorie
+     */
+    public void notifierCreationCategorie(ml.fasodocs.backend.entity.Categorie categorie) {
+        List<Citoyen> citoyens = citoyenRepository.findAllActifs();
+
+        for (Citoyen citoyen : citoyens) {
+            String langue = citoyen.getLanguePreferee() != null && citoyen.getLanguePreferee().startsWith("en") ? "en" : "fr";
+            
+            String contenuFr = String.format(
+                    "Nouvelle catégorie ajoutée: '%s' — %s",
+                    categorie.getTitre(),
+                    categorie.getDescription() != null ? categorie.getDescription() : ""
+            );
+            
+            String contenuEn = String.format(
+                    "New category added: '%s' — %s",
+                    categorie.getTitre(),
+                    categorie.getDescription() != null ? categorie.getDescription() : ""
+            );
+
+            Notification notification = new Notification();
+            notification.setType("INFO");
+            notification.setCitoyen(citoyen);
+            
+            if ("en".equals(langue)) {
+                notification.setContenu(contenuEn);
+                notification.setContenuEn(contenuEn);
+            } else {
+                notification.setContenu(contenuFr);
+                notification.setContenuEn(contenuEn);
+            }
+            
+            notificationRepository.save(notification);
+        }
+
+        logger.info("Notifications de création envoyées pour la catégorie: {}", categorie.getTitre());
+    }
+
+    /**
+     * Notifie tous les citoyens de la mise à jour d'une catégorie
+     */
+    public void notifierMiseAJourCategorie(ml.fasodocs.backend.entity.Categorie categorie) {
+        List<Citoyen> citoyens = citoyenRepository.findAllActifs();
+
+        for (Citoyen citoyen : citoyens) {
+            String langue = citoyen.getLanguePreferee() != null && citoyen.getLanguePreferee().startsWith("en") ? "en" : "fr";
+            
+            String contenuFr = String.format("La catégorie '%s' a été mise à jour.", categorie.getTitre());
+            String contenuEn = String.format("The category '%s' has been updated.", categorie.getTitre());
+
+            Notification notification = new Notification();
+            notification.setType("MISE_A_JOUR");
+            notification.setCitoyen(citoyen);
+            
+            if ("en".equals(langue)) {
+                notification.setContenu(contenuEn);
+                notification.setContenuEn(contenuEn);
+            } else {
+                notification.setContenu(contenuFr);
+                notification.setContenuEn(contenuEn);
+            }
+            
+            notificationRepository.save(notification);
+        }
+
+        logger.info("Notifications de mise à jour envoyées pour la catégorie: {}", categorie.getTitre());
+    }
+
+    /**
+     * Notifie tous les citoyens de la suppression d'une catégorie
+     */
+    public void notifierSuppressionCategorie(ml.fasodocs.backend.entity.Categorie categorie) {
+        List<Citoyen> citoyens = citoyenRepository.findAllActifs();
+
+        for (Citoyen citoyen : citoyens) {
+            String langue = citoyen.getLanguePreferee() != null && citoyen.getLanguePreferee().startsWith("en") ? "en" : "fr";
+            
+            String contenuFr = String.format("La catégorie '%s' a été supprimée.", categorie.getTitre());
+            String contenuEn = String.format("The category '%s' has been deleted.", categorie.getTitre());
+
+            Notification notification = new Notification();
+            notification.setType("ALERTE");
+            notification.setCitoyen(citoyen);
+            
+            if ("en".equals(langue)) {
+                notification.setContenu(contenuEn);
+                notification.setContenuEn(contenuEn);
+            } else {
+                notification.setContenu(contenuFr);
+                notification.setContenuEn(contenuEn);
+            }
+            
+            notificationRepository.save(notification);
+        }
+
+        logger.info("Notifications de suppression envoyées pour la catégorie: {}", categorie.getTitre());
+    }
+
+    /**
+     * Notifie tous les citoyens de la création d'une nouvelle sous-catégorie
+     */
+    public void notifierCreationSousCategorie(ml.fasodocs.backend.entity.SousCategorie sousCategorie) {
+        List<Citoyen> citoyens = citoyenRepository.findAllActifs();
+
+        for (Citoyen citoyen : citoyens) {
+            String langue = citoyen.getLanguePreferee() != null && citoyen.getLanguePreferee().startsWith("en") ? "en" : "fr";
+            
+            String contenuFr = String.format(
+                    "Nouvelle sous-catégorie ajoutée: '%s' dans la catégorie '%s'",
+                    sousCategorie.getTitre(),
+                    sousCategorie.getCategorie() != null ? sousCategorie.getCategorie().getTitre() : ""
+            );
+            
+            String contenuEn = String.format(
+                    "New subcategory added: '%s' in category '%s'",
+                    sousCategorie.getTitre(),
+                    sousCategorie.getCategorie() != null ? sousCategorie.getCategorie().getTitre() : ""
+            );
+
+            Notification notification = new Notification();
+            notification.setType("INFO");
+            notification.setCitoyen(citoyen);
+            
+            if ("en".equals(langue)) {
+                notification.setContenu(contenuEn);
+                notification.setContenuEn(contenuEn);
+            } else {
+                notification.setContenu(contenuFr);
+                notification.setContenuEn(contenuEn);
+            }
+            
+            notificationRepository.save(notification);
+        }
+
+        logger.info("Notifications de création envoyées pour la sous-catégorie: {}", sousCategorie.getTitre());
+    }
+
+    /**
+     * Notifie tous les citoyens de la mise à jour d'une sous-catégorie
+     */
+    public void notifierMiseAJourSousCategorie(ml.fasodocs.backend.entity.SousCategorie sousCategorie) {
+        List<Citoyen> citoyens = citoyenRepository.findAllActifs();
+
+        for (Citoyen citoyen : citoyens) {
+            String langue = citoyen.getLanguePreferee() != null && citoyen.getLanguePreferee().startsWith("en") ? "en" : "fr";
+            
+            String contenuFr = String.format("La sous-catégorie '%s' a été mise à jour.", sousCategorie.getTitre());
+            String contenuEn = String.format("The subcategory '%s' has been updated.", sousCategorie.getTitre());
+
+            Notification notification = new Notification();
+            notification.setType("MISE_A_JOUR");
+            notification.setCitoyen(citoyen);
+            
+            if ("en".equals(langue)) {
+                notification.setContenu(contenuEn);
+                notification.setContenuEn(contenuEn);
+            } else {
+                notification.setContenu(contenuFr);
+                notification.setContenuEn(contenuEn);
+            }
+            
+            notificationRepository.save(notification);
+        }
+
+        logger.info("Notifications de mise à jour envoyées pour la sous-catégorie: {}", sousCategorie.getTitre());
+    }
+
+    /**
+     * Notifie tous les citoyens de la suppression d'une sous-catégorie
+     */
+    public void notifierSuppressionSousCategorie(ml.fasodocs.backend.entity.SousCategorie sousCategorie) {
+        List<Citoyen> citoyens = citoyenRepository.findAllActifs();
+
+        for (Citoyen citoyen : citoyens) {
+            String langue = citoyen.getLanguePreferee() != null && citoyen.getLanguePreferee().startsWith("en") ? "en" : "fr";
+            
+            String contenuFr = String.format("La sous-catégorie '%s' a été supprimée.", sousCategorie.getTitre());
+            String contenuEn = String.format("The subcategory '%s' has been deleted.", sousCategorie.getTitre());
+
+            Notification notification = new Notification();
+            notification.setType("ALERTE");
+            notification.setCitoyen(citoyen);
+            
+            if ("en".equals(langue)) {
+                notification.setContenu(contenuEn);
+                notification.setContenuEn(contenuEn);
+            } else {
+                notification.setContenu(contenuFr);
+                notification.setContenuEn(contenuEn);
+            }
+            
+            notificationRepository.save(notification);
+        }
+
+        logger.info("Notifications de suppression envoyées pour la sous-catégorie: {}", sousCategorie.getTitre());
+    }
+
+    /**
+     * Convertit une notification en NotificationResponse avec support multilingue
      */
     private NotificationResponse convertirEnResponse(Notification notification) {
+        Citoyen citoyen = getCitoyenConnecte();
+        String langue = citoyen.getLanguePreferee() != null && citoyen.getLanguePreferee().startsWith("en") ? "en" : "fr";
+        
         NotificationResponse response = new NotificationResponse();
         response.setId(notification.getId());
-        response.setContenu(notification.getContenu());
+        
+        // Utiliser la langue préférée du citoyen pour le contenu
+        if ("en".equals(langue) && notification.getContenuEn() != null && !notification.getContenuEn().isEmpty()) {
+            response.setContenu(notification.getContenuEn());
+        } else {
+            response.setContenu(notification.getContenu());
+        }
+        
         response.setDateEnvoi(notification.getDateEnvoi());
         response.setEstLue(notification.getEstLue());
         response.setType(notification.getType());

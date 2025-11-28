@@ -33,7 +33,13 @@ public class Notification {
     private Boolean estLue = false;
 
     @Column(nullable = false, length = 50)
-    private String type; // INFO, MISE_A_JOUR, ALERTE
+    private String type; // INFO, MISE_A_JOUR, ALERTE, QUIZ_QUOTIDIEN, RAPPEL_STREAK, BADGE_DEBLOQUE
+
+    @Column(name = "contenu_en", columnDefinition = "TEXT")
+    private String contenuEn; // Contenu de la notification en anglais
+
+    @Column(name = "type_quiz", length = 50)
+    private String typeQuiz; // Type de notification quiz: QUIZ_QUOTIDIEN, RAPPEL_STREAK, BADGE_DEBLOQUE
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "citoyen_id", nullable = false)

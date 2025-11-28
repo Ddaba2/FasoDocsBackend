@@ -193,7 +193,7 @@ public class SecurityConfig {
      * - Méthodes autorisées : GET, POST, PUT, DELETE, OPTIONS
      * - Headers autorisés : Tous (*)
      * - Credentials : Activés (nécessaire pour les cookies et headers d'authentification)
-     * - Max Age : 3600 secondes (1 heure) pour le cache des pré-requêtes CORS
+     * - Max Age : 30 secondes (1 heure) pour le cache des pré-requêtes CORS
      * 
      * Cette configuration est appliquée à tous les endpoints (/**)
      * 
@@ -216,7 +216,7 @@ public class SecurityConfig {
         configuration.setAllowCredentials(true);
         
         // Durée de mise en cache des pré-requêtes CORS (en secondes)
-        configuration.setMaxAge(3600L);
+        configuration.setMaxAge(30L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

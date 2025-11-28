@@ -12,7 +12,13 @@ import ml.fasodocs.backend.dto.request.SousCategorieRequest;
 import ml.fasodocs.backend.dto.response.DemandeServiceResponse;
 import ml.fasodocs.backend.dto.response.*;
 import ml.fasodocs.backend.entity.Citoyen;
+import ml.fasodocs.backend.entity.QuizJournalier;
+import ml.fasodocs.backend.entity.QuizProgression;
 import ml.fasodocs.backend.repository.CitoyenRepository;
+import ml.fasodocs.backend.repository.QuizProgressionRepository;
+import ml.fasodocs.backend.repository.ProcedureRepository;
+import ml.fasodocs.backend.repository.CategorieRepository;
+import ml.fasodocs.backend.repository.QuizJournalierRepository;
 import ml.fasodocs.backend.service.*;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -24,6 +30,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,6 +68,24 @@ public class AdminController {
 
     @Autowired
     private ServiceService serviceService;
+
+    @Autowired
+    private QuizJournalierRepository quizJournalierRepository;
+
+    @Autowired
+    private QuizService quizService;
+
+    @Autowired
+    private QuizGenerationService quizGenerationService;
+
+    @Autowired
+    private QuizProgressionRepository quizProgressionRepository;
+
+    @Autowired
+    private ProcedureRepository procedureRepository;
+
+    @Autowired
+    private CategorieRepository categorieRepository;
 
     // ==============================
     // GESTION DES UTILISATEURS
@@ -124,6 +149,21 @@ public class AdminController {
 
             // Sauvegarder l'utilisateur
             Citoyen utilisateurCree = citoyenRepository.save(nouvelUtilisateur);
+
+            // Débloquer automatiquement le niveau FACILE pour le nouvel utilisateur
+            try {
+                QuizProgression progressionFacile = new QuizProgression();
+                progressionFacile.setCitoyen(utilisateurCree);
+                progressionFacile.setNiveau("FACILE");
+                progressionFacile.setQuizCompletes(0);
+                progressionFacile.setMeilleurScore(0);
+                quizProgressionRepository.save(progressionFacile);
+                logger.info("✅ Niveau FACILE débloqué pour le nouvel utilisateur créé par admin ID: {}", utilisateurCree.getId());
+            } catch (Exception e) {
+                // Ne pas bloquer la création si la progression échoue
+                logger.warn("⚠️ Impossible de créer la progression FACILE pour l'utilisateur {}: {}", 
+                    utilisateurCree.getId(), e.getMessage());
+            }
 
             // Envoyer un email de bienvenue avec les informations de connexion
             try {
@@ -681,6 +721,260 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body(MessageResponse.error("Erreur lors de la récupération: " + e.getMessage()));
+        }
+    }
+
+    // ==============================
+    // GESTION DES QUIZ
+    // ==============================
+
+    /**
+     * Crée un nouveau quiz journalier (Admin)
+     * Peut générer automatiquement un quiz pour une date donnée, ou créer un quiz vide
+     */
+    @Operation(summary = "Crée un nouveau quiz journalier (Admin)")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/quiz/journaliers")
+    public ResponseEntity<?> creerQuiz(
+            @RequestBody(required = false) QuizJournalierResponse request,
+            @RequestHeader(value = "Accept-Language", defaultValue = "fr") String langue) {
+        try {
+            String lang = langue != null && langue.startsWith("en") ? "en" : "fr";
+            
+            QuizJournalier quiz;
+            
+            // Si une date est fournie dans la requête, générer pour cette date
+            if (request != null && request.getDateQuiz() != null) {
+                // Vérifier si un quiz existe déjà pour cette date
+                if (quizJournalierRepository.existsByDateQuiz(request.getDateQuiz())) {
+                    return ResponseEntity.badRequest()
+                            .body(MessageResponse.error("Un quiz existe déjà pour la date: " + request.getDateQuiz()));
+                }
+                
+                // Générer automatiquement les 3 quiz (FACILE, MOYEN, DIFFICILE) pour la date spécifiée
+                quizGenerationService.genererQuizPourDate(request.getDateQuiz());
+                // Récupérer le quiz FACILE par défaut
+                quiz = quizJournalierRepository.findByDateQuizAndNiveau(request.getDateQuiz(), "FACILE")
+                        .orElseThrow(() -> new RuntimeException("Erreur lors de la génération du quiz"));
+                logger.info("Quiz généré automatiquement pour la date: {}", request.getDateQuiz());
+            } else {
+                // Générer les 3 quiz pour aujourd'hui
+                quizGenerationService.genererQuizQuotidien();
+                // Récupérer le quiz FACILE par défaut
+                quiz = quizJournalierRepository.findByDateQuizAndNiveau(LocalDate.now(), "FACILE")
+                        .orElseThrow(() -> new RuntimeException("Erreur lors de la génération du quiz"));
+                logger.info("Quiz généré automatiquement pour aujourd'hui");
+            }
+            
+            // Recharger avec toutes les relations pour la réponse
+            QuizJournalier quizAvecRelations = quizJournalierRepository.findByIdWithQuestions(quiz.getId())
+                    .orElse(quiz);
+            
+            QuizJournalierResponse response = quizService.convertirQuizEnResponse(quizAvecRelations, lang);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (RuntimeException e) {
+            logger.error("Erreur lors de la création du quiz: {}", e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(MessageResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Erreur lors de la création du quiz: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(MessageResponse.error("Erreur lors de la création du quiz: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Liste tous les quiz journaliers (Admin)
+     */
+    @Operation(summary = "Liste tous les quiz journaliers (Admin)")
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/quiz/journaliers")
+    public ResponseEntity<?> listerTousLesQuiz(
+            @RequestHeader(value = "Accept-Language", defaultValue = "fr") String langue) {
+        try {
+            String lang = langue != null && langue.startsWith("en") ? "en" : "fr";
+            
+            // Charger tous les quiz avec leurs questions et réponses (JOIN FETCH)
+            List<QuizJournalier> quizList = quizJournalierRepository.findAllWithQuestions();
+            
+            // Convertir en responses
+            List<QuizJournalierResponse> responses = quizList.stream()
+                    .map(quiz -> {
+                        try {
+                            return quizService.convertirQuizEnResponse(quiz, lang);
+                        } catch (Exception e) {
+                            logger.error("Erreur lors de la conversion du quiz {}: {}", quiz.getId(), e.getMessage(), e);
+                            return null;
+                        }
+                    })
+                    .filter(response -> response != null)
+                    .collect(Collectors.toList());
+            
+            return ResponseEntity.ok(responses);
+        } catch (Exception e) {
+            logger.error("❌ Erreur lors de la récupération des quiz: {}", e.getMessage(), e);
+            logger.error("Stack trace: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(MessageResponse.error("Erreur lors de la récupération des quiz: " + e.getMessage() + 
+                          (e.getCause() != null ? " - Cause: " + e.getCause().getMessage() : "")));
+        }
+    }
+
+    /**
+     * Récupère un quiz journalier par son ID (Admin)
+     */
+    @Operation(summary = "Récupère un quiz journalier par son ID (Admin)")
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/quiz/journaliers/{id}")
+    public ResponseEntity<?> obtenirQuizParId(
+            @PathVariable Long id,
+            @RequestHeader(value = "Accept-Language", defaultValue = "fr") String langue) {
+        try {
+            String lang = langue != null && langue.startsWith("en") ? "en" : "fr";
+            
+            // Charger le quiz avec toutes ses relations
+            QuizJournalier quiz = quizJournalierRepository.findByIdWithQuestions(id)
+                    .orElseThrow(() -> new RuntimeException("Quiz non trouvé avec l'ID: " + id));
+            
+            QuizJournalierResponse response = quizService.convertirQuizEnResponse(quiz, lang);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            logger.error("Quiz non trouvé: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(MessageResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Erreur lors de la récupération du quiz {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(MessageResponse.error("Erreur lors de la récupération du quiz: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Met à jour un quiz journalier (Admin)
+     * Permet de mettre à jour partiellement un quiz (statut, procédure, catégorie, etc.)
+     */
+    @Operation(summary = "Met à jour un quiz journalier (Admin)")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/quiz/journaliers/{id}")
+    public ResponseEntity<?> mettreAJourQuiz(
+            @PathVariable Long id,
+            @RequestBody QuizJournalierResponse request,
+            @RequestHeader(value = "Accept-Language", defaultValue = "fr") String langue) {
+        try {
+            String lang = langue != null && langue.startsWith("en") ? "en" : "fr";
+            
+            // Récupérer le quiz
+            QuizJournalier quiz = quizJournalierRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Quiz non trouvé avec l'ID: " + id));
+            
+            // Mettre à jour les champs si fournis
+            if (request.getDateQuiz() != null) {
+                quiz.setDateQuiz(request.getDateQuiz());
+            }
+            
+            if (request.getEstActif() != null) {
+                quiz.setEstActif(request.getEstActif());
+            }
+            
+            if (request.getProcedureId() != null) {
+                ml.fasodocs.backend.entity.Procedure procedure = procedureRepository.findById(request.getProcedureId())
+                        .orElseThrow(() -> new RuntimeException("Procédure non trouvée avec l'ID: " + request.getProcedureId()));
+                quiz.setProcedure(procedure);
+            }
+            
+            if (request.getCategorieId() != null) {
+                ml.fasodocs.backend.entity.Categorie categorie = categorieRepository.findById(request.getCategorieId())
+                        .orElseThrow(() -> new RuntimeException("Catégorie non trouvée avec l'ID: " + request.getCategorieId()));
+                quiz.setCategorie(categorie);
+            }
+            
+            // Sauvegarder les modifications
+            QuizJournalier updatedQuiz = quizJournalierRepository.save(quiz);
+            
+            // Recharger avec toutes les relations pour la réponse
+            QuizJournalier quizAvecRelations = quizJournalierRepository.findByIdWithQuestions(id)
+                    .orElse(updatedQuiz);
+            
+            QuizJournalierResponse response = quizService.convertirQuizEnResponse(quizAvecRelations, lang);
+            
+            logger.info("Quiz {} mis à jour par l'admin", id);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            logger.error("Erreur lors de la mise à jour du quiz {}: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(MessageResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Erreur lors de la mise à jour du quiz {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(MessageResponse.error("Erreur lors de la mise à jour du quiz: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Active ou désactive un quiz journalier (Admin)
+     */
+    @Operation(summary = "Active ou désactive un quiz journalier (Admin)")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/quiz/journaliers/{id}/actif")
+    public ResponseEntity<?> toggleStatutQuiz(
+            @PathVariable Long id,
+            @RequestParam(value = "actif", required = false, defaultValue = "true") Boolean actif) {
+        try {
+            // Récupérer le quiz
+            QuizJournalier quiz = quizJournalierRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Quiz non trouvé avec l'ID: " + id));
+            
+            // Mettre à jour le statut
+            quiz.setEstActif(actif);
+            quizJournalierRepository.save(quiz);
+            
+            String message = actif ? 
+                    "Quiz activé avec succès" : 
+                    "Quiz désactivé avec succès";
+            
+            logger.info("Quiz {} {} par l'admin", id, actif ? "activé" : "désactivé");
+            
+            return ResponseEntity.ok(MessageResponse.success(message));
+        } catch (RuntimeException e) {
+            logger.error("Quiz non trouvé: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(MessageResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Erreur lors de la modification du statut du quiz {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(MessageResponse.error("Erreur lors de la modification du statut: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Supprime un quiz journalier (Admin)
+     */
+    @Operation(summary = "Supprime un quiz journalier (Admin)")
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/quiz/journaliers/{id}")
+    public ResponseEntity<?> supprimerQuiz(@PathVariable Long id) {
+        try {
+            // Récupérer le quiz
+            QuizJournalier quiz = quizJournalierRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Quiz non trouvé avec l'ID: " + id));
+            
+            // Vérifier s'il y a des participations à ce quiz
+            // (optionnel : vous pouvez décider de bloquer la suppression s'il y a des participations)
+            
+            // Supprimer le quiz (les questions et réponses seront supprimées en cascade)
+            quizJournalierRepository.delete(quiz);
+            
+            logger.info("Quiz {} supprimé par l'admin", id);
+            
+            return ResponseEntity.ok(MessageResponse.success("Quiz supprimé avec succès"));
+        } catch (RuntimeException e) {
+            logger.error("Erreur lors de la suppression du quiz {}: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(MessageResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Erreur lors de la suppression du quiz {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(MessageResponse.error("Erreur lors de la suppression du quiz: " + e.getMessage()));
         }
     }
 }

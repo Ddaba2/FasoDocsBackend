@@ -1,7 +1,7 @@
 # 🇲🇱 FASODOCS API - TOUS LES ENDPOINTS DISPONIBLES
 
 ## 📊 Vue d'ensemble
-**Total: 54 endpoints** couvrant l'ensemble des fonctionnalités FasoDocs pour la gestion des procédures administratives au Mali.
+**Total: 66 endpoints** couvrant l'ensemble des fonctionnalités FasoDocs pour la gestion des procédures administratives au Mali, incluant le système de quiz complet.
 
 ---
 
@@ -355,37 +355,171 @@
 - **Authentification**: Requise
 - **Réponse**: `Void`
 
+**Types de notifications disponibles :**
+- Notifications de procédures (création, mise à jour, suppression)
+- Notifications de catégories (création, mise à jour, suppression) ✅ **NOUVEAU**
+- Notifications de sous-catégories (création, mise à jour, suppression) ✅ **NOUVEAU**
+- Notifications de quiz (quiz quotidien, rappels de streak, badges) ✅ **NOUVEAU**
+- Toutes les notifications sont multilingues (FR/EN) selon la préférence de l'utilisateur ✅ **AMÉLIORÉ**
+
+---
+
+## 🎯 QUIZ (`/quiz` ET `/admin/quiz`)
+
+### 📋 Résumé des Endpoints Quiz
+
+**Endpoints Utilisateur :**
+- `GET /quiz/aujourdhui` - Récupérer le quiz du jour
+- `POST /quiz/participer` - Participer à un quiz
+- `GET /quiz/statistiques` - Statistiques personnelles
+- `GET /quiz/classement/hebdomadaire` - Classement hebdomadaire
+- `GET /quiz/classement/mensuel` - Classement mensuel
+
+**Endpoints Admin :**
+- ✅ `POST /admin/quiz/journaliers` - Créer un quiz (génération automatique avec 5 questions)
+- ✅ `GET /admin/quiz/journaliers` - Lister tous les quiz
+- ✅ `GET /admin/quiz/journaliers/{id}` - Récupérer un quiz par ID
+- ✅ `PUT /admin/quiz/journaliers/{id}` - Modifier un quiz (mise à jour partielle)
+- ✅ `PUT /admin/quiz/journaliers/{id}/actif` - Activer/Désactiver un quiz
+- ✅ `DELETE /admin/quiz/journaliers/{id}` - Supprimer un quiz (cascade)
+
+---
+
+### 42. Récupérer le quiz du jour (Utilisateur)
+- **GET** `/quiz/aujourdhui`
+- **Description**: Récupère le quiz quotidien du jour (génère automatiquement s'il n'existe pas)
+- **Authentification**: Requise
+- **Headers**: `Accept-Language: fr` (ou `en`)
+- **Réponse**: `QuizJournalierResponse` avec toutes les questions et réponses
+
+### 43. Participer à un quiz (Utilisateur)
+- **POST** `/quiz/participer`
+- **Description**: Soumet les réponses d'un utilisateur à un quiz
+- **Authentification**: Requise
+- **Body**: `QuizParticipationRequest`
+  ```json
+  {
+    "quizJournalierId": 1,
+    "reponses": [
+      {
+        "questionId": 1,
+        "reponseChoisieId": 3
+      }
+    ],
+    "tempsSecondes": 120
+  }
+  ```
+- **Réponse**: `QuizParticipationResponse` (score, bonnes réponses, points gagnés)
+
+### 44. Statistiques de quiz (Utilisateur)
+- **GET** `/quiz/statistiques`
+- **Description**: Récupère les statistiques de quiz de l'utilisateur connecté
+- **Authentification**: Requise
+- **Réponse**: `QuizStatistiqueResponse` (points totaux, quiz complétés, streak, badges)
+
+### 45. Classement hebdomadaire (Utilisateur)
+- **GET** `/quiz/classement/hebdomadaire`
+- **Description**: Récupère le classement hebdomadaire des utilisateurs
+- **Authentification**: Requise
+- **Réponse**: `ClassementResponse` (top 10 avec positions)
+
+### 46. Classement mensuel (Utilisateur)
+- **GET** `/quiz/classement/mensuel`
+- **Description**: Récupère le classement mensuel des utilisateurs
+- **Authentification**: Requise
+- **Réponse**: `ClassementResponse` (top 10 avec positions)
+
+### 47. Générer un quiz manuellement (Public/Test)
+- **POST** `/quiz/generer`
+- **Description**: Génère manuellement un quiz pour aujourd'hui (pour les tests)
+- **Accès**: Public
+- **Réponse**: `MessageResponse`
+
+### 48. Créer un quiz (Admin) ✅ **NOUVEAU**
+- **POST** `/admin/quiz/journaliers`
+- **Description**: Crée un nouveau quiz journalier. Génère automatiquement un quiz avec 5 questions.
+- **Autorisation**: `ADMIN` uniquement
+- **Body** (optionnel): `QuizJournalierResponse`
+  ```json
+  {
+    "dateQuiz": "2025-11-26"  // Si fourni, génère pour cette date
+  }
+  ```
+- **Réponse**: `QuizJournalierResponse` avec toutes les questions générées
+
+### 49. Lister tous les quiz (Admin) ✅ **NOUVEAU**
+- **GET** `/admin/quiz/journaliers`
+- **Description**: Liste tous les quiz journaliers avec leurs questions et réponses
+- **Autorisation**: `ADMIN` uniquement
+- **Headers**: `Accept-Language: fr` (ou `en`)
+- **Réponse**: `List<QuizJournalierResponse>`
+
+### 50. Récupérer un quiz par ID (Admin) ✅ **NOUVEAU**
+- **GET** `/admin/quiz/journaliers/{id}`
+- **Description**: Récupère un quiz spécifique par son ID avec toutes ses questions
+- **Autorisation**: `ADMIN` uniquement
+- **Headers**: `Accept-Language: fr` (ou `en`)
+- **Réponse**: `QuizJournalierResponse`
+
+### 51. Modifier un quiz (Admin) ✅ **NOUVEAU**
+- **PUT** `/admin/quiz/journaliers/{id}`
+- **Description**: Met à jour un quiz existant (mise à jour partielle)
+- **Autorisation**: `ADMIN` uniquement
+- **Body**: `QuizJournalierResponse` (mise à jour partielle)
+  ```json
+  {
+    "dateQuiz": "2025-11-26",
+    "estActif": true,
+    "procedureId": 123,
+    "categorieId": 5
+  }
+  ```
+- **Réponse**: `QuizJournalierResponse` mis à jour
+
+### 52. Activer/Désactiver un quiz (Admin) ✅ **NOUVEAU**
+- **PUT** `/admin/quiz/journaliers/{id}/actif?actif=true`
+- **Description**: Active ou désactive rapidement un quiz
+- **Autorisation**: `ADMIN` uniquement
+- **Paramètres**: `actif` (`true` pour activer, `false` pour désactiver, défaut: `true`)
+- **Réponse**: `MessageResponse`
+
+### 53. Supprimer un quiz (Admin) ✅ **NOUVEAU**
+- **DELETE** `/admin/quiz/journaliers/{id}`
+- **Description**: Supprime un quiz et toutes ses questions/réponses (cascade)
+- **Autorisation**: `ADMIN` uniquement
+- **Réponse**: `MessageResponse`
+
 ---
 
 ## 📢 SIGNALEMENTS (`/signalements`)
 
-### 42. Créer un signalement
+### 54. Créer un signalement
 - **POST** `/signalements`
 - **Description**: Crée un nouveau signalement
 - **Accès**: Public (pas d'authentification requise)
 - **Body**: `SignalementRequest`
 - **Réponse**: `MessageResponse`
 
-### 43. Mes signalements
+### 55. Mes signalements
 - **GET** `/signalements`
 - **Description**: Récupère tous les signalements du citoyen connecté
 - **Authentification**: Requise
 - **Réponse**: `List<SignalementSimpleResponse>`
 
-### 44. Détails d'un signalement
+### 56. Détails d'un signalement
 - **GET** `/signalements/{id}`
 - **Description**: Récupère un signalement spécifique
 - **Authentification**: Requise
 - **Réponse**: `SignalementResponse`
 
-### 45. Modifier un signalement
+### 57. Modifier un signalement
 - **PUT** `/signalements/{id}`
 - **Description**: Modifie un signalement (seulement si moins de 15 minutes)
 - **Authentification**: Requise
 - **Body**: `ModifierSignalementRequest`
 - **Réponse**: `MessageResponse`
 
-### 46. Supprimer un signalement
+### 58. Supprimer un signalement
 - **DELETE** `/signalements/{id}`
 - **Description**: Supprime un signalement (seulement si moins de 15 minutes)
 - **Authentification**: Requise
@@ -479,7 +613,7 @@ Chaque procédure retournée contient:
 
 ## 🎤 DJELIA AI & CHATBOT (`/djelia` ET `/chatbot`)
 
-### 47. Lecture rapide avec traduction et audio
+### 59. Lecture rapide avec traduction et audio
 - **POST** `/chatbot/read-quick`
 - **Description**: Traduit un texte français en bambara et génère l'audio en une seule requête (endpoint de compatibilité)
 - **Accès**: Public
@@ -502,45 +636,45 @@ Chaque procédure retournée contient:
   }
   ```
 
-### 48. Traduction français → bambara
+### 60. Traduction français → bambara
 - **POST** `/djelia/translate`
 - **Description**: Traduit un texte du français vers le bambara
 - **Accès**: Public
 - **Body**: `TranslationRequest`
 - **Réponse**: `TranslationResponse`
 
-### 49. Synthèse vocale bambara
+### 61. Synthèse vocale bambara
 - **POST** `/djelia/text-to-speech`
 - **Description**: Convertit du texte bambara en audio WAV (Base64)
 - **Accès**: Public
 - **Body**: `TextToSpeechRequest`
 - **Réponse**: `TextToSpeechResponse`
 
-### 50. Traduction + Synthèse vocale combinées
+### 62. Traduction + Synthèse vocale combinées
 - **POST** `/djelia/translate-and-speak`
 - **Description**: Combine traduction et audio (même fonction que `/chatbot/read-quick`)
 - **Accès**: Public
 - **Body**: `TranslateAndSpeakRequest`
 - **Réponse**: `TranslateAndSpeakResponse`
 
-### 51. Lecture rapide (alias)
+### 63. Lecture rapide (alias)
 - **POST** `/djelia/read-quick`
 - **Description**: Alias de `/djelia/translate-and-speak`
 - **Accès**: Public
 
-### 52. Statistiques du cache Djelia
+### 64. Statistiques du cache Djelia
 - **GET** `/djelia/cache/stats`
 - **Description**: Retourne les statistiques d'utilisation du cache de traductions
 - **Accès**: Public
 - **Réponse**: `DjeliaCacheStatsResponse`
 
-### 53. Vider le cache Djelia
+### 65. Vider le cache Djelia
 - **DELETE** `/djelia/cache/clear`
 - **Description**: Supprime toutes les traductions du cache
 - **Accès**: Public
 - **Réponse**: `MessageResponse`
 
-### 54. Health check Djelia
+### 66. Health check Djelia
 - **GET** `/djelia/health`
 - **Description**: Vérifie que le service Djelia AI est opérationnel
 - **Accès**: Public
@@ -565,6 +699,8 @@ Chaque procédure retournée contient:
 - Création, modification et suppression des sous-catégories
 - Création, modification et suppression des procédures
 - Liste de tous les utilisateurs
+- **Gestion complète des quiz** (création, modification, suppression, activation) ✅ **NOUVEAU**
+- Gestion des demandes de service
 
 ### Authentification
 Pour les endpoints protégés, ajouter dans les headers:
@@ -599,6 +735,8 @@ L'API expose **83 procédures complètes** incluant:
 - ✅ **67 centres** de traitement
 - ✅ **238 articles de loi** référencés
 - ✅ **Liens audio bambara** pour les lois
+- ✅ **Système de quiz quotidien** avec génération automatique ✅ **NOUVEAU**
+- ✅ **Notifications multilingues** pour toutes les actions admin ✅ **AMÉLIORÉ**
 
 ---
 

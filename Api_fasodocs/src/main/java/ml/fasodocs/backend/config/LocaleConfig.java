@@ -73,7 +73,7 @@ public class LocaleConfig implements WebMvcConfigurer {
         messageSource.setUseCodeAsDefaultMessage(true);
         
         // Cache les messages pour améliorer les performances
-        messageSource.setCacheSeconds(3600); // 1 heure
+        messageSource.setCacheSeconds(30); // 1 heure
         
         return messageSource;
     }

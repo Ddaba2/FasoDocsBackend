@@ -62,7 +62,10 @@ public class Citoyen {
 
 
     @Column(name = "langue_preferee", length = 2)
-    private String languePreferee = "fr"; // fr ou bm (bambara)
+    private String languePreferee = "fr"; // fr, en ou bm (bambara)
+
+    @Column(name = "notifications_quiz_actives")
+    private Boolean notificationsQuizActives = true; // Activer les notifications de quiz
 
     @Lob
     @Column(name = "photo_profil", columnDefinition = "LONGTEXT")

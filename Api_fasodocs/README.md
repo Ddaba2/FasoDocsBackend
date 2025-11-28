@@ -29,6 +29,7 @@ FasoDocs est une plateforme qui aide les citoyens maliens à naviguer les procé
 - ✅ **Signalement de problèmes**
 - ✅ **Notifications en temps réel**
 - ✅ **Interface multilingue** (Français / Bambara)
+- ✅ **Système de quiz quotidien** avec gamification (badges, streaks, classements) ✅ **NOUVEAU**
 
 ---
 
@@ -83,6 +84,21 @@ FasoDocs est une plateforme qui aide les citoyens maliens à naviguer les procé
 - Système de marquage lu/non-lu
 - Filtrage par statut
 - Emails automatiques aux admins
+- Notifications multilingues (FR/EN) selon préférence utilisateur ✅ **AMÉLIORÉ**
+- Notifications pour actions admin (création/modification/suppression) ✅ **NOUVEAU**
+
+### 🎯 Système de Quiz Quotidien ✅ **NOUVEAU**
+- Génération automatique quotidienne (minuit)
+- 5 questions par quiz basées sur les procédures
+- Gamification complète :
+  - Points et scores
+  - Streaks (série de jours consécutifs)
+  - Badges (Expert, Streak Master)
+  - Classements hebdomadaires et mensuels
+- Notifications de quiz quotidien (8h)
+- Rappels de streak (18h)
+- Multilingue (FR/EN)
+- Gestion admin complète (créer, modifier, supprimer, activer/désactiver)
 
 ### 📢 Signalements
 - Signalement de problèmes
@@ -296,9 +312,17 @@ Consultez **`TOUS_LES_ENDPOINTS_FASODOCS.md`** pour la liste complète des 54 en
 | `/categories` | GET | Liste catégories |
 | `/notifications` | GET | Notifications utilisateur |
 | `/signalements` | POST | Créer signalement |
+| `/quiz/aujourdhui` | GET | Quiz quotidien |
+| `/quiz/participer` | POST | Participer à un quiz |
+| `/quiz/statistiques` | GET | Statistiques utilisateur |
+| `/quiz/classement/hebdomadaire` | GET | Classement hebdomadaire |
+| `/admin/quiz/journaliers` | GET/POST/PUT/DELETE | Gestion complète des quiz (admin) |
 
 **Documentation complète** :
-- `TOUS_LES_ENDPOINTS_FASODOCS.md` - Tous les endpoints
+- `TOUS_LES_ENDPOINTS_FASODOCS.md` - Tous les endpoints (66 endpoints) ✅ **MIS À JOUR**
+- `GUIDE_INTEGRATION_FRONTEND_QUIZ.md` - Guide d'intégration quiz (Flutter + Angular) ✅ **NOUVEAU**
+- `EXPLICATION_SYSTEME_QUIZ.md` - Explication détaillée du système de quiz ✅ **NOUVEAU**
+- `RESUME_ENDPOINTS_QUIZ_ADMIN.md` - Résumé endpoints admin quiz ✅ **NOUVEAU**
 - `NOUVEAUX_ENDPOINTS_SERVICE.md` - Endpoints Services (remplacement délégation)
 - `ENDPOINTS_ADMIN_DELEGATIONS.md` - Endpoints Admin Services
 - `ENDPOINTS_FLUTTER_VOIX_OFF.md` - Endpoints Audio/Voix Off
@@ -444,6 +468,13 @@ Les données sont chargées automatiquement au démarrage si `app.init.data=true
   - Lister toutes les demandes
   - Modifier le statut des demandes
   - Filtrer par statut (EN_ATTENTE, EN_COURS, TERMINEE)
+- **Gestion Quiz** (`/admin/quiz/journaliers/*`) ✅ **NOUVEAU**
+  - Créer un quiz (génération automatique avec 5 questions)
+  - Lister tous les quiz
+  - Récupérer un quiz par ID
+  - Modifier un quiz (mise à jour partielle)
+  - Activer/Désactiver un quiz
+  - Supprimer un quiz
 
 ---
 
@@ -489,7 +520,8 @@ curl http://localhost:8080/api/admin/sms/status \
 
 - **Email** : dabadiallo694@gmail.com
 - **Documentation API** : `/swagger-ui.html`
-- **Guide Endpoints** : `TOUS_LES_ENDPOINTS_FASODOCS.md`
+- **Guide Endpoints** : `TOUS_LES_ENDPOINTS_FASODOCS.md` (66 endpoints)
+- **Guide Quiz** : `GUIDE_INTEGRATION_FRONTEND_QUIZ.md` et `EXPLICATION_SYSTEME_QUIZ.md`
 - **Guide Services** : `NOUVEAUX_ENDPOINTS_SERVICE.md`
 - **Guide Voix Off** : `ENDPOINTS_FLUTTER_VOIX_OFF.md` et `POINT_VOIX_OFF_FALLBACK.md`
 - **Guide Djelia** : `GUIDE_INTEGRATION_DJELIA_AI.md`

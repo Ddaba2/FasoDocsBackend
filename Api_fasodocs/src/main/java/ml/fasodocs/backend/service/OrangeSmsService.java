@@ -8,8 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -128,19 +126,32 @@ public class OrangeSmsService {
     }
     
     /**
-     * Extrait le numéro du senderAddress pour l'URL
+     * Prépare le senderAddress pour l'URL selon la documentation Orange
+     * Documentation Orange: Le senderAddress dans l'URL doit utiliser le code pays
+     * sans préfixe + ou 00
+     * 
+     * Format URL: tel:223XXXXXXXX (sans le +)
+     * Format Body: tel:+223XXXXXXXX (avec le +)
+     * 
+     * @param senderAddress Le sender address complet (ex: tel:+22383784097)
+     * @return Le sender address formaté pour l'URL (ex: tel:22383784097)
      */
-    private String extractSenderNumberForUrl(String senderAddress) {
+    private String prepareSenderForUrl(String senderAddress) {
         if (senderAddress == null) {
             return null;
         }
-        // Enlever "tel:" et garder le numéro avec +
+        
+        // Enlever "tel:" si présent
         String number = senderAddress.replace("tel:", "").trim();
-        // S'assurer qu'il y a un +
-        if (!number.startsWith("+")) {
-            number = "+" + number;
+        
+        // IMPORTANT: Enlever le + devant le code pays (pour l'URL uniquement)
+        // Selon doc Orange, l'URL doit être: tel:223... (sans +)
+        if (number.startsWith("+")) {
+            number = number.substring(1); // Enlever le +
         }
-        return number;
+        
+        // Retourner au format tel:223... (sans +)
+        return "tel:" + number;
     }
     
     /**
@@ -159,39 +170,15 @@ public class OrangeSmsService {
             logger.debug("Using client ID: {}", clientId);
             logger.debug("Using client secret: {}", clientSecret);
             
-            // SOLUTION DÉFINITIVE : Tester plusieurs configurations
-            // Configuration 1 : URL v3 avec scope SMS
-            if (tryAuthenticate("https://api.orange.com/oauth/v3/token", true)) {
-                return true;
-            }
-            
-            // Configuration 2 : URL v3 sans scope
-            logger.info("🔄 Tentative avec URL v3 sans scope...");
+         
+            // Tester avec le scope SMS
             if (tryAuthenticate("https://api.orange.com/oauth/v3/token", false)) {
                 return true;
             }
             
-            // Configuration 3 : URL v1 avec scope SMS (alternative)
-            logger.info("🔄 Tentative avec URL v1 avec scope...");
-            if (tryAuthenticate("https://api.orange.com/oauth/v1/token", true)) {
-                return true;
-            }
-            
-            // Configuration 4 : URL v1 sans scope (alternative)
-            logger.info("🔄 Tentative avec URL v1 sans scope...");
-            if (tryAuthenticate("https://api.orange.com/oauth/v1/token", false)) {
-                return true;
-            }
-            
-            // Configuration 5 : URL sans version avec scope
-            logger.info("🔄 Tentative avec URL sans version avec scope...");
-            if (tryAuthenticate("https://api.orange.com/oauth/token", true)) {
-                return true;
-            }
-            
-            // Configuration 6 : URL sans version sans scope
-            logger.info("🔄 Tentative avec URL sans version sans scope...");
-            if (tryAuthenticate("https://api.orange.com/oauth/token", false)) {
+            // Fallback : Essayer avec scope si la première tentative échoue
+            logger.warn("⚠️ Tentative sans scope échouée, essai avec scope=SMS...");
+            if (tryAuthenticate("https://api.orange.com/oauth/v3/token", true)) {
                 return true;
             }
             
@@ -242,24 +229,97 @@ public class OrangeSmsService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
             headers.set("Authorization", authHeaderValue);
+            headers.set("Accept", "application/json");
             
-            MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-            body.add("grant_type", "client_credentials");
-            if (withScope) {
-                body.add("scope", "SMS");
-            }
+            // Logs détaillés pour diagnostic
+            logger.info("═══════════════════════════════════════════════════════════");
+            logger.info("🔐 TENTATIVE D'AUTHENTIFICATION ORANGE");
+            logger.info("═══════════════════════════════════════════════════════════");
+            logger.info("   URL: {}", authUrl);
+            logger.info("   Scope: {}", withScope ? "SMS" : "aucun");
+            logger.info("   Client ID: {}", clientId);
+            logger.info("   Authorization Header: Basic {}...", encodedCredentials.substring(0, Math.min(20, encodedCredentials.length())));
+            logger.info("   Content-Type: {}", headers.getContentType());
+            logger.info("   Body: grant_type=client_credentials{}", withScope ? "&scope=SMS" : "");
+            logger.info("═══════════════════════════════════════════════════════════");
+            logger.debug("Request headers complets: {}", headers);
+            logger.debug("Request body: grant_type=client_credentials{}", withScope ? "&scope=SMS" : "");
             
-            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
-            
-            logger.debug("Sending authentication request to: {}", authUrl);
-            logger.debug("Request headers: {}", headers);
-            logger.debug("Request body: {}", body);
-            
-            ResponseEntity<String> response;
+            // Utiliser directement Java HttpClient (Java 11+) pour contourner le problème de streaming
+            // HttpURLConnection ne permet pas de relire le body après une erreur 401
+            // HttpClient gère mieux les erreurs d'authentification
             try {
-                // Utiliser postForEntity() normalement
-                // Le CustomResponseErrorHandler capturera le body d'erreur automatiquement
-                response = restTemplate.postForEntity(authUrl, request, String.class);
+                java.net.http.HttpClient httpClient = java.net.http.HttpClient.newBuilder()
+                    .connectTimeout(java.time.Duration.ofSeconds(120))
+                    .build();
+                
+                // Construire le body de la requête
+                String bodyString = "grant_type=client_credentials" + (withScope ? "&scope=SMS" : "");
+                java.net.http.HttpRequest httpRequest = java.net.http.HttpRequest.newBuilder()
+                    .uri(java.net.URI.create(authUrl))
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .header("Authorization", authHeaderValue)
+                    .header("Accept", "application/json")
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofString(bodyString))
+                    .timeout(java.time.Duration.ofSeconds(600))
+                    .build();
+                
+                logger.debug("Body écrit dans HttpClient Request: {} ({} bytes)", bodyString, bodyString.length());
+                
+                // Envoyer la requête et capturer la réponse
+                java.net.http.HttpResponse<String> httpResponse = httpClient.send(httpRequest, 
+                    java.net.http.HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+                
+                int statusCodeValue = httpResponse.statusCode();
+                HttpStatus statusCode = HttpStatus.valueOf(statusCodeValue);
+                String responseBody = httpResponse.body();
+                
+                // Stocker dans ThreadLocal pour accès ultérieur
+                if (responseBody != null && !responseBody.isEmpty()) {
+                    ml.fasodocs.backend.config.CustomResponseErrorHandler.setErrorBody(responseBody);
+                    logger.debug("📄 Body capturé via HttpClient ({} bytes): {}", 
+                        responseBody.length(), responseBody.length() > 200 ? responseBody.substring(0, 200) + "..." : responseBody);
+                }
+                
+                // Si c'est une erreur 401, logger le body capturé
+                if (statusCode == HttpStatus.UNAUTHORIZED && responseBody != null) {
+                    logger.error("");
+                    logger.error("═══════════════════════════════════════════════════════════");
+                    logger.error("📄 MESSAGE D'ERREUR ORANGE (401 UNAUTHORIZED)");
+                    logger.error("═══════════════════════════════════════════════════════════");
+                    logger.error("{}", responseBody);
+                    logger.error("═══════════════════════════════════════════════════════════");
+                    
+                    // Essayer de parser le JSON d'erreur
+                    try {
+                        JsonNode errorJson = objectMapper.readTree(responseBody);
+                        logger.error("📋 DÉTAILS DE L'ERREUR (JSON parsé):");
+                        if (errorJson.has("code")) {
+                            logger.error("   Code: {}", errorJson.get("code").asText());
+                        }
+                        if (errorJson.has("message")) {
+                            logger.error("   Message: {}", errorJson.get("message").asText());
+                        }
+                        if (errorJson.has("description")) {
+                            logger.error("   Description: {}", errorJson.get("description").asText());
+                        }
+                        logger.error("═══════════════════════════════════════════════════════════");
+                    } catch (Exception parseEx) {
+                        logger.error("⚠️ Impossible de parser le JSON d'erreur: {}", parseEx.getMessage());
+                    }
+                }
+                
+                // Créer une ResponseEntity pour compatibilité avec le reste du code
+                org.springframework.http.HttpHeaders responseHeaders = new org.springframework.http.HttpHeaders();
+                httpResponse.headers().map().forEach((key, values) -> {
+                    responseHeaders.put(key, new java.util.ArrayList<>(values));
+                });
+                
+                ResponseEntity<String> response = new ResponseEntity<>(
+                    responseBody != null ? responseBody : "",
+                    responseHeaders,
+                    statusCode
+                );
                 
                 logger.debug("Authentication response status: {}", response.getStatusCode());
                 logger.debug("Authentication response body: {}", response.getBody());
@@ -301,31 +361,47 @@ public class OrangeSmsService {
                 }
             } catch (HttpClientErrorException.Unauthorized e) {
                 // Erreur 401 spécifique - Credentials invalides
+                logger.error("");
+                logger.error("═══════════════════════════════════════════════════════════");
+                logger.error("❌ ERREUR 401 UNAUTHORIZED - Détails de l'erreur Orange");
+                logger.error("═══════════════════════════════════════════════════════════");
+                logger.error("   URL testée: {}", authUrl);
+                logger.error("   Scope: {}", withScope ? "SMS" : "aucun");
+                logger.error("   Status Code: {}", e.getStatusCode());
+                logger.error("");
+                
                 // Essayer plusieurs méthodes pour obtenir le body d'erreur
                 String errorBody = null;
+                byte[] errorBodyBytes = null;
                 
-                // Méthode 1 : Body capturé par CustomResponseErrorHandler
+                // Méthode 1 : Body capturé par CustomResponseErrorHandler (ThreadLocal)
                 errorBody = ml.fasodocs.backend.config.CustomResponseErrorHandler.getCapturedErrorBody();
+                if (errorBody != null && !errorBody.isEmpty()) {
+                    logger.info("✅ Body capturé via CustomResponseErrorHandler ({} bytes)", errorBody.length());
+                }
                 
                 // Méthode 2 : Depuis l'exception directement
                 if (errorBody == null || errorBody.isEmpty()) {
                     try {
                         errorBody = e.getResponseBodyAsString();
+                        if (errorBody != null && !errorBody.isEmpty()) {
+                            logger.info("✅ Body capturé via getResponseBodyAsString() ({} bytes)", errorBody.length());
+                        }
                     } catch (Exception ex) {
-                        logger.debug("Impossible de lire getResponseBodyAsString(): {}", ex.getMessage());
+                        logger.debug("⚠️ Impossible de lire getResponseBodyAsString(): {}", ex.getMessage());
                     }
                 }
                 
                 // Méthode 3 : Depuis les bytes
-                byte[] errorBodyBytes = null;
                 if (errorBody == null || errorBody.isEmpty()) {
                     try {
                         errorBodyBytes = e.getResponseBodyAsByteArray();
                         if (errorBodyBytes != null && errorBodyBytes.length > 0) {
                             errorBody = new String(errorBodyBytes, StandardCharsets.UTF_8);
+                            logger.info("✅ Body capturé via getResponseBodyAsByteArray() ({} bytes)", errorBodyBytes.length);
                         }
                     } catch (Exception ex) {
-                        logger.debug("Impossible de lire getResponseBodyAsByteArray(): {}", ex.getMessage());
+                        logger.debug("⚠️ Impossible de lire getResponseBodyAsByteArray(): {}", ex.getMessage());
                     }
                 } else {
                     // Si on a déjà le body en String, essayer aussi les bytes pour vérification
@@ -336,48 +412,44 @@ public class OrangeSmsService {
                     }
                 }
                 
-                logger.error("❌ ERREUR 401 - Credentials Orange invalides ou expirés");
-                logger.error("Status: {}", e.getStatusCode());
-                logger.error("Response body (String): {}", errorBody != null && !errorBody.isEmpty() ? errorBody : "[vide ou null]");
-                logger.error("Response body (Bytes length): {}", errorBodyBytes != null ? errorBodyBytes.length : 0);
+                // Afficher le body d'erreur
+                if (errorBody != null && !errorBody.isEmpty()) {
+                    logger.error("📄 MESSAGE D'ERREUR ORANGE:");
+                    logger.error("───────────────────────────────────────────────────────────");
+                    logger.error("{}", errorBody);
+                    logger.error("───────────────────────────────────────────────────────────");
+                    
+                    // Parser le JSON si possible
+                    try {
+                        JsonNode errorJson = objectMapper.readTree(errorBody);
+                        logger.error("");
+                        logger.error("📋 DÉTAILS DE L'ERREUR (JSON parsé):");
+                        logger.error("   Code: {}", errorJson.has("code") ? errorJson.get("code").asText() : "N/A");
+                        logger.error("   Message: {}", errorJson.has("message") ? errorJson.get("message").asText() : "N/A");
+                        logger.error("   Description: {}", errorJson.has("description") ? errorJson.get("description").asText() : "N/A");
+                        logger.error("   Error: {}", errorJson.has("error") ? errorJson.get("error").asText() : "N/A");
+                        logger.error("   Error Description: {}", errorJson.has("error_description") ? errorJson.get("error_description").asText() : "N/A");
+                        logger.error("");
+                        logger.error("JSON complet:");
+                        logger.error("{}", errorJson.toPrettyString());
+                    } catch (Exception parseEx) {
+                        logger.error("⚠️ Impossible de parser le JSON, affichage brut:");
+                        logger.error("{}", errorBody);
+                    }
+                } else {
+                    logger.error("⚠️ Body d'erreur non disponible");
+                    logger.error("   Content-Length (si disponible): {}", 
+                        e.getResponseHeaders() != null && e.getResponseHeaders().containsKey("Content-Length") 
+                            ? e.getResponseHeaders().getFirst("Content-Length") 
+                            : "N/A");
+                    logger.error("   Response Headers: {}", e.getResponseHeaders());
+                }
+                
+                logger.error("═══════════════════════════════════════════════════════════");
+                logger.error("");
                 
                 // Nettoyer le ThreadLocal après utilisation
                 ml.fasodocs.backend.config.CustomResponseErrorHandler.clearErrorBody();
-                
-                // Essayer de parser le body si présent
-                if (errorBody != null && !errorBody.isEmpty()) {
-                    try {
-                        JsonNode errorJson = objectMapper.readTree(errorBody);
-                        logger.error("Response body (JSON): {}", errorJson.toPrettyString());
-                        
-                        // Extraire le message d'erreur si présent
-                        if (errorJson.has("error")) {
-                            logger.error("Error code: {}", errorJson.get("error").asText());
-                        }
-                        if (errorJson.has("error_description")) {
-                            logger.error("Error description: {}", errorJson.get("error_description").asText());
-                        }
-                        if (errorJson.has("message")) {
-                            logger.error("Error message: {}", errorJson.get("message").asText());
-                        }
-                    } catch (Exception parseEx) {
-                        logger.error("Impossible de parser le body JSON: {}", parseEx.getMessage());
-                        // Afficher le body brut
-                        if (errorBodyBytes != null && errorBodyBytes.length > 0) {
-                            logger.error("Response body (raw): {}", new String(errorBodyBytes, StandardCharsets.UTF_8));
-                        }
-                    }
-                } else if (errorBodyBytes != null && errorBodyBytes.length > 0) {
-                    // Si le body n'est pas en String mais existe en bytes
-                    String bodyAsString = new String(errorBodyBytes, StandardCharsets.UTF_8);
-                    logger.error("Response body (from bytes): {}", bodyAsString);
-                    try {
-                        JsonNode errorJson = objectMapper.readTree(bodyAsString);
-                        logger.error("Response body (JSON parsed): {}", errorJson.toPrettyString());
-                    } catch (Exception parseEx) {
-                        logger.error("Body brut: {}", bodyAsString);
-                    }
-                }
                 
                 // Cette configuration a échoué, retourner false pour essayer la suivante
                 logger.debug("❌ Configuration échouée: URL={}, scope={}", authUrl, withScope);
@@ -441,7 +513,7 @@ public class OrangeSmsService {
             
             // Selon le Swagger Orange : message max 160 caractères
             String messageBody = String.format(
-                "FasoDocs: Votre code: %s. Expire dans 1 min.",
+                "FasoDocs: Votre code: %s. Expire dans 2 min.",
                 code
             );
             
@@ -581,13 +653,8 @@ public class OrangeSmsService {
             }
             String destinationAddress = "tel:" + normalizedPhone;
             
-            // Extraire le numéro du senderAddress pour l'URL (sans "tel:")
-            String senderNumberForUrl = extractSenderNumberForUrl(senderAddress);
-            if (senderNumberForUrl == null) {
-                throw new IllegalStateException("Sender address non configuré ou invalide");
-            }
-            
             // Normaliser le senderAddress pour le body (doit être au format "tel:+223...")
+            // IMPORTANT: Le body doit contenir le + (selon documentation Orange)
             String cleanSenderAddress = senderAddress;
             if (!cleanSenderAddress.startsWith("tel:")) {
                 cleanSenderAddress = "tel:" + (cleanSenderAddress.startsWith("+") ? cleanSenderAddress : "+" + cleanSenderAddress);
@@ -596,14 +663,41 @@ public class OrangeSmsService {
                 cleanSenderAddress = cleanSenderAddress.replace("tel:", "tel:+");
             }
             
-            // CORRECTION selon Swagger: Le senderAddress dans l'URL doit être URL-escaped
-            // Format: /outbound/{senderAddress}/requests où senderAddress est URL-escaped
-            // IMPORTANT: Utiliser un encodage manuel pour éviter les problèmes avec URLEncoder
-            String senderAddressForUrl = cleanSenderAddress
-                .replace("+", "%2B")  // Encoder le + en %2B
-                .replace(":", "%3A");  // Encoder le : en %3A
-            logger.debug("SenderAddress pour URL: {} -> {}", cleanSenderAddress, senderAddressForUrl);
+            // CORRECTION CONFORME DOCUMENTATION ORANGE:
+            // Le senderAddress dans l'URL doit utiliser le code pays SANS préfixe + ou 00
+            // Format URL: tel:2230000 (sans le +)
+            // Format Body: tel:+2230000 (avec le +)
+            String senderForUrl = prepareSenderForUrl(senderAddress);
+            if (senderForUrl == null) {
+                throw new IllegalStateException("Sender address non configuré ou invalide");
+            }
+            
+            // URL-encoder CORRECTEMENT le senderAddress pour l'URL
+            // Selon doc Orange: tel:+2230000 devient tel%3A%2B2230000
+            // Mais on utilise tel:2230000 (sans +) donc devient tel%3A2230000
+            String senderAddressForUrl;
+            try {
+                // Utiliser URLEncoder pour bien encoder tous les caractères spéciaux
+                senderAddressForUrl = java.net.URLEncoder.encode(senderForUrl, StandardCharsets.UTF_8.toString());
+            } catch (java.io.UnsupportedEncodingException e) {
+                // Fallback si encoding échoue (ne devrait jamais arriver avec UTF-8)
+                senderAddressForUrl = senderForUrl.replace(":", "%3A");
+            }
+            
+            // Construire l'URL complète
             String smsUrl = baseUrl + "/outbound/" + senderAddressForUrl + "/requests";
+            
+            // Logs détaillés pour vérification
+            logger.info("═══════════════════════════════════════════════════════════");
+            logger.info("📱 CONFIGURATION SMS SELON DOCUMENTATION ORANGE");
+            logger.info("═══════════════════════════════════════════════════════════");
+            logger.info("   Sender pour BODY (avec +):    {}", cleanSenderAddress);
+            logger.info("   Sender pour URL (sans +):     {}", senderForUrl);
+            logger.info("   Sender URL-encodé:            {}", senderAddressForUrl);
+            logger.info("   URL complète générée:         {}", smsUrl);
+            logger.info("═══════════════════════════════════════════════════════════");
+            logger.debug("SenderAddress pour URL (avant encodage): {}", senderForUrl);
+            logger.debug("SenderAddress pour URL (après encodage): {}", senderAddressForUrl);
             
             logger.info("📱 Envoi SMS - Destinataire: {}, URL: {}, Sender: {}", 
                 normalizedPhone, smsUrl, cleanSenderAddress);
@@ -636,11 +730,13 @@ public class OrangeSmsService {
             // Expéditeur - CORRECTION: utiliser le senderAddress nettoyé
             outboundSMSMessageRequest.put("senderAddress", cleanSenderAddress);
             
-            // Application ID (clientCorrelator) - OPTIONNEL selon Swagger
-            // Si erreur 400, essayer de retirer ce champ en commentant la ligne suivante
-            // Le clientCorrelator peut causer une erreur 400 si le format est incorrect
-            outboundSMSMessageRequest.put("clientCorrelator", applicationId);
-            logger.debug("ClientCorrelator utilisé: {}", applicationId);
+            // Application ID (clientCorrelator) - OPTIONNEL selon documentation Orange
+            // Selon la doc: "clientCorrelator" est optionnel et peut être omis
+            // Si vous recevez une erreur 400, commentez la ligne suivante
+            // Le clientCorrelator doit être un UUID unique, pas l'applicationId
+            // Pour l'instant, on l'omet pour éviter les erreurs 400
+            // outboundSMSMessageRequest.put("clientCorrelator", applicationId);
+            logger.debug("ClientCorrelator omis (optionnel selon doc Orange)");
             
             // Sender Name (par défaut ou personnalisé si configuré et enregistré chez Orange)
             // Le sender name par défaut "SMS 948223" est enregistré chez Orange

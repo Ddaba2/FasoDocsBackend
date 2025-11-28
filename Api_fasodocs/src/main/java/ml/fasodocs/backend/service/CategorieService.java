@@ -5,6 +5,8 @@ import ml.fasodocs.backend.dto.response.CategorieResponse;
 import ml.fasodocs.backend.dto.response.MessageResponse;
 import ml.fasodocs.backend.entity.Categorie;
 import ml.fasodocs.backend.repository.CategorieRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +22,16 @@ import java.util.stream.Collectors;
 @Transactional
 public class CategorieService {
 
+    private static final Logger logger = LoggerFactory.getLogger(CategorieService.class);
+
     @Autowired
     private CategorieRepository categorieRepository;
 
     @Autowired
     private TranslationHelper translationHelper;
+
+    @Autowired
+    private NotificationService notificationService;
 
     /**
      * Récupère toutes les catégories
@@ -89,8 +96,16 @@ public class CategorieService {
         categorie.setNomCategorie(request.getNomCategorie());
         categorie.setIconeUrl(request.getIconeUrl());
 
-        categorieRepository.save(categorie);
-        return new CategorieResponse(categorie);
+        Categorie updatedCategorie = categorieRepository.save(categorie);
+        
+        // Notifier tous les citoyens de la mise à jour
+        try {
+            notificationService.notifierMiseAJourCategorie(updatedCategorie);
+        } catch (Exception e) {
+            logger.warn("Impossible d'envoyer les notifications de mise à jour de catégorie: {}", e.getMessage());
+        }
+        
+        return new CategorieResponse(updatedCategorie);
     }
 
     /**
@@ -107,6 +122,13 @@ public class CategorieService {
         // Vérifier si la catégorie a des procédures associées
         if (!categorie.getProcedures().isEmpty()) {
             throw new RuntimeException("Impossible de supprimer une catégorie qui contient des procédures");
+        }
+
+        // Notifier tous les citoyens de la suppression (avant la suppression)
+        try {
+            notificationService.notifierSuppressionCategorie(categorie);
+        } catch (Exception e) {
+            logger.warn("Impossible d'envoyer les notifications de suppression de catégorie: {}", e.getMessage());
         }
 
         categorieRepository.delete(categorie);

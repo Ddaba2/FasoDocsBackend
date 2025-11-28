@@ -9,7 +9,9 @@ import ml.fasodocs.backend.dto.request.VerificationSmsRequest;
 import ml.fasodocs.backend.dto.response.JwtResponse;
 import ml.fasodocs.backend.dto.response.MessageResponse;
 import ml.fasodocs.backend.entity.Citoyen;
+import ml.fasodocs.backend.entity.QuizProgression;
 import ml.fasodocs.backend.repository.CitoyenRepository;
+import ml.fasodocs.backend.repository.QuizProgressionRepository;
 import ml.fasodocs.backend.security.JwtUtils;
 import ml.fasodocs.backend.security.UserDetailsImpl;
 import org.slf4j.Logger;
@@ -50,6 +52,9 @@ public class AuthService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private QuizProgressionRepository quizProgressionRepository;
+
     /**
      * Inscription d'un nouveau citoyen
      */
@@ -88,6 +93,21 @@ public class AuthService {
         Citoyen citoyenInscrit = citoyenRepository.save(citoyen);
 
         logger.info("Nouveau citoyen inscrit avec le téléphone: {}", citoyenInscrit.getTelephone());
+
+        // Débloquer automatiquement le niveau FACILE pour le nouvel utilisateur
+        try {
+            QuizProgression progressionFacile = new QuizProgression();
+            progressionFacile.setCitoyen(citoyenInscrit);
+            progressionFacile.setNiveau("FACILE");
+            progressionFacile.setQuizCompletes(0);
+            progressionFacile.setMeilleurScore(0);
+            quizProgressionRepository.save(progressionFacile);
+            logger.info("✅ Niveau FACILE débloqué pour le nouvel utilisateur ID: {}", citoyenInscrit.getId());
+        } catch (Exception e) {
+            // Ne pas bloquer l'inscription si la progression échoue
+            logger.warn("⚠️ Impossible de créer la progression FACILE pour l'utilisateur {}: {}", 
+                citoyenInscrit.getId(), e.getMessage());
+        }
 
         // Envoyer un email de bienvenue
         try {

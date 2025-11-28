@@ -55,13 +55,46 @@ public class ErrorBodyCapturingInterceptor implements ClientHttpRequestIntercept
                     logger.warn("⚠️ Body d'erreur null pour le status {}", response.getStatusCode());
                 }
             } catch (java.io.IOException e) {
-                // Si on ne peut pas lire le body (stream déjà fermé, etc.)
+                // Si on ne peut pas lire le body (stream déjà fermé, problème de streaming, etc.)
                 logger.error("❌ Erreur lors de la capture du body (IOException): {}", e.getMessage());
+                
+                // Si c'est le problème "cannot retry due to server authentication, in streaming mode"
+                // Essayer une approche alternative : lire directement depuis le stream avant qu'il ne soit fermé
+                if (e.getMessage() != null && e.getMessage().contains("cannot retry")) {
+                    logger.warn("⚠️ Problème de streaming détecté - Tentative de lecture alternative...");
+                    try {
+                        // Essayer de lire le stream AVANT qu'il ne soit consommé
+                        // En créant une copie du stream si possible
+                        java.io.InputStream originalStream = response.getBody();
+                        if (originalStream != null && originalStream.markSupported()) {
+                            originalStream.mark(Integer.MAX_VALUE);
+                            byte[] buffer = new byte[1024];
+                            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                            int bytesRead;
+                            while ((bytesRead = originalStream.read(buffer)) != -1) {
+                                baos.write(buffer, 0, bytesRead);
+                            }
+                            originalStream.reset();
+                            String bodyFromStream = baos.toString(StandardCharsets.UTF_8);
+                            if (!bodyFromStream.isEmpty()) {
+                                CustomResponseErrorHandler.setErrorBody(bodyFromStream);
+                                logger.info("✅ Body capturé via méthode alternative ({} bytes): {}", 
+                                    bodyFromStream.length(), bodyFromStream);
+                                return new BufferedClientHttpResponse(response, baos.toByteArray());
+                            }
+                        }
+                    } catch (Exception altEx) {
+                        logger.debug("Méthode alternative échouée: {}", altEx.getMessage());
+                    }
+                }
+                
                 logger.debug("Stack trace:", e);
                 // Essayer de lire depuis les headers si disponible
                 if (response.getHeaders().containsKey("Content-Length")) {
                     String contentLength = response.getHeaders().getFirst("Content-Length");
                     logger.warn("⚠️ Body non lisible mais Content-Length indique {} bytes", contentLength);
+                    logger.warn("   Le body d'erreur existe mais ne peut pas être lu à cause du mode streaming");
+                    logger.warn("   Utilisez le script test-orange-credentials.ps1 pour voir le message exact");
                 }
             } catch (Exception e) {
                 logger.error("❌ Erreur inattendue lors de la capture du body: {}", e.getMessage(), e);
